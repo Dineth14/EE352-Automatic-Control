@@ -15,6 +15,11 @@ Detailed overview on automatic controls theory and applications uing python and 
 10. Advanced Control Strategies
 11. Applications of Automatic Control Systems
 
+## Folder Structure
+- `Lecture_Notes/`: Contains lecture notes and presentations.
+- `Assignments/`: Contains assignments and solutions.
+- `Examples/`: Contains example codes and simulations in Python and MATLAB.
+
 ## Getting Started
 To get started with the code and examples provided in this repository, follow these steps:
 1. Clone the repository to your local machine using:
