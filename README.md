@@ -3,17 +3,19 @@
 Detailed overview on automatic controls theory and applications uing python and MATLAB.
 
 ## Contents
-1. Introduction to Automatic Controls
-2. Mathematical Modeling of Dynamic Systems
-3. Transfer Functions and Block Diagrams
-4. Time-Domain Analysis of Control Systems
-5. Stability Analysis
-6. Frequency-Domain Analysis
-7. Design of Control Systems
-8. State-Space Analysis and Design
-9. Digital Control Systems
-10. Advanced Control Strategies
-11. Applications of Automatic Control Systems
+1.week 1 - 
+    1.1 Introduction to Automatic Controls
+    1.2 Open Loop and Closed Loop Systems
+    1.3 Transfer Functions
+    1.4 feedback in control systems
+    1.5 time variant and time invariant systems
+    1.6 Stability of control systems
+
+2.week 2 - 
+    2.1 complex variable concept
+    2.2 Differential Equations
+    2.3 Laplace Transforms
+    2.4 Impulse Response and Transfer Function of Linear Systems
 
 ## Folder Structure
 - `Lecture_Notes/`: Contains lecture notes and presentations.
