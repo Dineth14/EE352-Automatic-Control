@@ -21,6 +21,8 @@ Detailed overview on automatic controls theory and applications uing python and 
 - `Lecture_Notes/`: Contains lecture notes and presentations.
 - `Assignments/`: Contains assignments and solutions.
 - `Examples/`: Contains example codes and simulations in Python and MATLAB.
+- `Lab/`: Contains lab assignments and solutions.
+- `sample_codes/`: Contains sample codes and simulations in Python and MATLAB.
 
 ## Getting Started
 To get started with the code and examples provided in this repository, follow these steps:
