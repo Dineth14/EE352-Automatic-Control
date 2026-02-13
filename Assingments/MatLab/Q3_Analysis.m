@@ -51,7 +51,7 @@ for i = 1:length(dd_values)
     
     % Plot Step Response
     figure(fig_resp);
-    [y, t] = step(G_temp);
+    [y, t] = step(G_temp, 0.1);
     plot(t, y, 'Color', colors(i,:), 'LineWidth', 1.5, ...
         'DisplayName', sprintf('dd=%.2f', curr_dd));
     

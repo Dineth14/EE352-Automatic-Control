@@ -68,7 +68,7 @@ grid on;
 % from 0 to 1 instantaneously.
 
 figure('Name', 'Q1c: Step Response');
-step(G);
+step(G, 0.1);
 title('Step Response of G(s)');
 grid on;
 
@@ -85,6 +85,6 @@ disp('State Space Model:');
 disp(sys_ss);
 
 figure('Name', 'Q1d: State Space Verification');
-step(sys_ss);
+step(sys_ss, 0.1);
 title('Step Response of State Space Model (Verification)');
 grid on;
