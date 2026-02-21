@@ -27,7 +27,7 @@ Detailed overview on automatic controls theory and applications uing python and 
 
 ## Folder Structure
 - `Lecture_Notes/`: Contains lecture notes and presentations.
-- `Assingments/`: Contains assignments, activities, and MATLAB scripts (`Q1_Analysis.m`, `Bode_Analysis.m`, etc.).
+- `Assignments/`: Contains assignments, activities, and MATLAB scripts (`Q1_Analysis.m`, `Bode_Analysis.m`, etc.).
 - `Labs/`: Contains lab assignments and solutions.
 - `Sample_codes/`: Contains example codes and simulations in Python and MATLAB.
 - `Tutorials/`: Contains tutorial sheets and solutions.
