@@ -16,21 +16,28 @@ Detailed overview on automatic controls theory and applications uing python and 
     2.2 Differential Equations
     2.3 Laplace Transforms
     2.4 Impulse Response and Transfer Function of Linear Systems
-    
+
+3.week 3 - 
+    3.1 Mathematical Modeling of Physical Systems
+    3.2 Mechanical Systems (Translational and Rotational)
+    3.3 Electrical Systems
+    3.4 Transfer Functions of Physical Systems
+    3.5 Transient Response of Second Order Systems
+    3.6 Bode Plots and Frequency Response
 
 ## Folder Structure
 - `Lecture_Notes/`: Contains lecture notes and presentations.
-- `Assignments/`: Contains assignments and solutions.
-- `Examples/`: Contains example codes and simulations in Python and MATLAB.
-- `Lab/`: Contains lab assignments and solutions.
-- `sample_codes/`: Contains sample codes and simulations in Python and MATLAB.
+- `Assingments/`: Contains assignments, activities, and MATLAB scripts (`Q1_Analysis.m`, `Bode_Analysis.m`, etc.).
+- `Labs/`: Contains lab assignments and solutions.
+- `Sample_codes/`: Contains example codes and simulations in Python and MATLAB.
+- `Tutorials/`: Contains tutorial sheets and solutions.
 
 ## Getting Started
 To get started with the code and examples provided in this repository, follow these steps:
 1. Clone the repository to your local machine using:
+   ```bash
+   git clone https://github.com/Dineth14/EE352-Automatic-Control.git
    ```
-   git clone https://github.com/yourusername/EE352-Automatic-Control.git
-    ```
 2. Navigate to the project directory:
     ```
     cd EE352-Automatic-Control
