@@ -27,7 +27,7 @@ Detailed overview on automatic controls theory and applications uing python and 
 
 ## Folder Structure
 - `Lecture_Notes/`: Contains lecture notes and presentations.
-- `Assignments/`: Contains assignments, activities, and MATLAB scripts (`Phase_Margin_Analysis.m`, `Nyquist_Phase_Lead.m`, `Bode_Phase_Lead.m`, etc.).
+- `Assignments/`: Contains assignments, activities, and MATLAB scripts (`Phase_Margin_Analysis.m`, `Stability_Margins_G.m`, `Nyquist_Phase_Lead.m`, `Bode_Phase_Lead.m`, etc.).
 - `Labs/`: Contains lab assignments and solutions.
 - `Sample_codes/`: Contains example codes and simulations in Python and MATLAB.
 - `Tutorials/`: Contains tutorial sheets and solutions.
