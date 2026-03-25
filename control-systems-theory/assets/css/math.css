@@ -1,0 +1,93 @@
+/* assets/css/math.css */
+
+/* Tier 1 "Definition" */
+.math-box-definition {
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-left: 4px solid var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+  border-radius: 0 12px 12px 0;
+  position: relative;
+}
+
+.math-box-definition::before {
+  content: "Definition";
+  position: absolute;
+  top: -12px;
+  left: 1rem;
+  background: var(--bg-primary);
+  padding: 0 0.5rem;
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Tier 2 "Key Result" */
+.math-box-key-result {
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-left: 4px solid var(--accent-violet);
+  background: rgba(124, 77, 255, 0.05);
+  border-radius: 0 12px 12px 0;
+  position: relative;
+}
+
+.math-box-key-result::before {
+  content: "Key Result";
+  position: absolute;
+  top: -12px;
+  left: 1rem;
+  background: var(--bg-primary);
+  padding: 0 0.5rem;
+  color: var(--accent-violet);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Tier 3 "Critical" */
+.math-box-critical {
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(124,77,255,0.1));
+  box-shadow: 0 0 20px rgba(0,229,255,0.15);
+  position: relative;
+  animation: pulse-border 3s infinite alternate;
+}
+
+.math-box-critical::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* KaTeX Overrides for centering and styling */
+.katex-display {
+  padding: 1rem 0;
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex {
+  font-size: 1.2em; /* slightly larger math */
+}
+
+.equation-number {
+  float: right;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding-top: 0.5rem;
+}
