@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Time Response | Control Systems Theory</title>
+    
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/math.css">
+    <link rel="stylesheet" href="../../assets/css/animations.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <style>
+        .sim-container { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
+        .sim-panel { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .sim-canvas-wrapper { flex: 1; min-width: 300px; height: 500px; position: relative; border-radius: 12px; overflow: hidden; background: var(--bg-tertiary); border: 1px solid var(--glass-border); }
+        .sim-controls { width: 350px; padding: 1.5rem; background: var(--glass-bg); border-radius: 12px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 1rem; }
+        .slider { width: 100%; accent-color: var(--accent-cyan); }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <span>CST</span>
+                <button id="theme-toggle" class="btn" style="background:none; border:none; color:var(--text-secondary); padding:0.5rem; cursor:pointer;" aria-label="Toggle Theme"></button>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../01-laplace-transfer-functions/index.html">1. Laplace Transform</a></li>
+                <li><a href="../02-block-diagram-reduction/index.html">2. Block Diagrams</a></li>
+                <li><a href="../03-state-space/index.html">3. State Space</a></li>
+                <li><a href="index.html" class="active">4. Time Response</a></li>
+                <li><a href="../05-root-locus/index.html">5. Root Locus</a></li>
+                <li><a href="../06-frequency-response/index.html">6. Frequency Response</a></li>
+                <li><a href="../07-stability/index.html">7. Stability</a></li>
+                <li><a href="../08-pid-controllers/index.html">8. PID Controllers</a></li>
+                <li><a href="../09-digital-control/index.html">9. Digital Control</a></li>
+                <li><a href="../10-modern-control/index.html">10. Modern Control</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- Hero -->
+            <section class="hero-section" id="hero-ch4">
+                <div id="hero-canvas-ch4" class="hero-canvas-container"></div>
+                <div class="hero-content fade-in-up stagger-1">
+                    <h1 class="hero-title">Time-Domain Response</h1>
+                    <p class="hero-subtitle">Transient & Steady-State Specifications</p>
+                </div>
+            </section>
+
+            <div class="content-wrapper">
+                <section class="glass-card fade-in-up stagger-2">
+                    <h2>1. Transient Specifications</h2>
+                    <p>Performance in control design is often specified in the time domain using a step input. For a standard underdamped second-order system:</p>
+                    
+                    $$ y(t) = 1 - \\frac{e^{-\\zeta\\omega_n t}}{\\sqrt{1-\\zeta^2}} \\sin(\\omega_d t + \\cos^{-1}\\zeta) $$
+                    
+                    <ul>
+                        <li><strong>Rise Time ($t_r$):</strong> Time to go from 10% to 90%. Approx: $t_r \\approx \\frac{1.8}{\\omega_n}$</li>
+                        <li><strong>Peak Time ($t_p$):</strong> Time to reach the first maximum. $t_p = \\frac{\\pi}{\\omega_d}$</li>
+                        <li><strong>Settling Time ($t_s$):</strong> Time to stay within 2% of final value. $t_s \\approx \\frac{4}{\\zeta\\omega_n}$</li>
+                        <li><strong>% Overshoot ($M_p$):</strong> Maximum peak past final value.</li>
+                    </ul>
+
+                    <div class="math-box-definition">
+                        $$ M_p = 100 \\times e^{\\frac{-\\pi\\zeta}{\\sqrt{1-\\zeta^2}}} \\% $$
+                        <span class="equation-number">(4.1)</span>
+                    </div>
+
+                    <!-- SIM 1: Transient Specs Tool -->
+                    <div class="sim-container" id="sim1">
+                        <h3>Interactive: Second-Order Transient Analyzer</h3>
+                        <p>Adjust damping $\\zeta$ and natural frequency $\\omega_n$ to see simultaneous changes in the Step, Impulse, and Ramp responses.</p>
+                        <div class="sim-panel">
+                            <div class="sim-controls">
+                                <div>
+                                    <label>Damping $\\zeta$: <span id="v-zeta" style="color:var(--accent-cyan); font-weight:bold;">0.50</span></label>
+                                    <input type="range" id="s-zeta" class="slider" min="0.05" max="2.0" step="0.05" value="0.5">
+                                </div>
+                                <div style="margin-top:1rem;">
+                                    <label>Nat Freq $\\omega_n$: <span id="v-wn" style="color:var(--accent-cyan); font-weight:bold;">5.0</span></label>
+                                    <input type="range" id="s-wn" class="slider" min="0.5" max="20" step="0.5" value="5">
+                                </div>
+                                <div id="spec-results" style="margin-top:2rem; font-size:0.9rem;">
+                                    <!-- Results via JS -->
+                                </div>
+                            </div>
+                            <div class="sim-canvas-wrapper" style="display:flex; flex-direction:column;">
+                                <div style="flex:1; border-bottom:1px solid var(--glass-border);"><canvas id="c-step"></canvas></div>
+                                <div style="flex:1; border-bottom:1px solid var(--glass-border);"><canvas id="c-impulse"></canvas></div>
+                                <div style="flex:1;"><canvas id="c-ramp"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-card fade-in-up stagger-3" style="margin-top: 4rem;">
+                    <h2>2. System Type and Steady-State Error</h2>
+                    <p>Steady-state error $e_{ss}$ evaluates how well a system tracks an input after transients die out.</p>
+                    
+                    <div class="math-box-key-result">
+                        <p><strong>Final Value Theorem:</strong></p>
+                        $$ e_{ss} = \\lim_{t \\to \\infty} e(t) = \\lim_{s \\to 0} s E(s) $$
+                        <span class="equation-number">(4.2)</span>
+                    </div>
+
+                    <p>The <strong>System Type</strong> is defined as the number of pure integrators (poles at origin $s=0$) in the open-loop transfer function $G(s)$.</p>
+                    
+                    <table style="width:100%; border-collapse: collapse; text-align:center; margin-top:1rem;">
+                        <tr style="border-bottom: 2px solid var(--glass-border);">
+                            <th>Input Type</th><th>Type 0</th><th>Type 1</th><th>Type 2</th>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <td>Step (1/s)</td><td>$1/(1+K_p)$</td><td>0</td><td>0</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <td>Ramp (1/$s^2$)</td><td>$\\infty$</td><td>$1/K_v$</td><td>0</td>
+                        </tr>
+                        <tr>
+                            <td>Parabola (1/$s^3$)</td><td>$\\infty$</td><td>$\\infty$</td><td>$1/K_a$</td>
+                        </tr>
+                    </table>
+
+                    <!-- SIM 2: Steady State Error Simulator -->
+                    <div class="sim-container" id="sim2" style="margin-top: 2rem;">
+                        <h3>Interactive: Steady-State Error Simulator</h3>
+                        <p>Select the input signal and open-loop System Type. See the result on the closed-loop tracking error.</p>
+                        <div class="sim-panel">
+                            <div class="sim-canvas-wrapper"><canvas id="c-error"></canvas></div>
+                            <div class="sim-controls">
+                                <label>Input Signal:</label>
+                                <select id="sys-input" style="width:100%; padding:0.5rem; background:rgba(255,255,255,0.05); color:var(--text-primary); border:1px solid var(--glass-border);">
+                                    <option value="step">Unit Step</option>
+                                    <option value="ramp">Unit Ramp</option>
+                                    <option value="parabola">Unit Parabola</option>
+                                </select>
+                                
+                                <label style="margin-top:1rem;">System Type:</label>
+                                <select id="sys-type" style="width:100%; padding:0.5rem; background:rgba(255,255,255,0.05); color:var(--text-primary); border:1px solid var(--glass-border);">
+                                    <option value="0">Type 0 (No Integrator)</option>
+                                    <option value="1">Type 1 (1 Integrator)</option>
+                                    <option value="2">Type 2 (2 Integrators)</option>
+                                </select>
+                                
+                                <label style="margin-top:1rem;">DC Gain ($K$): <span id="v-gain">5</span></label>
+                                <input type="range" id="s-gain" min="1" max="50" value="5" class="slider">
+                                
+                                <div id="error-calc" style="margin-top: 2rem; border-top:1px solid var(--glass-border); padding-top:1rem; font-size:0.9rem;">
+                                    <!-- Result -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <script type="module">
+        import { initTheme } from '../../assets/js/theme.js';
+        import { initNav } from '../../assets/js/nav.js';
+        import { initKaTeX } from '../../assets/js/katex-init.js';
+        document.addEventListener('DOMContentLoaded', () => { initTheme(); initNav(); initKaTeX(); });
+    </script>
+    
+    <script type="module" src="sim/hero-ch4.js"></script>
+    <script type="module" src="sim/time-response-analyzer.js"></script>
+    <script type="module" src="sim/system-type-simulator.js"></script>
+</body>
+</html>
