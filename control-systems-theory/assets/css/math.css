@@ -1,93 +1,57 @@
-/* assets/css/math.css */
+/* ═══════════════════════════════════════════════════════════════
+   assets/css/math.css — KaTeX equation styling & highlight boxes
+   ═══════════════════════════════════════════════════════════════ */
 
-/* Tier 1 "Definition" */
-.math-box-definition {
-  padding: 1.5rem;
-  margin: 2rem 0;
-  border-left: 4px solid var(--accent-cyan);
-  background: rgba(0, 229, 255, 0.05);
-  border-radius: 0 12px 12px 0;
-  position: relative;
-}
+/* ── Tier 1: Definition Box ──────────────────────────────────── */
+.math-box-definition{padding:1.5rem 1.5rem 1.5rem 2rem;margin:2rem 0;border-left:4px solid var(--accent-cyan);background:rgba(0,229,255,.05);border-radius:0 12px 12px 0;position:relative;}
+.math-box-definition::before{content:"Definition";position:absolute;top:-12px;left:1rem;background:var(--bg-primary);padding:0 .5rem;color:var(--accent-cyan);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-body);}
 
-.math-box-definition::before {
-  content: "Definition";
-  position: absolute;
-  top: -12px;
-  left: 1rem;
-  background: var(--bg-primary);
-  padding: 0 0.5rem;
-  color: var(--accent-cyan);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+/* ── Tier 2: Key Result Box ──────────────────────────────────── */
+.math-box-key-result{padding:1.5rem 1.5rem 1.5rem 2rem;margin:2rem 0;border-left:4px solid var(--accent-violet);background:rgba(124,77,255,.05);border-radius:0 12px 12px 0;position:relative;}
+.math-box-key-result::before{content:"Key Result";position:absolute;top:-12px;left:1rem;background:var(--bg-primary);padding:0 .5rem;color:var(--accent-violet);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-body);}
 
-/* Tier 2 "Key Result" */
-.math-box-key-result {
-  padding: 1.5rem;
-  margin: 2rem 0;
-  border-left: 4px solid var(--accent-violet);
-  background: rgba(124, 77, 255, 0.05);
-  border-radius: 0 12px 12px 0;
-  position: relative;
-}
+/* ── Tier 3: Critical Box (animated glow) ────────────────────── */
+.math-box-critical{padding:1.5rem;margin:2rem 0;border-radius:12px;background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(124,77,255,.08));position:relative;animation:pulse-border 3s infinite alternate;}
+.math-box-critical::before{content:"";position:absolute;inset:0;border-radius:12px;padding:2px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-violet));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
+.math-box-critical p:first-child,.math-box-critical>strong:first-child{color:var(--accent-cyan);}
 
-.math-box-key-result::before {
-  content: "Key Result";
-  position: absolute;
-  top: -12px;
-  left: 1rem;
-  background: var(--bg-primary);
-  padding: 0 0.5rem;
-  color: var(--accent-violet);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+/* ── Tier labels via attribute ───────────────────────────────── */
+.math-box-definition[data-label]::before{content:attr(data-label);}
+.math-box-key-result[data-label]::before{content:attr(data-label);}
 
-/* Tier 3 "Critical" */
-.math-box-critical {
-  padding: 1.5rem;
-  margin: 2rem 0;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(124,77,255,0.1));
-  box-shadow: 0 0 20px rgba(0,229,255,0.15);
-  position: relative;
-  animation: pulse-border 3s infinite alternate;
-}
+/* ── Theorem / Property / Lemma boxes ────────────────────────── */
+.math-box-theorem{padding:1.5rem;margin:2rem 0;border-left:4px solid var(--accent-amber);background:rgba(255,171,64,.05);border-radius:0 12px 12px 0;position:relative;}
+.math-box-theorem::before{content:"Theorem";position:absolute;top:-12px;left:1rem;background:var(--bg-primary);padding:0 .5rem;color:var(--accent-amber);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;}
+.math-box-theorem[data-label]::before{content:attr(data-label);}
 
-.math-box-critical::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 12px;
-  padding: 2px;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
+.math-box-property{padding:1.25rem 1.25rem 1.25rem 1.75rem;margin:1.5rem 0;border-left:3px solid var(--accent-green);background:rgba(105,255,71,.04);border-radius:0 10px 10px 0;}
 
-/* KaTeX Overrides for centering and styling */
-.katex-display {
-  padding: 1rem 0;
-  margin: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
+/* ── KaTeX Display Overrides ─────────────────────────────────── */
+.katex-display{padding:.75rem 0;margin:0;overflow-x:auto;overflow-y:hidden;}
+.katex-display>.katex{font-size:1.15em;}
+.katex{font-size:1.1em;}
 
-.katex {
-  font-size: 1.2em; /* slightly larger math */
-}
+/* Larger display math in highlight boxes */
+.math-box-definition .katex-display>.katex,
+.math-box-key-result .katex-display>.katex,
+.math-box-critical .katex-display>.katex{font-size:1.25em;}
 
-.equation-number {
-  float: right;
-  color: var(--text-secondary);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  padding-top: 0.5rem;
-}
+/* ── Equation Numbers ────────────────────────────────────────── */
+.equation-number{float:right;color:var(--text-secondary);font-family:var(--font-body);font-size:.82rem;padding-top:.5rem;cursor:pointer;transition:color .2s;}
+.equation-number:hover{color:var(--accent-cyan);}
+
+/* ── Inline Math Emphasis ────────────────────────────────────── */
+.math-em{background:rgba(0,229,255,.08);padding:.1rem .4rem;border-radius:4px;border:1px solid rgba(0,229,255,.15);}
+
+/* ── Matrix Display ──────────────────────────────────────────── */
+.matrix-display{display:flex;justify-content:center;margin:1.5rem 0;overflow-x:auto;}
+
+/* ── Equation Group (for aligned multi-line) ─────────────────── */
+.eq-group{margin:1.5rem 0;padding:1rem;background:rgba(0,0,0,.15);border-radius:10px;border:1px solid var(--glass-border);overflow-x:auto;}
+
+/* Light-mode adjustments for math boxes */
+[data-theme='light'] .math-box-definition::before,
+[data-theme='light'] .math-box-key-result::before,
+[data-theme='light'] .math-box-theorem::before{background:var(--bg-primary);}
+[data-theme='light'] .math-box-critical{background:linear-gradient(135deg,rgba(0,151,167,.08),rgba(98,0,234,.08));}
+[data-theme='light'] .eq-group{background:rgba(0,0,0,.03);}

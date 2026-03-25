@@ -1,93 +1,80 @@
-/* assets/css/animations.css */
+/* ═══════════════════════════════════════════════════════════════
+   assets/css/animations.css — Keyframe animations & transitions
+   ═══════════════════════════════════════════════════════════════ */
 
-/* Core transitions with no jarring flashes */
-.fade-in-up {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* ── Fade In Up ──────────────────────────────────────────────── */
+.fade-in-up{opacity:0;transform:translateY(24px);animation:fadeInUp .6s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes fadeInUp{to{opacity:1;transform:translateY(0);}}
+
+/* ── Staggered Delays ────────────────────────────────────────── */
+.stagger-1{animation-delay:.1s;}.stagger-2{animation-delay:.2s;}.stagger-3{animation-delay:.3s;}
+.stagger-4{animation-delay:.4s;}.stagger-5{animation-delay:.5s;}.stagger-6{animation-delay:.6s;}
+.stagger-7{animation-delay:.7s;}.stagger-8{animation-delay:.8s;}
+
+/* ── Slide In Right (sim panels) ─────────────────────────────── */
+.slide-in-right{opacity:0;transform:translateX(40px);animation:slideInRight .7s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes slideInRight{to{opacity:1;transform:translateX(0);}}
+
+/* ── Slide In Left ───────────────────────────────────────────── */
+.slide-in-left{opacity:0;transform:translateX(-40px);animation:slideInLeft .7s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes slideInLeft{to{opacity:1;transform:translateX(0);}}
+
+/* ── Scale In ────────────────────────────────────────────────── */
+.scale-in{opacity:0;transform:scale(.92);animation:scaleIn .5s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes scaleIn{to{opacity:1;transform:scale(1);}}
+
+/* ── Critical Equation Pulsing Border ────────────────────────── */
+@keyframes pulse-border{
+  0%{box-shadow:0 0 15px rgba(0,229,255,.1);}
+  100%{box-shadow:0 0 25px rgba(0,229,255,.4),0 0 12px rgba(124,77,255,.25);}
 }
 
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ── Glow Pulse (for badges, nodes) ──────────────────────────── */
+@keyframes glowPulse{
+  0%,100%{box-shadow:0 0 8px rgba(0,229,255,.3);}
+  50%{box-shadow:0 0 20px rgba(0,229,255,.6),0 0 40px rgba(0,229,255,.2);}
 }
+.glow-pulse{animation:glowPulse 2s ease-in-out infinite;}
 
-/* Staggered delays for child elements (handled via JS or inline CSS variables) */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
+/* ── SVG Stroke Draw ─────────────────────────────────────────── */
+.stroke-draw{stroke-dasharray:1000;stroke-dashoffset:1000;animation:drawLine 2s ease-in-out forwards;}
+@keyframes drawLine{to{stroke-dashoffset:0;}}
 
-/* Critical Equation Pulse */
-@keyframes pulse-border {
-  0% { box-shadow: 0 0 15px rgba(0,229,255,0.1); }
-  100% { box-shadow: 0 0 25px rgba(0,229,255,0.4), 0 0 10px rgba(124,77,255,0.2); }
+/* ── Count-up Value ──────────────────────────────────────────── */
+.count-up-value{display:inline-block;font-variant-numeric:tabular-nums;}
+
+/* ── Hover Glow ──────────────────────────────────────────────── */
+.glow-on-hover{transition:text-shadow .3s,box-shadow .3s;}
+.glow-on-hover:hover{text-shadow:0 0 12px var(--accent-cyan);}
+
+/* ── Float Animation (for hero elements) ─────────────────────── */
+@keyframes float{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
 }
+.float{animation:float 4s ease-in-out infinite;}
 
-/* Simulation panel slide-in */
-.slide-in-right {
-  opacity: 0;
-  transform: translateX(40px);
-  animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+/* ── Spin Slow ───────────────────────────────────────────────── */
+@keyframes spinSlow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.spin-slow{animation:spinSlow 20s linear infinite;}
 
-@keyframes slideInRight {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* ── Ripple Button Effect ────────────────────────────────────── */
+.ripple{position:relative;overflow:hidden;}
+.ripple::after{content:'';position:absolute;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.3) 0%,transparent 60%);top:50%;left:50%;transform:translate(-50%,-50%) scale(0);transition:transform .5s;border-radius:50%;pointer-events:none;}
+.ripple:active::after{transform:translate(-50%,-50%) scale(1);transition:transform 0s;}
 
-/* SVG draw animations */
-.stroke-draw {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: drawLine 2s ease-in-out forwards;
-}
+/* ── Intersection Observer Triggers ──────────────────────────── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
 
-@keyframes drawLine {
-  to { stroke-dashoffset: 0; }
-}
+/* ── Progress Ring ───────────────────────────────────────────── */
+@keyframes progressRing{from{stroke-dashoffset:283;}to{stroke-dashoffset:var(--progress-offset,0);}}
+.progress-ring circle.fill{animation:progressRing 1.5s ease-out forwards;}
 
-/* Count up animation target */
-.count-up-value {
-  display: inline-block;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Hover Glow Elements */
-.glow-on-hover {
-  transition: text-shadow 0.3s, box-shadow 0.3s;
-}
-
-.glow-on-hover:hover {
-  text-shadow: 0 0 10px var(--accent-cyan);
-}
-
-/* Smooth expand/collapse logic classes */
-.collapsible-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.collapsible-content.expanded {
-  max-height: 2000px; /* generous fallback */
-}
-
-/* Respect user motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  
-  .stroke-draw {
-    stroke-dashoffset: 0;
-  }
+/* ── Reduced Motion ──────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *,::before,::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+  .stroke-draw{stroke-dashoffset:0;}
+  .reveal{opacity:1;transform:none;}
+  .float,.spin-slow,.glow-pulse{animation:none;}
 }
