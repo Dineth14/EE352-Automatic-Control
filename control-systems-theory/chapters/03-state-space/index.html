@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: State Space | Control Systems Theory</title>
+    
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/math.css">
+    <link rel="stylesheet" href="../../assets/css/animations.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <style>
+        .sim-container { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
+        .sim-panel { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .sim-canvas-wrapper { flex: 1; min-width: 300px; height: 500px; position: relative; border-radius: 12px; overflow: hidden; background: var(--bg-tertiary); border: 1px solid var(--glass-border); }
+        .sim-controls { width: 350px; padding: 1.5rem; background: var(--glass-bg); border-radius: 12px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 1rem; overflow-y:auto; max-height:500px;}
+        .matrix-input { display: grid; gap: 5px; margin-bottom: 1rem; }
+        .matrix-input input { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); text-align: center; padding: 5px; border-radius: 4px; font-family: var(--font-code); }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <span>CST</span>
+                <button id="theme-toggle" class="btn" style="background:none; border:none; color:var(--text-secondary); padding:0.5rem; cursor:pointer;" aria-label="Toggle Theme"></button>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../01-laplace-transfer-functions/index.html">1. Laplace Transform</a></li>
+                <li><a href="../02-block-diagram-reduction/index.html">2. Block Diagrams</a></li>
+                <li><a href="index.html" class="active">3. State Space</a></li>
+                <li><a href="../04-time-response/index.html">4. Time Response</a></li>
+                <li><a href="../05-root-locus/index.html">5. Root Locus</a></li>
+                <li><a href="../06-frequency-response/index.html">6. Frequency Response</a></li>
+                <li><a href="../07-stability/index.html">7. Stability</a></li>
+                <li><a href="../08-pid-controllers/index.html">8. PID Controllers</a></li>
+                <li><a href="../09-digital-control/index.html">9. Digital Control</a></li>
+                <li><a href="../10-modern-control/index.html">10. Modern Control</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- Hero -->
+            <section class="hero-section" id="hero-ch3">
+                <div id="hero-canvas-ch3" class="hero-canvas-container"></div>
+                <div class="hero-content fade-in-up stagger-1">
+                    <h1 class="hero-title">State Space Representation</h1>
+                    <p class="hero-subtitle">Modern Time-Domain Control Theory</p>
+                </div>
+            </section>
+
+            <div class="content-wrapper">
+                <section class="glass-card fade-in-up stagger-2">
+                    <h2>1. The State Equations</h2>
+                    <p>Instead of mapping inputs to outputs via a single high-order differential equation, State Space represents a system using $n$ coupled first-order ODEs. The state vector $\mathbf{x}(t)$ encapsulates the complete internal "memory" of the system.</p>
+                    
+                    <div class="math-box-definition">
+                        $$ \dot{\mathbf{x}}(t) = A\mathbf{x}(t) + B\mathbf{u}(t) \quad \text{(State Equation)} $$
+                        $$ \mathbf{y}(t) = C\mathbf{x}(t) + D\mathbf{u}(t) \quad \text{(Output Equation)} $$
+                        <span class="equation-number">(3.1)</span>
+                    </div>
+                    <ul>
+                        <li>$\mathbf{x} \in \mathbb{R}^n$: State vector</li>
+                        <li>$\mathbf{u} \in \mathbb{R}^m$: Input vector</li>
+                        <li>$\mathbf{y} \in \mathbb{R}^p$: Output vector</li>
+                        <li>$A$: System matrix (encodes eigenvalues/poles)</li>
+                        <li>$B$: Input matrix</li>
+                        <li>$C$: Output matrix</li>
+                        <li>$D$: Feedthrough matrix</li>
+                    </ul>
+
+                    <!-- SIM 1: State Trajectory 3D -->
+                    <div class="sim-container" id="sim1">
+                        <h3>Interactive: 3D State Trajectory Visualizer</h3>
+                        <p>Simulate $\dot{\mathbf{x}} = A\mathbf{x}$ in real-time. The glowing trajectory shows how the system states evolve.</p>
+                        <div class="sim-panel">
+                            <div class="sim-controls">
+                                <h4>System Matrix $A$</h4>
+                                <div class="matrix-input" style="grid-template-columns: repeat(3, 1fr);">
+                                    <input type="number" id="a11" step="0.1" value="-0.5"> <input type="number" id="a12" step="0.1" value="-1.0"> <input type="number" id="a13" step="0.1" value="0.5">
+                                    <input type="number" id="a21" step="0.1" value="1.0">  <input type="number" id="a22" step="0.1" value="-0.5"> <input type="number" id="a23" step="0.1" value="0.0">
+                                    <input type="number" id="a31" step="0.1" value="0.0">  <input type="number" id="a32" step="0.1" value="1.0">  <input type="number" id="a33" step="0.1" value="-0.2">
+                                </div>
+                                <button class="btn btn-primary" id="btn-sim-reset" style="width:100%;">Reset Trajectory</button>
+                                <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:1rem;">Mouse drag to rotate the 3D phase space.</p>
+                            </div>
+                            <div class="sim-canvas-wrapper" id="canvas-traj-3d" style="background: #000;">
+                                <!-- Three.js Canvas -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-card fade-in-up stagger-3">
+                    <h2>2. Controllability and Observability</h2>
+                    <p>Can we drive the system to any state using the input $\mathbf{u}$? (Controllability). Can we reconstruct the full state vector $\mathbf{x}$ by only measuring the output $\mathbf{y}$? (Observability).</p>
+                    
+                    <div class="math-box-key-result">
+                        <p><strong>Controllability Matrix:</strong></p>
+                        $$ \mathcal{C} = \begin{bmatrix} B & AB & A^2B & \dots & A^{n-1}B \end{bmatrix} $$
+                        <p>System is controllable if $\text{rank}(\mathcal{C}) = n$.</p>
+                    </div>
+
+                    <div class="math-box-key-result">
+                        <p><strong>Observability Matrix:</strong></p>
+                        $$ \mathcal{O} = \begin{bmatrix} C \\ CA \\ CA^2 \\ \vdots \\ CA^{n-1} \end{bmatrix} $$
+                        <p>System is observable if $\text{rank}(\mathcal{O}) = n$.</p>
+                    </div>
+
+                    <!-- SIM 2: Controllability Tester & Eigenvalue Placement -->
+                    <div class="sim-container" id="sim2" style="margin-top: 4rem;">
+                        <h3>Interactive: Matrix Properties & Feedback Design</h3>
+                        <p>Given matrices $(A, B, C)$, compute ranks and synthesize a state-feedback controller $u = -Kx$ to place the poles at desired locations via Ackermann's formula.</p>
+                        <div class="sim-panel">
+                            <div class="sim-controls" style="flex: 1;">
+                                <h4>State Matrices</h4>
+                                <div style="display:flex; gap:1rem; margin-bottom:1rem;">
+                                    <div style="flex:1;">
+                                        <label>A (2x2)</label>
+                                        <div class="matrix-input" style="grid-template-columns: repeat(2, 1fr);">
+                                            <input type="number" id="c_a11" value="0"> <input type="number" id="c_a12" value="1">
+                                            <input type="number" id="c_a21" value="2"> <input type="number" id="c_a22" value="-1">
+                                        </div>
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label>B (2x1)</label>
+                                        <div class="matrix-input" style="grid-template-columns: repeat(1, 1fr);">
+                                            <input type="number" id="c_b1" value="0">
+                                            <input type="number" id="c_b2" value="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="btn-check-calc">Analyze & Design</button>
+                            </div>
+                            <div class="sim-canvas-wrapper" style="padding:1.5rem; overflow-y:auto; background:var(--bg-secondary);">
+                                <div id="calc-results">
+                                    <p style="color:var(--text-secondary);">Click Analyze to compute matrix properties.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <script type="module">
+        import { initTheme } from '../../assets/js/theme.js';
+        import { initNav } from '../../assets/js/nav.js';
+        import { initKaTeX } from '../../assets/js/katex-init.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme(); initNav(); initKaTeX();
+        });
+    </script>
+    
+    <script type="module" src="sim/hero-ch3.js"></script>
+    <script type="module" src="sim/state-trajectory-3d.js"></script>
+    <script type="module" src="sim/feedback-studio.js"></script>
+</body>
+</html>

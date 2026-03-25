@@ -99,9 +99,32 @@
                                 <!-- Chart.js canvas for time domain -->
                                 <canvas id="canvas-laplace-time"></canvas>
                             </div>
-                            <div class="sim-canvas-wrapper" id="canvas-laplace-splane" style="position:relative; background: #0b1120;">
-                                <!-- Three.js / Canvas for s-plane -->
+                            <div class="sim-canvas-wrapper" id="canvas-laplace-splane" style="background: #0b1120;">
+                                <!-- Custom canvas for s-plane -->
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- SIM 2: Transfer Function Poles-Zeros Designer -->
+                    <div class="sim-container" id="sim2" style="margin-top: 4rem;">
+                        <h3>Interactive: Transfer Function Poles-Zeros Designer</h3>
+                        <p>Click to place poles (violet $\times$) and zeros (cyan $\circ$) on the $s$-plane. Observe the corresponding step response and Bode magnitude automatically updated.</p>
+                        <div class="sim-panel">
+                            <div class="sim-canvas-wrapper" id="canvas-tf-splane" style="background: #0b1120;">
+                                <!-- Custom canvas for s-plane designer -->
+                            </div>
+                            <div class="sim-canvas-wrapper" style="display:flex; flex-direction:column;">
+                                <div style="flex:1; border-bottom: 1px solid var(--glass-border);">
+                                    <canvas id="canvas-tf-step"></canvas>
+                                </div>
+                                <div style="flex:1;">
+                                    <canvas id="canvas-tf-bode"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tf-equation-display" style="text-align:center; padding: 1rem; background: var(--glass-bg); margin-top: 1rem; border-radius: 8px;">
+                            <!-- KaTeX rendered TF goes here -->
+                            $$ H(s) = 1 $$
                         </div>
                     </div>
                 </section>
@@ -176,6 +199,7 @@
     
     <!-- Simulations -->
     <script type="module" src="sim/laplace-explorer.js"></script>
+    <script type="module" src="sim/transfer-function-poles-zeros.js"></script>
     <script type="module" src="sim/step-impulse-response.js"></script>
 </body>
 </html>
