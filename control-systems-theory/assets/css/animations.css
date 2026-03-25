@@ -1,80 +1,429 @@
-/* ═══════════════════════════════════════════════════════════════
-   assets/css/animations.css — Keyframe animations & transitions
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTROL SYSTEMS THEORY — Animations & Transitions
+   Keyframes, scroll-triggered animations, glows, particles
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Fade In Up ──────────────────────────────────────────────── */
-.fade-in-up{opacity:0;transform:translateY(24px);animation:fadeInUp .6s cubic-bezier(.16,1,.3,1) forwards;}
-@keyframes fadeInUp{to{opacity:1;transform:translateY(0);}}
-
-/* ── Staggered Delays ────────────────────────────────────────── */
-.stagger-1{animation-delay:.1s;}.stagger-2{animation-delay:.2s;}.stagger-3{animation-delay:.3s;}
-.stagger-4{animation-delay:.4s;}.stagger-5{animation-delay:.5s;}.stagger-6{animation-delay:.6s;}
-.stagger-7{animation-delay:.7s;}.stagger-8{animation-delay:.8s;}
-
-/* ── Slide In Right (sim panels) ─────────────────────────────── */
-.slide-in-right{opacity:0;transform:translateX(40px);animation:slideInRight .7s cubic-bezier(.16,1,.3,1) forwards;}
-@keyframes slideInRight{to{opacity:1;transform:translateX(0);}}
-
-/* ── Slide In Left ───────────────────────────────────────────── */
-.slide-in-left{opacity:0;transform:translateX(-40px);animation:slideInLeft .7s cubic-bezier(.16,1,.3,1) forwards;}
-@keyframes slideInLeft{to{opacity:1;transform:translateX(0);}}
-
-/* ── Scale In ────────────────────────────────────────────────── */
-.scale-in{opacity:0;transform:scale(.92);animation:scaleIn .5s cubic-bezier(.16,1,.3,1) forwards;}
-@keyframes scaleIn{to{opacity:1;transform:scale(1);}}
-
-/* ── Critical Equation Pulsing Border ────────────────────────── */
-@keyframes pulse-border{
-  0%{box-shadow:0 0 15px rgba(0,229,255,.1);}
-  100%{box-shadow:0 0 25px rgba(0,229,255,.4),0 0 12px rgba(124,77,255,.25);}
+/* ── Fade In Up (staggered page load) ─────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ── Glow Pulse (for badges, nodes) ──────────────────────────── */
-@keyframes glowPulse{
-  0%,100%{box-shadow:0 0 8px rgba(0,229,255,.3);}
-  50%{box-shadow:0 0 20px rgba(0,229,255,.6),0 0 40px rgba(0,229,255,.2);}
+.fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.6s var(--ease-out) forwards;
 }
-.glow-pulse{animation:glowPulse 2s ease-in-out infinite;}
 
-/* ── SVG Stroke Draw ─────────────────────────────────────────── */
-.stroke-draw{stroke-dasharray:1000;stroke-dashoffset:1000;animation:drawLine 2s ease-in-out forwards;}
-@keyframes drawLine{to{stroke-dashoffset:0;}}
+/* Stagger delays */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+.delay-7 { animation-delay: 0.7s; }
+.delay-8 { animation-delay: 0.8s; }
 
-/* ── Count-up Value ──────────────────────────────────────────── */
-.count-up-value{display:inline-block;font-variant-numeric:tabular-nums;}
-
-/* ── Hover Glow ──────────────────────────────────────────────── */
-.glow-on-hover{transition:text-shadow .3s,box-shadow .3s;}
-.glow-on-hover:hover{text-shadow:0 0 12px var(--accent-cyan);}
-
-/* ── Float Animation (for hero elements) ─────────────────────── */
-@keyframes float{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-10px);}
+/* ── Fade In ──────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.float{animation:float 4s ease-in-out infinite;}
 
-/* ── Spin Slow ───────────────────────────────────────────────── */
-@keyframes spinSlow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-.spin-slow{animation:spinSlow 20s linear infinite;}
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.6s var(--ease-out) forwards;
+}
 
-/* ── Ripple Button Effect ────────────────────────────────────── */
-.ripple{position:relative;overflow:hidden;}
-.ripple::after{content:'';position:absolute;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.3) 0%,transparent 60%);top:50%;left:50%;transform:translate(-50%,-50%) scale(0);transition:transform .5s;border-radius:50%;pointer-events:none;}
-.ripple:active::after{transform:translate(-50%,-50%) scale(1);transition:transform 0s;}
+/* ── Scale In ─────────────────────────────────────────────────────────────── */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
-/* ── Intersection Observer Triggers ──────────────────────────── */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
-.reveal.visible{opacity:1;transform:translateY(0);}
+.scale-in {
+  opacity: 0;
+  animation: scaleIn 0.5s var(--ease-out) forwards;
+}
 
-/* ── Progress Ring ───────────────────────────────────────────── */
-@keyframes progressRing{from{stroke-dashoffset:283;}to{stroke-dashoffset:var(--progress-offset,0);}}
-.progress-ring circle.fill{animation:progressRing 1.5s ease-out forwards;}
+/* ── Slide In From Right (simulation panels) ──────────────────────────────── */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
-/* ── Reduced Motion ──────────────────────────────────────────── */
-@media(prefers-reduced-motion:reduce){
-  *,::before,::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
-  .stroke-draw{stroke-dashoffset:0;}
-  .reveal{opacity:1;transform:none;}
-  .float,.spin-slow,.glow-pulse{animation:none;}
+.slide-in-right {
+  opacity: 0;
+}
+
+.slide-in-right.visible {
+  animation: slideInRight 0.6s var(--ease-out) forwards;
+}
+
+/* ── Slide In From Left ───────────────────────────────────────────────────── */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-left {
+  opacity: 0;
+}
+
+.slide-in-left.visible {
+  animation: slideInLeft 0.6s var(--ease-out) forwards;
+}
+
+/* ── SVG Stroke Draw-On ───────────────────────────────────────────────────── */
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: var(--dash-length, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.draw-on {
+  stroke-dasharray: var(--dash-length, 1000);
+  stroke-dashoffset: var(--dash-length, 1000);
+}
+
+.draw-on.visible {
+  animation: drawLine 1.5s var(--ease-out) forwards;
+}
+
+/* ── Count-Up Number Animation ────────────────────────────────────────────── */
+.count-up {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent-cyan);
+  transition: color 0.3s;
+}
+
+.count-up.updating {
+  color: var(--accent-amber);
+}
+
+/* ── Pulse Glow ───────────────────────────────────────────────────────────── */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px var(--glow-cyan);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--glow-cyan), 0 0 56px rgba(0, 229, 255, 0.15);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* ── Pulse Glow Violet ────────────────────────────────────────────────────── */
+@keyframes pulseGlowViolet {
+  0%, 100% {
+    box-shadow: 0 0 12px var(--glow-violet);
+  }
+  50% {
+    box-shadow: 0 0 28px var(--glow-violet), 0 0 56px rgba(124, 77, 255, 0.15);
+  }
+}
+
+.pulse-glow-violet {
+  animation: pulseGlowViolet 2s ease-in-out infinite;
+}
+
+/* ── Float Animation (hero elements) ──────────────────────────────────────── */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ── Rotate Slow (hero 3D scenes) ─────────────────────────────────────────── */
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.rotate-slow {
+  animation: rotateSlow 20s linear infinite;
+}
+
+/* ── Shimmer / Skeleton Loading ───────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ── Border Glow Animation (critical equations) ───────────────────────────── */
+@keyframes borderGlow {
+  0% {
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+  }
+  50% {
+    border-color: rgba(124, 77, 255, 0.4);
+    box-shadow: 0 0 25px rgba(124, 77, 255, 0.15);
+  }
+  100% {
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+  }
+}
+
+.border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* ── Ripple Effect (buttons) ──────────────────────────────────────────────── */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s, opacity 0.5s;
+  opacity: 0;
+}
+
+.ripple:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 0;
+}
+
+/* ── Typing Cursor ────────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '|';
+  color: var(--accent-cyan);
+  animation: blink 1s steps(1) infinite;
+  font-weight: 300;
+}
+
+/* ── Card Hover Lift ──────────────────────────────────────────────────────── */
+.hover-lift {
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--glow-cyan);
+}
+
+/* ── Scroll-triggered observer wrapper ────────────────────────────────────── */
+.observe-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+
+.observe-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger for children */
+.stagger-children > .observe-animate:nth-child(1) { transition-delay: 0.05s; }
+.stagger-children > .observe-animate:nth-child(2) { transition-delay: 0.1s; }
+.stagger-children > .observe-animate:nth-child(3) { transition-delay: 0.15s; }
+.stagger-children > .observe-animate:nth-child(4) { transition-delay: 0.2s; }
+.stagger-children > .observe-animate:nth-child(5) { transition-delay: 0.25s; }
+.stagger-children > .observe-animate:nth-child(6) { transition-delay: 0.3s; }
+.stagger-children > .observe-animate:nth-child(7) { transition-delay: 0.35s; }
+.stagger-children > .observe-animate:nth-child(8) { transition-delay: 0.4s; }
+.stagger-children > .observe-animate:nth-child(9) { transition-delay: 0.45s; }
+.stagger-children > .observe-animate:nth-child(10) { transition-delay: 0.5s; }
+
+/* ── Page Transition ──────────────────────────────────────────────────────── */
+@keyframes pageTransitionIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageTransitionIn 0.4s var(--ease-out) forwards;
+}
+
+/* ── Loading Spinner ──────────────────────────────────────────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--bg-tertiary);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Canvas Fade ──────────────────────────────────────────────────────────── */
+.canvas-container {
+  position: relative;
+}
+
+.canvas-container .canvas-fallback {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+.canvas-container.webgl-available .canvas-fallback {
+  display: none;
+}
+
+.canvas-container:not(.webgl-available) canvas {
+  display: none;
+}
+
+.canvas-container:not(.webgl-available) .canvas-fallback {
+  display: flex;
+}
+
+/* ── Notification Toast ───────────────────────────────────────────────────── */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  z-index: 2000;
+  animation: toastIn 0.3s var(--ease-out) forwards;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.toast.removing {
+  animation: toastOut 0.3s var(--ease-out) forwards;
+}
+
+/* ── Reduced Motion Override ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .fade-in,
+  .scale-in,
+  .slide-in-right,
+  .slide-in-left,
+  .draw-on,
+  .observe-animate {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .pulse-glow,
+  .pulse-glow-violet,
+  .float,
+  .rotate-slow,
+  .shimmer,
+  .border-glow,
+  .spinner {
+    animation: none;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+  }
 }

@@ -1,57 +1,367 @@
-/* ═══════════════════════════════════════════════════════════════
-   assets/css/math.css — KaTeX equation styling & highlight boxes
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTROL SYSTEMS THEORY — Math & Equation Styles
+   KaTeX rendering, equation boxes, derivation formatting
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Tier 1: Definition Box ──────────────────────────────────── */
-.math-box-definition{padding:1.5rem 1.5rem 1.5rem 2rem;margin:2rem 0;border-left:4px solid var(--accent-cyan);background:rgba(0,229,255,.05);border-radius:0 12px 12px 0;position:relative;}
-.math-box-definition::before{content:"Definition";position:absolute;top:-12px;left:1rem;background:var(--bg-primary);padding:0 .5rem;color:var(--accent-cyan);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-body);}
+/* ── KaTeX Display Equations ──────────────────────────────────────────────── */
+.katex-display {
+  margin: 24px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 0;
+}
 
-/* ── Tier 2: Key Result Box ──────────────────────────────────── */
-.math-box-key-result{padding:1.5rem 1.5rem 1.5rem 2rem;margin:2rem 0;border-left:4px solid var(--accent-violet);background:rgba(124,77,255,.05);border-radius:0 12px 12px 0;position:relative;}
-.math-box-key-result::before{content:"Key Result";position:absolute;top:-12px;left:1rem;background:var(--bg-primary);padding:0 .5rem;color:var(--accent-violet);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;font-family:var(--font-body);}
+.katex-display > .katex {
+  text-align: center;
+}
 
-/* ── Tier 3: Critical Box (animated glow) ────────────────────── */
-.math-box-critical{padding:1.5rem;margin:2rem 0;border-radius:12px;background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(124,77,255,.08));position:relative;animation:pulse-border 3s infinite alternate;}
-.math-box-critical::before{content:"";position:absolute;inset:0;border-radius:12px;padding:2px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-violet));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
-.math-box-critical p:first-child,.math-box-critical>strong:first-child{color:var(--accent-cyan);}
+.katex {
+  font-size: 1.15em;
+}
 
-/* ── Tier labels via attribute ───────────────────────────────── */
-.math-box-definition[data-label]::before{content:attr(data-label);}
-.math-box-key-result[data-label]::before{content:attr(data-label);}
+/* Equation numbering */
+.equation-numbered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 24px 0;
+}
 
-/* ── Theorem / Property / Lemma boxes ────────────────────────── */
-.math-box-theorem{padding:1.5rem;margin:2rem 0;border-left:4px solid var(--accent-amber);background:rgba(255,171,64,.05);border-radius:0 12px 12px 0;position:relative;}
-.math-box-theorem::before{content:"Theorem";position:absolute;top:-12px;left:1rem;background:var(--bg-primary);padding:0 .5rem;color:var(--accent-amber);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;}
-.math-box-theorem[data-label]::before{content:attr(data-label);}
+.equation-numbered .katex-display {
+  flex: 1;
+  margin: 0;
+}
 
-.math-box-property{padding:1.25rem 1.25rem 1.25rem 1.75rem;margin:1.5rem 0;border-left:3px solid var(--accent-green);background:rgba(105,255,71,.04);border-radius:0 10px 10px 0;}
+.equation-number {
+  position: absolute;
+  right: 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+.equation-number:hover {
+  color: var(--accent-cyan);
+}
 
-/* ── KaTeX Display Overrides ─────────────────────────────────── */
-.katex-display{padding:.75rem 0;margin:0;overflow-x:auto;overflow-y:hidden;}
-.katex-display>.katex{font-size:1.15em;}
-.katex{font-size:1.1em;}
+/* ── Equation Highlight Boxes — Three Tiers ───────────────────────────────── */
 
-/* Larger display math in highlight boxes */
-.math-box-definition .katex-display>.katex,
-.math-box-key-result .katex-display>.katex,
-.math-box-critical .katex-display>.katex{font-size:1.25em;}
+/* Tier 1: Definition — left cyan border */
+.eq-definition {
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-left: 4px solid var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+  border-radius: 0 12px 12px 0;
+}
 
-/* ── Equation Numbers ────────────────────────────────────────── */
-.equation-number{float:right;color:var(--text-secondary);font-family:var(--font-body);font-size:.82rem;padding-top:.5rem;cursor:pointer;transition:color .2s;}
-.equation-number:hover{color:var(--accent-cyan);}
+.eq-definition .eq-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+  padding: 2px 10px;
+  background: rgba(0, 229, 255, 0.1);
+  border-radius: 4px;
+}
 
-/* ── Inline Math Emphasis ────────────────────────────────────── */
-.math-em{background:rgba(0,229,255,.08);padding:.1rem .4rem;border-radius:4px;border:1px solid rgba(0,229,255,.15);}
+/* Tier 2: Key Result — left violet border */
+.eq-key-result {
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-left: 4px solid var(--accent-violet);
+  background: rgba(124, 77, 255, 0.05);
+  border-radius: 0 12px 12px 0;
+}
 
-/* ── Matrix Display ──────────────────────────────────────────── */
-.matrix-display{display:flex;justify-content:center;margin:1.5rem 0;overflow-x:auto;}
+.eq-key-result .eq-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-violet);
+  margin-bottom: 8px;
+  padding: 2px 10px;
+  background: rgba(124, 77, 255, 0.1);
+  border-radius: 4px;
+}
 
-/* ── Equation Group (for aligned multi-line) ─────────────────── */
-.eq-group{margin:1.5rem 0;padding:1rem;background:rgba(0,0,0,.15);border-radius:10px;border:1px solid var(--glass-border);overflow-x:auto;}
+/* Tier 3: Critical — glowing animated border */
+.eq-critical {
+  padding: 24px 28px;
+  margin: 32px 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.06), rgba(124, 77, 255, 0.06));
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  position: relative;
+  animation: critical-glow 3s ease-in-out infinite alternate;
+}
 
-/* Light-mode adjustments for math boxes */
-[data-theme='light'] .math-box-definition::before,
-[data-theme='light'] .math-box-key-result::before,
-[data-theme='light'] .math-box-theorem::before{background:var(--bg-primary);}
-[data-theme='light'] .math-box-critical{background:linear-gradient(135deg,rgba(0,151,167,.08),rgba(98,0,234,.08));}
-[data-theme='light'] .eq-group{background:rgba(0,0,0,.03);}
+@keyframes critical-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.15), 0 0 40px rgba(0, 229, 255, 0.05);
+    border-color: rgba(0, 229, 255, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(124, 77, 255, 0.2), 0 0 60px rgba(124, 77, 255, 0.08);
+    border-color: rgba(124, 77, 255, 0.3);
+  }
+}
+
+.eq-critical .eq-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+/* ── Equation Callout ("Why this matters") ────────────────────────────────── */
+.eq-callout {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 171, 64, 0.06);
+  border-left: 3px solid var(--accent-amber);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.eq-callout strong {
+  color: var(--accent-amber);
+}
+
+/* ── Matrix Display ───────────────────────────────────────────────────────── */
+.matrix-container {
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.matrix-input {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+.matrix-input input {
+  width: 60px;
+  padding: 6px 8px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.matrix-input input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
+}
+
+/* ── Worked Example ───────────────────────────────────────────────────────── */
+.worked-example {
+  margin: 32px 0;
+  border: 1px solid rgba(255, 171, 64, 0.2);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.worked-example-header {
+  padding: 14px 20px;
+  background: rgba(255, 171, 64, 0.06);
+  border-bottom: 1px solid rgba(255, 171, 64, 0.12);
+  font-weight: 600;
+  color: var(--accent-amber);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.worked-example-body {
+  padding: 20px;
+}
+
+.worked-example .problem {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--accent-amber);
+}
+
+.worked-example .solution-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(0, 229, 255, 0.06);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  color: var(--accent-cyan);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+
+.worked-example .solution-toggle:hover {
+  background: rgba(0, 229, 255, 0.12);
+}
+
+.worked-example .solution {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-slow);
+}
+
+.worked-example .solution.open {
+  max-height: 5000px;
+}
+
+.worked-example .solution-content {
+  padding-top: 20px;
+}
+
+/* ── Theorem / Proof ──────────────────────────────────────────────────────── */
+.theorem {
+  margin: 24px 0;
+  padding: 20px 24px;
+  background: rgba(124, 77, 255, 0.04);
+  border: 1px solid rgba(124, 77, 255, 0.15);
+  border-radius: 12px;
+}
+
+.theorem-header {
+  font-weight: 700;
+  color: var(--accent-violet);
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.proof {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(124, 77, 255, 0.1);
+}
+
+.proof-header {
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.proof-end {
+  text-align: right;
+  color: var(--accent-violet);
+}
+
+/* ── Summary Table ────────────────────────────────────────────────────────── */
+.formula-table {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.formula-table th {
+  background: var(--bg-tertiary);
+  color: var(--accent-cyan);
+}
+
+.formula-table td {
+  vertical-align: middle;
+}
+
+.formula-table .katex {
+  font-size: 1em;
+}
+
+/* ── Inline Math Highlight ────────────────────────────────────────────────── */
+.math-highlight {
+  display: inline;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 229, 255, 0.06);
+}
+
+/* ── Variable definition list ─────────────────────────────────────────────── */
+.var-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 20px;
+  margin: 16px 0;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+}
+
+.var-list dt {
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  font-weight: 500;
+  text-align: right;
+}
+
+.var-list dd {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ── Responsive Math ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .katex {
+    font-size: 1em;
+  }
+
+  .eq-definition,
+  .eq-key-result,
+  .eq-critical {
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .matrix-input input {
+    width: 48px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ── Print — Math ─────────────────────────────────────────────────────────── */
+@media print {
+  .eq-definition,
+  .eq-key-result,
+  .eq-critical {
+    border: 1px solid #999;
+    background: #f9f9f9;
+    break-inside: avoid;
+  }
+
+  .eq-critical {
+    animation: none;
+    box-shadow: none;
+  }
+}
