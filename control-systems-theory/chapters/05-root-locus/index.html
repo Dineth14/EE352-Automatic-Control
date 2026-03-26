@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -272,9 +273,9 @@
   </script>
 
   <!-- Sim 1: Root Locus Explorer -->
-  <script type="module">
-  import { linspace, rk4Step } from '../../assets/js/utils.js';
-
+  <script>
+  (function(){
+  const { linspace, rk4Step } = window.CSUtils;
   const sCanvas=document.getElementById('rl-splane');
   const rCanvas=document.getElementById('rl-step');
   if(!sCanvas||!rCanvas)throw new Error();
@@ -508,11 +509,13 @@
   document.getElementById('rl-k').addEventListener('input',update);
   document.getElementById('rl-system').addEventListener('change',()=>{currentLocus=null;update();});
   update();
+    })();
   </script>
 
   <!-- Sim 2: Custom Root Locus Designer -->
-  <script type="module">
-  import { linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { linspace } = window.CSUtils;
   const canvas=document.getElementById('rl-design-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
   let poles=[],zeros=[],mode='pole';
@@ -624,11 +627,13 @@
   // Default
   poles=[{re:0,im:0},{re:-1,im:0},{re:-2,im:0}];
   draw();
+    })();
   </script>
 
   <!-- Sim 3: Gain vs Performance -->
-  <script type="module">
-  import { secondOrderStep, transientSpecs, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { secondOrderStep, transientSpecs, linspace } = window.CSUtils;
   const canvas=document.getElementById('perf-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
 
@@ -701,6 +706,7 @@
     ctx.fillStyle='#8a9bb5';ctx.textAlign='center';ctx.fillText('K',w/2,h-3);
   }
   draw();
+    })();
   </script>
 </body>
 </html>

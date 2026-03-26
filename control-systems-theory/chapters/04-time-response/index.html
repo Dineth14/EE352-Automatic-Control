@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -312,8 +313,9 @@
   </script>
 
   <!-- Sim 1: Damping Comparison -->
-  <script type="module">
-  import { secondOrderStep, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { secondOrderStep, linspace } = window.CSUtils;
   const canvas=document.getElementById('compare-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
   const zetaVals=[0.1,0.3,0.7,1.0,2.0];
@@ -365,11 +367,13 @@
   document.getElementById('cmp-wn').addEventListener('input',draw);
   checkIds.forEach(id=>document.getElementById(id).addEventListener('change',draw));
   draw();
+    })();
   </script>
 
   <!-- Sim 2: S-Plane Spec Region -->
-  <script type="module">
-  import { secondOrderStep, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { secondOrderStep, linspace } = window.CSUtils;
   const sCanvas=document.getElementById('spec-splane');
   const rCanvas=document.getElementById('spec-step');
   if(!sCanvas||!rCanvas)throw new Error();
@@ -469,11 +473,13 @@
 
   ['spec-zeta','spec-ts','spec-wn'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
   draw();
+    })();
   </script>
 
   <!-- Sim 3: SSE -->
-  <script type="module">
-  import { linspace, rk4Step } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { linspace, rk4Step } = window.CSUtils;
   const canvas=document.getElementById('sse-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
 
@@ -590,6 +596,7 @@
   document.getElementById('sse-type').addEventListener('change',draw);
   document.getElementById('sse-input').addEventListener('change',draw);
   draw();
+    })();
   </script>
 </body>
 </html>

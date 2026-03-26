@@ -4,7 +4,7 @@
    ============================================================ */
 
 /** Complex number class */
-export class Complex {
+class Complex {
   constructor(re = 0, im = 0) {
     this.re = re;
     this.im = im;
@@ -37,7 +37,7 @@ export class Complex {
 }
 
 /** Evaluate polynomial p(s) = p[0]*s^n + p[1]*s^(n-1) + ... + p[n] at complex s */
-export function polyEval(coeffs, s) {
+function polyEval(coeffs, s) {
   let result = new Complex(0, 0);
   for (let i = 0; i < coeffs.length; i++) {
     const c = typeof coeffs[i] === 'number' ? new Complex(coeffs[i], 0) : coeffs[i];
@@ -47,7 +47,7 @@ export function polyEval(coeffs, s) {
 }
 
 /** Evaluate transfer function H(s) = num(s)/den(s) */
-export function tfEval(num, den, s) {
+function tfEval(num, den, s) {
   const sComplex = typeof s === 'number' ? new Complex(s, 0) : s;
   return polyEval(num, sComplex).div(polyEval(den, sComplex));
 }
@@ -56,7 +56,7 @@ export function tfEval(num, den, s) {
  *  f: (t, state) => dstate/dt (array)
  *  state: array of numbers
  *  Returns new state after one step dt */
-export function rk4Step(f, t, state, dt) {
+function rk4Step(f, t, state, dt) {
   const n = state.length;
   const k1 = f(t, state);
   const s2 = new Array(n);
@@ -76,7 +76,7 @@ export function rk4Step(f, t, state, dt) {
 }
 
 /** Simulate ODE from t0 to tf with step dt, returns {t:[], states:[[]]} */
-export function simulateODE(f, state0, t0, tf, dt) {
+function simulateODE(f, state0, t0, tf, dt) {
   const ts = [t0];
   const states = [state0.slice()];
   let t = t0;
@@ -91,7 +91,7 @@ export function simulateODE(f, state0, t0, tf, dt) {
 }
 
 /** State-space simulation: dx/dt = Ax + Bu, y = Cx + Du */
-export function simulateStateSpace(A, B, C, D, u, x0, t0, tf, dt) {
+function simulateStateSpace(A, B, C, D, u, x0, t0, tf, dt) {
   const n = A.length;
   const f = (t, x) => {
     const ut = typeof u === 'function' ? u(t) : u;
@@ -133,7 +133,7 @@ export function simulateStateSpace(A, B, C, D, u, x0, t0, tf, dt) {
 /* ========== Matrix Operations ========== */
 
 /** Create identity matrix n×n */
-export function eye(n) {
+function eye(n) {
   const M = [];
   for (let i = 0; i < n; i++) {
     M[i] = new Array(n).fill(0);
@@ -143,14 +143,14 @@ export function eye(n) {
 }
 
 /** Create zero matrix m×n */
-export function zeros(m, n) {
+function zeros(m, n) {
   const M = [];
   for (let i = 0; i < m; i++) M[i] = new Array(n || m).fill(0);
   return M;
 }
 
 /** Matrix multiply A*B */
-export function matMul(A, B) {
+function matMul(A, B) {
   const m = A.length, n = B[0].length, p = B.length;
   const C = zeros(m, n);
   for (let i = 0; i < m; i++)
@@ -161,7 +161,7 @@ export function matMul(A, B) {
 }
 
 /** Matrix-vector multiply A*v */
-export function matVecMul(A, v) {
+function matVecMul(A, v) {
   const n = A.length;
   const r = new Array(n).fill(0);
   for (let i = 0; i < n; i++)
@@ -171,17 +171,17 @@ export function matVecMul(A, v) {
 }
 
 /** Matrix addition A+B */
-export function matAdd(A, B) {
+function matAdd(A, B) {
   return A.map((row, i) => row.map((v, j) => v + B[i][j]));
 }
 
 /** Scalar multiply c*A */
-export function matScale(A, c) {
+function matScale(A, c) {
   return A.map(row => row.map(v => v * c));
 }
 
 /** Matrix transpose */
-export function transpose(A) {
+function transpose(A) {
   const m = A.length, n = A[0].length;
   const T = zeros(n, m);
   for (let i = 0; i < m; i++)
@@ -191,7 +191,7 @@ export function transpose(A) {
 }
 
 /** Determinant of square matrix (recursive, small matrices) */
-export function det(A) {
+function det(A) {
   const n = A.length;
   if (n === 1) return A[0][0];
   if (n === 2) return A[0][0] * A[1][1] - A[0][1] * A[1][0];
@@ -207,7 +207,7 @@ export function det(A) {
 }
 
 /** Inverse of square matrix using Gauss-Jordan */
-export function matInv(M) {
+function matInv(M) {
   const n = M.length;
   const aug = M.map((row, i) => {
     const r = row.slice();
@@ -233,7 +233,7 @@ export function matInv(M) {
 }
 
 /** Compute eigenvalues of 2×2 matrix */
-export function eig2x2(A) {
+function eig2x2(A) {
   const tr = A[0][0] + A[1][1];
   const d = det(A);
   const disc = tr * tr - 4 * d;
@@ -244,7 +244,7 @@ export function eig2x2(A) {
 }
 
 /** Rank of matrix via SVD-like approach (uses Gaussian elimination) */
-export function matRank(M) {
+function matRank(M) {
   const m = M.length, n = M[0].length;
   const A = M.map(r => r.slice());
   let rank = 0;
@@ -265,7 +265,7 @@ export function matRank(M) {
 }
 
 /** Controllability matrix [B, AB, A^2B, ... A^(n-1)B] */
-export function controllabilityMatrix(A, B) {
+function controllabilityMatrix(A, B) {
   const n = A.length;
   const bCols = Array.isArray(B[0]) ? B[0].length : 1;
   const Bmat = B.map(r => Array.isArray(r) ? r : [r]);
@@ -286,7 +286,7 @@ export function controllabilityMatrix(A, B) {
 }
 
 /** Observability matrix [C; CA; CA^2; ... CA^(n-1)] */
-export function observabilityMatrix(A, C) {
+function observabilityMatrix(A, C) {
   const n = A.length;
   const cRows = C.length;
   const rows = [];
@@ -301,7 +301,7 @@ export function observabilityMatrix(A, C) {
 /* ========== Polynomial Operations ========== */
 
 /** Polynomial multiplication */
-export function polyMul(a, b) {
+function polyMul(a, b) {
   const result = new Array(a.length + b.length - 1).fill(0);
   for (let i = 0; i < a.length; i++)
     for (let j = 0; j < b.length; j++)
@@ -310,7 +310,7 @@ export function polyMul(a, b) {
 }
 
 /** Polynomial addition (same highest degree) */
-export function polyAdd(a, b) {
+function polyAdd(a, b) {
   const maxLen = Math.max(a.length, b.length);
   const result = new Array(maxLen).fill(0);
   for (let i = 0; i < a.length; i++) result[i + maxLen - a.length] += a[i];
@@ -320,7 +320,7 @@ export function polyAdd(a, b) {
 
 /** Find roots of polynomial using Durand-Kerner method
  *  coeffs: [a_n, a_{n-1}, ..., a_1, a_0] (highest degree first) */
-export function polyRoots(coeffs) {
+function polyRoots(coeffs) {
   const n = coeffs.length - 1;
   if (n <= 0) return [];
   if (n === 1) return [new Complex(-coeffs[1] / coeffs[0], 0)];
@@ -363,7 +363,7 @@ export function polyRoots(coeffs) {
 }
 
 /** Build polynomial from roots: (s - r1)(s - r2)... returns real coefficients */
-export function polyFromRoots(roots) {
+function polyFromRoots(roots) {
   let p = [1];
   for (const r of roots) {
     if (Math.abs(r.im) < 1e-10) {
@@ -380,7 +380,7 @@ export function polyFromRoots(roots) {
 
 /** Build Routh array from characteristic polynomial coefficients
  *  Returns array of rows */
-export function routhArray(coeffs) {
+function routhArray(coeffs) {
   const n = coeffs.length;
   const numCols = Math.ceil(n / 2);
   const rows = [];
@@ -416,7 +416,7 @@ export function routhArray(coeffs) {
 }
 
 /** Count sign changes in first column of Routh array */
-export function routhSignChanges(routh) {
+function routhSignChanges(routh) {
   let changes = 0;
   for (let i = 1; i < routh.length; i++) {
     if (routh[i][0] * routh[i - 1][0] < 0) changes++;
@@ -427,7 +427,7 @@ export function routhSignChanges(routh) {
 /* ========== FFT ========== */
 
 /** Radix-2 FFT (input length must be power of 2) */
-export function fft(re, im) {
+function fft(re, im) {
   const n = re.length;
   if (n === 1) return { re: [re[0]], im: [im ? im[0] : 0] };
   const outRe = new Array(n);
@@ -462,7 +462,7 @@ export function fft(re, im) {
 /* ========== Frequency Response ========== */
 
 /** Compute Bode data: magnitude (dB) and phase (deg) vs omega */
-export function bodeData(num, den, omegaRange, numPoints = 500) {
+function bodeData(num, den, omegaRange, numPoints = 500) {
   const [wMin, wMax] = omegaRange;
   const omegas = [];
   const magDB = [];
@@ -484,7 +484,7 @@ export function bodeData(num, den, omegaRange, numPoints = 500) {
 }
 
 /** Compute Nyquist plot data */
-export function nyquistData(num, den, omegaRange, numPoints = 1000) {
+function nyquistData(num, den, omegaRange, numPoints = 1000) {
   const [wMin, wMax] = omegaRange;
   const reArr = [], imArr = [], omegas = [];
   for (let i = 0; i < numPoints; i++) {
@@ -500,7 +500,7 @@ export function nyquistData(num, den, omegaRange, numPoints = 1000) {
 }
 
 /** Find gain and phase margins */
-export function stabilityMargins(num, den) {
+function stabilityMargins(num, den) {
   const bode = bodeData(num, den, [0.001, 1000], 5000);
   let pm = Infinity, gm = Infinity, wpc = NaN, wgc = NaN;
   // Find gain crossover (|G|=0dB)
@@ -531,7 +531,7 @@ export function stabilityMargins(num, den) {
 /* ========== Lyapunov Equation Solver ========== */
 
 /** Solve A'P + PA = -Q for 2×2 using vectorization */
-export function solveLyapunov2(A, Q) {
+function solveLyapunov2(A, Q) {
   // vec(A'P + PA) = (I⊗A' + A'⊗I) vec(P) = -vec(Q)
   // For 2×2 this is a 4×4 system
   const n = 2;
@@ -567,7 +567,7 @@ export function solveLyapunov2(A, Q) {
 /* ========== Second Order System Utilities ========== */
 
 /** Compute second-order underdamped step response */
-export function secondOrderStep(zeta, wn, tArray) {
+function secondOrderStep(zeta, wn, tArray) {
   if (zeta >= 1) {
     // Overdamped or critically damped
     if (Math.abs(zeta - 1) < 1e-6) {
@@ -585,7 +585,7 @@ export function secondOrderStep(zeta, wn, tArray) {
 }
 
 /** Compute second-order impulse response */
-export function secondOrderImpulse(zeta, wn, tArray) {
+function secondOrderImpulse(zeta, wn, tArray) {
   if (zeta >= 1) {
     if (Math.abs(zeta - 1) < 1e-6) {
       return tArray.map(t => wn * wn * t * Math.exp(-wn * t));
@@ -601,7 +601,7 @@ export function secondOrderImpulse(zeta, wn, tArray) {
 }
 
 /** Transient specifications for underdamped second-order system */
-export function transientSpecs(zeta, wn) {
+function transientSpecs(zeta, wn) {
   if (zeta >= 1 || zeta <= 0) return { tp: Infinity, Mp: 0, ts2: Infinity, ts5: Infinity, tr: Infinity, wd: 0 };
   const wd = wn * Math.sqrt(1 - zeta * zeta);
   const tp = Math.PI / wd;
@@ -615,29 +615,29 @@ export function transientSpecs(zeta, wn) {
 /* ========== Utility ========== */
 
 /** Linearly spaced array */
-export function linspace(start, end, n) {
+function linspace(start, end, n) {
   const arr = new Array(n);
   for (let i = 0; i < n; i++) arr[i] = start + (end - start) * i / (n - 1);
   return arr;
 }
 
 /** Logarithmically spaced array */
-export function logspace(start, end, n) {
+function logspace(start, end, n) {
   return linspace(start, end, n).map(v => Math.pow(10, v));
 }
 
 /** Clamp value */
-export function clamp(val, min, max) {
+function clamp(val, min, max) {
   return Math.min(Math.max(val, min), max);
 }
 
 /** Map value from one range to another */
-export function mapRange(val, inMin, inMax, outMin, outMax) {
+function mapRange(val, inMin, inMax, outMin, outMax) {
   return outMin + (outMax - outMin) * (val - inMin) / (inMax - inMin);
 }
 
 /** Debounce */
-export function debounce(fn, delay = 100) {
+function debounce(fn, delay = 100) {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -646,7 +646,7 @@ export function debounce(fn, delay = 100) {
 }
 
 /** Export data as CSV download */
-export function exportCSV(headers, data, filename = 'data.csv') {
+function exportCSV(headers, data, filename = 'data.csv') {
   let csv = headers.join(',') + '\n';
   for (const row of data) csv += row.join(',') + '\n';
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -657,3 +657,15 @@ export function exportCSV(headers, data, filename = 'data.csv') {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+/* ========== Global Namespace ========== */
+window.CSUtils = {
+  Complex, polyEval, tfEval, rk4Step, simulateODE, simulateStateSpace,
+  eye, zeros, matMul, matVecMul, matAdd, matScale, transpose, det, matInv,
+  eig2x2, matRank, controllabilityMatrix, observabilityMatrix,
+  polyMul, polyAdd, polyRoots, polyFromRoots,
+  routhArray, routhSignChanges, fft,
+  bodeData, nyquistData, stabilityMargins,
+  solveLyapunov2, secondOrderStep, secondOrderImpulse, transientSpecs,
+  linspace, logspace, clamp, mapRange, debounce, exportCSV
+};

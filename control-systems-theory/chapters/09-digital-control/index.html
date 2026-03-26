@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -248,7 +249,8 @@
   </script>
 
   <!-- Sim 1: Sampling & Aliasing -->
-  <script type="module">
+  <script>
+  (function(){
   const canvas=document.getElementById('samp-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
 
@@ -296,10 +298,12 @@
   document.getElementById('samp-f').addEventListener('input',draw);
   document.getElementById('samp-fs').addEventListener('input',draw);
   draw();
+    })();
   </script>
 
   <!-- Sim 2: Z-Plane -->
-  <script type="module">
+  <script>
+  (function(){
   const pC=document.getElementById('zp-plane'),sC=document.getElementById('zp-step');
   if(!pC||!sC)throw new Error();
   const pCtx=pC.getContext('2d'),sCtx=sC.getContext('2d');
@@ -373,10 +377,12 @@
   document.getElementById('zp-r').addEventListener('input',draw);
   document.getElementById('zp-a').addEventListener('input',draw);
   draw();
+    })();
   </script>
 
   <!-- Sim 3: s-to-z mapping -->
-  <script type="module">
+  <script>
+  (function(){
   const sC=document.getElementById('sz-splane'),zC=document.getElementById('sz-zplane');
   if(!sC||!zC)throw new Error();
   const sCtx=sC.getContext('2d'),zCtx=zC.getContext('2d');
@@ -432,6 +438,7 @@
   }
   document.getElementById('sz-t').addEventListener('input',draw);
   draw();
+    })();
   </script>
 </body>
 </html>

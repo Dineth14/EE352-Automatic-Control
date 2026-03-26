@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -242,8 +243,9 @@
   </script>
 
   <!-- Sim 1: Pole Placement -->
-  <script type="module">
-  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { rk4Step, linspace } = window.CSUtils;
   const sC=document.getElementById('pp-splane'),rC=document.getElementById('pp-step');
   if(!sC||!rC)throw new Error();
   const sCtx=sC.getContext('2d'),rCtx=rC.getContext('2d');
@@ -322,11 +324,13 @@
   document.getElementById('pp-p1').addEventListener('input',draw);
   document.getElementById('pp-p2').addEventListener('input',draw);
   draw();
+    })();
   </script>
 
   <!-- Sim 2: Observer -->
-  <script type="module">
-  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { rk4Step, linspace } = window.CSUtils;
   const canvas=document.getElementById('obs-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
   const A=[[0,1],[-2,-3]],B=[0,1],C=[1,0];
@@ -399,11 +403,13 @@
   }
   document.getElementById('obs-sp').addEventListener('input',draw);
   draw();
+    })();
   </script>
 
   <!-- Sim 3: LQR Q/R Tuning -->
-  <script type="module">
-  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { rk4Step, linspace } = window.CSUtils;
   const sC=document.getElementById('lqr-state'),uC=document.getElementById('lqr-control');
   if(!sC||!uC)throw new Error();
   const sCtx=sC.getContext('2d'),uCtx=uC.getContext('2d');
@@ -475,6 +481,7 @@
 
   document.getElementById('lqr-qr').addEventListener('input',draw);
   draw();
+    })();
   </script>
 </body>
 </html>

@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -268,8 +269,9 @@
   </script>
 
   <!-- Sim 1: Routh Array -->
-  <script type="module">
-  import { routhArray } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { routhArray } = window.CSUtils;
   function compute(){
     const raw=document.getElementById('routh-coeffs').value;
     const coeffs=raw.split(',').map(s=>parseFloat(s.trim())).filter(v=>isFinite(v));
@@ -294,11 +296,13 @@
   document.getElementById('routh-go').addEventListener('click',compute);
   document.getElementById('routh-coeffs').addEventListener('keydown',e=>{if(e.key==='Enter')compute();});
   compute();
+    })();
   </script>
 
   <!-- Sim 2: Pole Stability with K -->
-  <script type="module">
-  import { linspace, rk4Step } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { linspace, rk4Step } = window.CSUtils;
   const sC=document.getElementById('stab-splane'),tC=document.getElementById('stab-time');
   if(!sC||!tC)throw new Error();
   const sCtx=sC.getContext('2d'),tCtx=tC.getContext('2d');
@@ -382,11 +386,13 @@
 
   document.getElementById('stab-k').addEventListener('input',draw);
   draw();
+    })();
   </script>
 
   <!-- Sim 3: Sensitivity -->
-  <script type="module">
-  import { logspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { logspace } = window.CSUtils;
   const canvas=document.getElementById('sens-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
 
@@ -453,6 +459,7 @@
   }
   document.getElementById('sens-k').addEventListener('input',draw);
   draw();
+    })();
   </script>
 </body>
 </html>

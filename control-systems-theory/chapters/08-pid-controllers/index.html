@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -232,8 +233,9 @@
   </script>
 
   <!-- Sim 1: PID Tuner -->
-  <script type="module">
-  import { linspace, rk4Step } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { linspace, rk4Step } = window.CSUtils;
   const canvas=document.getElementById('pid-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
 
@@ -295,11 +297,13 @@
   }
   ['pid-kp','pid-ki','pid-kd'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
   draw();
+    })();
   </script>
 
   <!-- Sim 2: P vs PI vs PID -->
-  <script type="module">
-  import { rk4Step } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { rk4Step } = window.CSUtils;
   const canvas=document.getElementById('cmp-canvas');if(!canvas)throw new Error();
   const ctx=canvas.getContext('2d');
 
@@ -350,10 +354,12 @@
   }
   document.getElementById('cmp-kp').addEventListener('input',draw);
   draw();
+    })();
   </script>
 
   <!-- Sim 3: Z-N Calculator -->
-  <script type="module">
+  <script>
+  (function(){
   function calc(){
     const Ku=parseFloat(document.getElementById('zn-ku').value);
     const Tu=parseFloat(document.getElementById('zn-tu').value);
@@ -376,6 +382,7 @@
   document.getElementById('zn-ku').addEventListener('input',calc);
   document.getElementById('zn-tu').addEventListener('input',calc);
   calc();
+    })();
   </script>
 </body>
 </html>

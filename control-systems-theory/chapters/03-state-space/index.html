@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -388,8 +389,9 @@
   </script>
 
   <!-- Sim 1: 3D State Trajectory -->
-  <script type="module">
-  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { rk4Step, linspace } = window.CSUtils;
   const container=document.getElementById('traj-3d');
   if(!container||!window.THREE) throw new Error('Missing');
 
@@ -466,12 +468,13 @@
   animate();
 
   window.addEventListener('resize',()=>{const nw=container.clientWidth,nh=container.clientHeight;camera.aspect=nw/nh;camera.updateProjectionMatrix();renderer.setSize(nw,nh);});
+    })();
   </script>
 
   <!-- Sim 2: Controllability & Observability Checker -->
-  <script type="module">
-  import { det as matDet } from '../../assets/js/utils.js';
-
+  <script>
+  (function(){
+  const { det: matDet } = window.CSUtils;
   document.getElementById('co-check').addEventListener('click',()=>{
     const a11=parseFloat(document.getElementById('ma11').value)||0;
     const a12=parseFloat(document.getElementById('ma12').value)||0;
@@ -519,11 +522,13 @@
   });
   // Auto-check on load
   document.getElementById('co-check').click();
+    })();
   </script>
 
   <!-- Sim 3: Phase Portrait -->
-  <script type="module">
-  import { rk4Step } from '../../assets/js/utils.js';
+  <script>
+  (function(){
+  const { rk4Step } = window.CSUtils;
   const canvas=document.getElementById('phase-canvas');if(!canvas)throw new Error('Missing');
   const ctx=canvas.getContext('2d');
   let trajectories=[];
@@ -631,6 +636,7 @@
   // Default trajectories
   trajectories=[[2,1],[-2,1],[1,-2],[-1,-1],[3,0],[0,3]];
   draw();
+    })();
   </script>
 </body>
 </html>

@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -681,9 +682,9 @@
   </script>
 
   <!-- Simulation: Laplace Explorer -->
-  <script type="module">
-  import { Complex, polyEval, linspace, exportCSV } from '../../assets/js/utils.js';
-
+  <script>
+  (function(){
+  const { Complex, polyEval, linspace, exportCSV } = window.CSUtils;
   const timeCanvas = document.getElementById('laplace-time-canvas');
   const splaneCanvas = document.getElementById('laplace-splane-canvas');
   const signalSelect = document.getElementById('laplace-signal');
@@ -909,12 +910,13 @@
 
     update();
   }
+    })();
   </script>
 
   <!-- Simulation: Pole-Zero Designer -->
-  <script type="module">
-  import { Complex, polyFromRoots, polyRoots, secondOrderStep, linspace, exportCSV, rk4Step } from '../../assets/js/utils.js';
-
+  <script>
+  (function(){
+  const { Complex, polyFromRoots, polyRoots, secondOrderStep, linspace, exportCSV, rk4Step } = window.CSUtils;
   const sCanvas = document.getElementById('pz-splane');
   const rCanvas = document.getElementById('pz-response');
   if (!sCanvas || !rCanvas) throw new Error('Canvas not found');
@@ -1204,12 +1206,13 @@
   });
 
   draw();
+    })();
   </script>
 
   <!-- Simulation: Second-Order Response Analyzer -->
-  <script type="module">
-  import { secondOrderStep, secondOrderImpulse, transientSpecs, linspace, exportCSV } from '../../assets/js/utils.js';
-
+  <script>
+  (function(){
+  const { secondOrderStep, secondOrderImpulse, transientSpecs, linspace, exportCSV } = window.CSUtils;
   const stepCanvas = document.getElementById('step-canvas');
   const impulseCanvas = document.getElementById('impulse-canvas');
   const zetaSlider = document.getElementById('zeta-slider');
@@ -1347,6 +1350,7 @@
 
     update();
   }
+    })();
   </script>
 </body>
 </html>

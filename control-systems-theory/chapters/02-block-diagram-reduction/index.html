@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/math.css">
   <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/utils.js"></script>
   <script src="../../assets/js/theme.js"></script>
 </head>
 <body>
@@ -357,9 +358,9 @@
   </script>
 
   <!-- Sim 1: Feedback Loop Analyzer -->
-  <script type="module">
-  import { linspace, rk4Step } from '../../assets/js/utils.js';
-
+  <script>
+  (function(){
+  const { linspace, rk4Step } = window.CSUtils;
   const blockCanvas=document.getElementById('fb-block-canvas');
   const respCanvas=document.getElementById('fb-response-canvas');
   if(!blockCanvas||!respCanvas) throw new Error('Canvas missing');
@@ -452,10 +453,12 @@
 
   [kSlider,pSlider,hSlider].forEach(s=>s.addEventListener('input',update));
   update();
+    })();
   </script>
 
   <!-- Sim 2: Signal Flow Graph -->
-  <script type="module">
+  <script>
+  (function(){
   const sfgCanvas=document.getElementById('sfg-canvas');if(!sfgCanvas)throw new Error('Missing');
   const ctx=sfgCanvas.getContext('2d');
   const ids=['sfg-g1','sfg-g2','sfg-g3','sfg-h1','sfg-h2'];
@@ -531,10 +534,12 @@
 
   ids.forEach(id=>document.getElementById(id).addEventListener('input',draw));
   draw();
+    })();
   </script>
 
   <!-- Sim 3: Multi-Loop Step-by-Step -->
-  <script type="module">
+  <script>
+  (function(){
   const mlCanvas=document.getElementById('ml-canvas');if(!mlCanvas)throw new Error('Missing');
   const ctx=mlCanvas.getContext('2d');
   let currentStep=0;const totalSteps=3;
@@ -623,6 +628,7 @@
   document.getElementById('ml-prev').addEventListener('click',()=>{if(currentStep>0)currentStep--;render();});
   document.getElementById('ml-reset').addEventListener('click',()=>{currentStep=0;render();});
   render();
+    })();
   </script>
 </body>
 </html>
