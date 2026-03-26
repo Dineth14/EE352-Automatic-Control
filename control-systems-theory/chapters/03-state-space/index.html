@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 3 — State Space Analysis | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html" class="active"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 03</span>
+        <h1>State Space Analysis</h1>
+        <p class="subtitle">The modern framework for multi-variable dynamic systems</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>State space representation provides a unified mathematical framework for modeling, analyzing, and designing control systems, particularly for multi-input multi-output (MIMO) systems that classical transfer function methods cannot easily handle.</p>
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Formulate state equations from physical systems and transfer functions</li>
+          <li>Convert between state-space and transfer function representations</li>
+          <li>Compute the state transition matrix $e^{At}$</li>
+          <li>Evaluate controllability and observability using rank conditions</li>
+          <li>Transform between canonical forms</li>
+        </ul>
+      </div>
+
+      <!-- 3.1 State Space Formulation -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 3.1 — State Space Representation</h2>
+        <p>A continuous-time LTI system in state space form consists of two matrix equations describing how the system evolves over time:</p>
+
+        <div class="eq-critical">
+          <span class="eq-label">State Equations</span>
+          $$\dot{\mathbf{x}}(t) = \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t)$$
+          $$\mathbf{y}(t) = \mathbf{C}\mathbf{x}(t) + \mathbf{D}\mathbf{u}(t)$$
+          <p style="margin-top:8px;color:var(--text-secondary);font-size:0.9rem;">
+            $\mathbf{x} \in \mathbb{R}^n$ — state vector ($n$ states)<br>
+            $\mathbf{u} \in \mathbb{R}^m$ — input vector ($m$ inputs)<br>
+            $\mathbf{y} \in \mathbb{R}^p$ — output vector ($p$ outputs)<br>
+            $\mathbf{A} \in \mathbb{R}^{n\times n}$ — system/state matrix<br>
+            $\mathbf{B} \in \mathbb{R}^{n\times m}$ — input matrix<br>
+            $\mathbf{C} \in \mathbb{R}^{p\times n}$ — output matrix<br>
+            $\mathbf{D} \in \mathbb{R}^{p\times m}$ — feedthrough matrix
+          </p>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Example: RLC Circuit to State Space <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>For a series RLC circuit with input voltage $u(t)$ and output voltage across capacitor $y = v_C$:</p>
+                $$L\frac{di}{dt} + Ri + v_C = u(t), \quad i = C\frac{dv_C}{dt}$$
+              </div>
+              <div class="deriv-step">
+                <p>Choose states $x_1 = v_C$ (capacitor voltage) and $x_2 = i$ (inductor current):</p>
+                $$\dot{x}_1 = \frac{1}{C}x_2, \quad \dot{x}_2 = -\frac{1}{L}x_1 - \frac{R}{L}x_2 + \frac{1}{L}u$$
+              </div>
+              <div class="deriv-step">
+                <p>In matrix form:</p>
+                $$\begin{bmatrix}\dot{x}_1\\\dot{x}_2\end{bmatrix} = \begin{bmatrix}0 & 1/C\\-1/L & -R/L\end{bmatrix}\begin{bmatrix}x_1\\x_2\end{bmatrix} + \begin{bmatrix}0\\1/L\end{bmatrix}u, \quad y = \begin{bmatrix}1 & 0\end{bmatrix}\begin{bmatrix}x_1\\x_2\end{bmatrix}$$
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3.2 Transfer Function ↔ State Space -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 3.2 — Transfer Function Conversion</h2>
+
+        <div class="eq-key-result">
+          <span class="eq-label">State Space → Transfer Function</span>
+          $$G(s) = \mathbf{C}(s\mathbf{I} - \mathbf{A})^{-1}\mathbf{B} + \mathbf{D}$$
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Derivation <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Take the Laplace transform of the state equation (zero initial conditions):</p>
+                $$s\mathbf{X}(s) = \mathbf{A}\mathbf{X}(s) + \mathbf{B}\mathbf{U}(s)$$
+              </div>
+              <div class="deriv-step">
+                <p>Solve for $\mathbf{X}(s)$:</p>
+                $$(s\mathbf{I} - \mathbf{A})\mathbf{X}(s) = \mathbf{B}\mathbf{U}(s) \implies \mathbf{X}(s) = (s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B}\mathbf{U}(s)$$
+              </div>
+              <div class="deriv-step">
+                <p>Substitute into the output equation:</p>
+                $$\mathbf{Y}(s) = [\mathbf{C}(s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B} + \mathbf{D}]\mathbf{U}(s)$$
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Characteristic Equation</h3>
+        <div class="eq-definition">
+          <span class="eq-label">Characteristic Polynomial</span>
+          $$\det(s\mathbf{I} - \mathbf{A}) = 0$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">The eigenvalues of $\mathbf{A}$ are the system poles. Stability requires all eigenvalues to have negative real parts.</p>
+        </div>
+      </section>
+
+      <!-- 3.3 State Transition Matrix -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 3.3 — State Transition Matrix</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Solution of the State Equation</span>
+          $$\mathbf{x}(t) = e^{\mathbf{A}t}\mathbf{x}(0) + \int_0^t e^{\mathbf{A}(t-\tau)}\mathbf{B}\mathbf{u}(\tau)\,d\tau$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">where $\Phi(t) = e^{\mathbf{A}t}$ is the <strong>state transition matrix</strong>, computed as:</p>
+          $$e^{\mathbf{A}t} = \mathcal{L}^{-1}\{(s\mathbf{I}-\mathbf{A})^{-1}\} = \sum_{k=0}^{\infty} \frac{(\mathbf{A}t)^k}{k!}$$
+        </div>
+      </section>
+
+      <!-- 3.4 Controllability -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 3.4 — Controllability</h2>
+
+        <div class="eq-definition">
+          <span class="eq-label">Controllability Matrix</span>
+          $$\mathcal{C} = \begin{bmatrix}\mathbf{B} & \mathbf{AB} & \mathbf{A}^2\mathbf{B} & \cdots & \mathbf{A}^{n-1}\mathbf{B}\end{bmatrix}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">The system is <strong>controllable</strong> if and only if $\text{rank}(\mathcal{C}) = n$.</p>
+        </div>
+
+        <div class="why-matters">
+          <strong>Physical meaning:</strong> A system is controllable if, from any initial state, there exists an input $\mathbf{u}(t)$ that can drive the state to any desired final state in finite time. If the system is not controllable, some internal modes cannot be influenced by the input.
+        </div>
+      </section>
+
+      <!-- 3.5 Observability -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 3.5 — Observability</h2>
+
+        <div class="eq-definition">
+          <span class="eq-label">Observability Matrix</span>
+          $$\mathcal{O} = \begin{bmatrix}\mathbf{C}\\\mathbf{CA}\\\mathbf{CA}^2\\\vdots\\\mathbf{CA}^{n-1}\end{bmatrix}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">The system is <strong>observable</strong> if and only if $\text{rank}(\mathcal{O}) = n$.</p>
+        </div>
+
+        <div class="why-matters">
+          <strong>Physical meaning:</strong> A system is observable if the initial state $\mathbf{x}(0)$ can be uniquely determined from the output $\mathbf{y}(t)$ and input $\mathbf{u}(t)$ over a finite time interval. Unobservable modes are hidden from the output.
+        </div>
+
+        <h3>Duality</h3>
+        <p>The pair $(\mathbf{A},\mathbf{B})$ is controllable if and only if $(\mathbf{A}^T,\mathbf{B}^T)$ is observable, and vice versa with $(\mathbf{A},\mathbf{C})$. This is the <strong>controllability-observability duality</strong>.</p>
+      </section>
+
+      <!-- 3.6 Canonical Forms -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 3.6 — Canonical Forms</h2>
+
+        <h3>Controllable Canonical Form (CCF)</h3>
+        <p>For the transfer function $G(s) = \frac{b_1 s^{n-1}+\cdots+b_n}{s^n+a_1 s^{n-1}+\cdots+a_n}$:</p>
+        <div class="eq-key-result">
+          <span class="eq-label">CCF Matrices</span>
+          $$\mathbf{A} = \begin{bmatrix}0&1&0&\cdots&0\\0&0&1&\cdots&0\\\vdots&&&\ddots&\vdots\\0&0&0&\cdots&1\\-a_n&-a_{n-1}&-a_{n-2}&\cdots&-a_1\end{bmatrix}, \;\; \mathbf{B} = \begin{bmatrix}0\\0\\\vdots\\0\\1\end{bmatrix}$$
+        </div>
+
+        <h3>Observable Canonical Form (OCF)</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">OCF Matrices</span>
+          $$\mathbf{A} = \begin{bmatrix}0&0&\cdots&0&-a_n\\1&0&\cdots&0&-a_{n-1}\\0&1&\cdots&0&-a_{n-2}\\\vdots&&\ddots&&\vdots\\0&0&\cdots&1&-a_1\end{bmatrix}, \;\; \mathbf{C} = \begin{bmatrix}0&0&\cdots&0&1\end{bmatrix}$$
+        </div>
+
+        <h3>Diagonal (Modal) Form</h3>
+        <p>If $\mathbf{A}$ has distinct eigenvalues $\lambda_1,\ldots,\lambda_n$, it can be diagonalized via similarity transformation $\mathbf{T}^{-1}\mathbf{A}\mathbf{T} = \text{diag}(\lambda_1,\ldots,\lambda_n)$, where $\mathbf{T}$ is the matrix of eigenvectors.</p>
+      </section>
+
+      <!-- ====== Sim 1: State Trajectory 3D ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: 3D State Trajectory Viewer</h2>
+        <div class="sim-container" id="sim-state-traj">
+          <div class="sim-title">① 3D State Space Trajectory</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Visualize how the state vector evolves in 3D space for a second-order system. Drag to orbit.</p>
+          <div class="sim-canvas-wrapper" style="height:400px;"><div id="traj-3d" style="width:100%;height:100%;"></div></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>A₁₁: <span class="value" id="a11-val">-1.0</span></label>
+              <input type="range" id="a11" min="-5" max="1" step="0.1" value="-1" aria-label="A11">
+            </div>
+            <div class="slider-group">
+              <label>A₁₂: <span class="value" id="a12-val">2.0</span></label>
+              <input type="range" id="a12" min="-5" max="5" step="0.1" value="2" aria-label="A12">
+            </div>
+            <div class="slider-group">
+              <label>A₂₁: <span class="value" id="a21-val">-2.0</span></label>
+              <input type="range" id="a21" min="-5" max="5" step="0.1" value="-2" aria-label="A21">
+            </div>
+            <div class="slider-group">
+              <label>A₂₂: <span class="value" id="a22-val">-1.0</span></label>
+              <input type="range" id="a22" min="-5" max="1" step="0.1" value="-1" aria-label="A22">
+            </div>
+          </div>
+          <div id="traj-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: Controllability / Observability Checker ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Controllability &amp; Observability Checker</h2>
+        <div class="sim-container" id="sim-ctrl-obs">
+          <div class="sim-title">② Controllability &amp; Observability</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Enter 2×2 system matrices and check rank conditions in real-time.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <h4 style="color:var(--accent-cyan);margin-bottom:12px;">System Matrices</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div style="text-align:center;">
+                  <label style="font-size:0.8rem;color:var(--text-muted);">A matrix (2×2)</label>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+                    <input type="number" id="ma11" value="-1" step="0.5" class="input-field" style="text-align:center;">
+                    <input type="number" id="ma12" value="2" step="0.5" class="input-field" style="text-align:center;">
+                    <input type="number" id="ma21" value="-2" step="0.5" class="input-field" style="text-align:center;">
+                    <input type="number" id="ma22" value="-3" step="0.5" class="input-field" style="text-align:center;">
+                  </div>
+                </div>
+                <div style="text-align:center;">
+                  <label style="font-size:0.8rem;color:var(--text-muted);">B matrix (2×1)</label>
+                  <div style="display:grid;grid-template-columns:1fr;gap:4px;margin-top:4px;">
+                    <input type="number" id="mb1" value="1" step="0.5" class="input-field" style="text-align:center;">
+                    <input type="number" id="mb2" value="0" step="0.5" class="input-field" style="text-align:center;">
+                  </div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr;gap:4px;margin-bottom:12px;">
+                <label style="font-size:0.8rem;color:var(--text-muted);text-align:center;">C matrix (1×2)</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                  <input type="number" id="mc1" value="1" step="0.5" class="input-field" style="text-align:center;">
+                  <input type="number" id="mc2" value="0" step="0.5" class="input-field" style="text-align:center;">
+                </div>
+              </div>
+              <button class="btn btn-sm" id="co-check" style="width:100%;">Check Properties</button>
+            </div>
+            <div id="co-results" style="padding:16px;">
+              <div class="card" style="margin:0 0 8px 0;padding:12px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Eigenvalues of A</div>
+                <div id="co-eig" style="font-family:var(--font-mono);font-size:0.95rem;color:var(--accent-cyan);margin-top:4px;">—</div>
+              </div>
+              <div class="card" style="margin:0 0 8px 0;padding:12px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Controllability</div>
+                <div id="co-ctrl" style="font-family:var(--font-mono);font-size:0.95rem;margin-top:4px;">—</div>
+              </div>
+              <div class="card" style="margin:0 0 8px 0;padding:12px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Observability</div>
+                <div id="co-obs" style="font-family:var(--font-mono);font-size:0.95rem;margin-top:4px;">—</div>
+              </div>
+              <div class="card" style="margin:0;padding:12px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Stability</div>
+                <div id="co-stab" style="font-family:var(--font-mono);font-size:0.95rem;margin-top:4px;">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: Phase Portrait ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Phase Portrait</h2>
+        <div class="sim-container" id="sim-phase">
+          <div class="sim-title">③ Phase Portrait — State Plane Trajectories</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Click anywhere to launch trajectories from different initial conditions. Observe nodes, spirals, and saddle points.</p>
+          <div class="sim-canvas-wrapper"><canvas id="phase-canvas" width="600" height="500" aria-label="Phase portrait showing state trajectories"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>a₁₁: <span class="value" id="pp-a11-val">-1</span></label>
+              <input type="range" id="pp-a11" min="-5" max="2" step="0.1" value="-1" aria-label="a11">
+            </div>
+            <div class="slider-group">
+              <label>a₁₂: <span class="value" id="pp-a12-val">1</span></label>
+              <input type="range" id="pp-a12" min="-5" max="5" step="0.1" value="1" aria-label="a12">
+            </div>
+            <div class="slider-group">
+              <label>a₂₁: <span class="value" id="pp-a21-val">-1</span></label>
+              <input type="range" id="pp-a21" min="-5" max="5" step="0.1" value="-1" aria-label="a21">
+            </div>
+            <div class="slider-group">
+              <label>a₂₂: <span class="value" id="pp-a22-val">-1</span></label>
+              <input type="range" id="pp-a22" min="-5" max="2" step="0.1" value="-1" aria-label="a22">
+            </div>
+            <button class="btn btn-sm" id="pp-clear">Clear</button>
+          </div>
+          <div id="pp-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:4px;"></div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 3</h3>
+          <table class="formula-table">
+            <tr><td>State Equation</td><td>$\dot{\mathbf{x}} = \mathbf{Ax} + \mathbf{Bu}$</td></tr>
+            <tr><td>Output Equation</td><td>$\mathbf{y} = \mathbf{Cx} + \mathbf{Du}$</td></tr>
+            <tr><td>Transfer Function</td><td>$G(s) = \mathbf{C}(s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B}+\mathbf{D}$</td></tr>
+            <tr><td>State Transition</td><td>$\mathbf{x}(t)=e^{\mathbf{A}t}\mathbf{x}(0)+\int_0^t e^{\mathbf{A}(t-\tau)}\mathbf{Bu}d\tau$</td></tr>
+            <tr><td>Controllability</td><td>$\text{rank}[\mathbf{B}\;\mathbf{AB}\;\cdots\;\mathbf{A}^{n-1}\mathbf{B}]=n$</td></tr>
+            <tr><td>Observability</td><td>$\text{rank}[\mathbf{C};\mathbf{CA};\cdots;\mathbf{CA}^{n-1}]=n$</td></tr>
+            <tr><td>Eigenvalues</td><td>$\det(s\mathbf{I}-\mathbf{A})=0$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../02-block-diagram-reduction/index.html"><span class="label">← Previous</span><span class="title">Block Diagram Reduction</span></a>
+        <a href="../04-time-response/index.html" class="next"><span class="label">Next Chapter →</span><span class="title">Time Response Analysis</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D: Rotating state space axes -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(4,3,5);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(3,5,5);scene.add(dl);
+
+    // Axes
+    const axColors=[0x00e5ff,0x7c4dff,0x69ff47];
+    [[5,0,0],[0,5,0],[0,0,5]].forEach((dir,i)=>{
+      const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(...dir)]);
+      scene.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:axColors[i]})));
+    });
+
+    // Spiral trajectory
+    const pts=[];for(let t=0;t<20;t+=0.05){
+      const x=2*Math.exp(-0.15*t)*Math.cos(t);
+      const y=2*Math.exp(-0.15*t)*Math.sin(t);
+      const z=t*0.2;
+      pts.push(new THREE.Vector3(x,z,y));
+    }
+    const curve=new THREE.BufferGeometry().setFromPoints(pts);
+    scene.add(new THREE.Line(curve,new THREE.LineBasicMaterial({color:0xffab40})));
+
+    // Endpoint sphere
+    const sphere=new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16),new THREE.MeshStandardMaterial({color:0xff3d71,emissive:0xff3d71,emissiveIntensity:0.5}));
+    sphere.position.copy(pts[pts.length-1]);scene.add(sphere);
+
+    let mx=0,my=0;document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-0.5);my=(e.clientY/innerHeight-0.5);});
+    function animate(){requestAnimationFrame(animate);const t=Date.now()*0.0005;cam.position.x=5*Math.cos(t)+mx*2;cam.position.z=5*Math.sin(t);cam.position.y=3-my*2;cam.lookAt(0,1.5,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: 3D State Trajectory -->
+  <script type="module">
+  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  const container=document.getElementById('traj-3d');
+  if(!container||!window.THREE) throw new Error('Missing');
+
+  const w=container.clientWidth,h=container.clientHeight;
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setSize(w,h);renderer.setPixelRatio(Math.min(devicePixelRatio,2));container.appendChild(renderer.domElement);
+  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(50,w/h,0.1,100);
+  camera.position.set(4,3,5);camera.lookAt(0,0,0);
+  scene.add(new THREE.AmbientLight(0xffffff,0.5));
+  const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(3,5,5);scene.add(dl);
+
+  // Grid
+  const grid=new THREE.GridHelper(8,16,0x00e5ff,0x00e5ff);grid.material.opacity=0.05;grid.material.transparent=true;scene.add(grid);
+
+  let trajLine=null;
+
+  function buildTrajectory(){
+    const a11=parseFloat(document.getElementById('a11').value);
+    const a12=parseFloat(document.getElementById('a12').value);
+    const a21=parseFloat(document.getElementById('a21').value);
+    const a22=parseFloat(document.getElementById('a22').value);
+    document.getElementById('a11-val').textContent=a11.toFixed(1);
+    document.getElementById('a12-val').textContent=a12.toFixed(1);
+    document.getElementById('a21-val').textContent=a21.toFixed(1);
+    document.getElementById('a22-val').textContent=a22.toFixed(1);
+
+    // Eigenvalues of 2x2: λ² - (a11+a22)λ + (a11*a22-a12*a21) = 0
+    const tr=a11+a22, det=a11*a22-a12*a21;
+    const disc=tr*tr-4*det;
+    let eigStr;
+    if(disc>=0){
+      const l1=(tr+Math.sqrt(disc))/2, l2=(tr-Math.sqrt(disc))/2;
+      eigStr=`λ₁=${l1.toFixed(2)}, λ₂=${l2.toFixed(2)}`;
+    } else {
+      const re=tr/2, im=Math.sqrt(-disc)/2;
+      eigStr=`λ=${re.toFixed(2)}±${im.toFixed(2)}j`;
+    }
+    document.getElementById('traj-info').textContent=`Eigenvalues: ${eigStr}`;
+
+    const deriv=(t,s)=>[a11*s[0]+a12*s[1], a21*s[0]+a22*s[1]];
+    const pts=[];
+    let state=[2,1];const dt=0.02;
+    for(let i=0;i<600;i++){
+      pts.push(new THREE.Vector3(state[0],i*dt*0.5,state[1]));
+      state=rk4Step(deriv,i*dt,state,dt);
+      if(Math.abs(state[0])>20||Math.abs(state[1])>20)break;
+    }
+
+    if(trajLine)scene.remove(trajLine);
+    const geom=new THREE.BufferGeometry().setFromPoints(pts);
+    trajLine=new THREE.Line(geom,new THREE.LineBasicMaterial({color:0x00e5ff}));
+    scene.add(trajLine);
+  }
+
+  ['a11','a12','a21','a22'].forEach(id=>document.getElementById(id).addEventListener('input',buildTrajectory));
+  buildTrajectory();
+
+  // Orbit with mouse
+  let isDragging=false,prevMX=0,prevMY=0,camAngle=0.8,camElev=0.5;
+  container.addEventListener('mousedown',e=>{isDragging=true;prevMX=e.clientX;prevMY=e.clientY;});
+  window.addEventListener('mouseup',()=>isDragging=false);
+  container.addEventListener('mousemove',e=>{
+    if(!isDragging)return;
+    camAngle+=(e.clientX-prevMX)*0.005;camElev+=(e.clientY-prevMY)*0.005;
+    camElev=Math.max(-1,Math.min(1.5,camElev));
+    prevMX=e.clientX;prevMY=e.clientY;
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    camera.position.x=6*Math.cos(camAngle);camera.position.z=6*Math.sin(camAngle);camera.position.y=3+camElev*3;
+    camera.lookAt(0,2,0);renderer.render(scene,camera);
+  }
+  animate();
+
+  window.addEventListener('resize',()=>{const nw=container.clientWidth,nh=container.clientHeight;camera.aspect=nw/nh;camera.updateProjectionMatrix();renderer.setSize(nw,nh);});
+  </script>
+
+  <!-- Sim 2: Controllability & Observability Checker -->
+  <script type="module">
+  import { det as matDet } from '../../assets/js/utils.js';
+
+  document.getElementById('co-check').addEventListener('click',()=>{
+    const a11=parseFloat(document.getElementById('ma11').value)||0;
+    const a12=parseFloat(document.getElementById('ma12').value)||0;
+    const a21=parseFloat(document.getElementById('ma21').value)||0;
+    const a22=parseFloat(document.getElementById('ma22').value)||0;
+    const b1=parseFloat(document.getElementById('mb1').value)||0;
+    const b2=parseFloat(document.getElementById('mb2').value)||0;
+    const c1=parseFloat(document.getElementById('mc1').value)||0;
+    const c2=parseFloat(document.getElementById('mc2').value)||0;
+
+    // Eigenvalues
+    const tr=a11+a22, d=a11*a22-a12*a21;
+    const disc=tr*tr-4*d;
+    let eigStr,stable;
+    if(disc>=0){
+      const l1=(tr+Math.sqrt(disc))/2,l2=(tr-Math.sqrt(disc))/2;
+      eigStr=`λ₁=${l1.toFixed(3)}, λ₂=${l2.toFixed(3)}`;
+      stable=l1<0&&l2<0;
+    } else {
+      const re=tr/2,im=Math.sqrt(-disc)/2;
+      eigStr=`λ=${re.toFixed(3)}±${im.toFixed(3)}j`;
+      stable=re<0;
+    }
+
+    // Controllability: [B, AB] for 2x2
+    const ab1=a11*b1+a12*b2, ab2=a21*b1+a22*b2;
+    const ctrlDet=b1*ab2-b2*ab1;
+    const controllable=Math.abs(ctrlDet)>1e-10;
+
+    // Observability: [C; CA]
+    const ca1=c1*a11+c2*a21, ca2=c1*a12+c2*a22;
+    const obsDet=c1*ca2-c2*ca1;
+    const observable=Math.abs(obsDet)>1e-10;
+
+    document.getElementById('co-eig').textContent=eigStr;
+    document.getElementById('co-ctrl').innerHTML=controllable?
+      '<span style="color:var(--accent-green);">✓ Controllable</span> — det(C)='+ctrlDet.toFixed(3):
+      '<span style="color:var(--accent-red);">✗ NOT Controllable</span> — det(C)='+ctrlDet.toFixed(3);
+    document.getElementById('co-obs').innerHTML=observable?
+      '<span style="color:var(--accent-green);">✓ Observable</span> — det(O)='+obsDet.toFixed(3):
+      '<span style="color:var(--accent-red);">✗ NOT Observable</span> — det(O)='+obsDet.toFixed(3);
+    document.getElementById('co-stab').innerHTML=stable?
+      '<span style="color:var(--accent-green);">✓ Stable</span> — all eigenvalues in LHP':
+      '<span style="color:var(--accent-red);">✗ Unstable</span> — eigenvalue(s) in RHP/jω-axis';
+  });
+  // Auto-check on load
+  document.getElementById('co-check').click();
+  </script>
+
+  <!-- Sim 3: Phase Portrait -->
+  <script type="module">
+  import { rk4Step } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('phase-canvas');if(!canvas)throw new Error('Missing');
+  const ctx=canvas.getContext('2d');
+  let trajectories=[];
+
+  function getA(){
+    return [
+      [parseFloat(document.getElementById('pp-a11').value),parseFloat(document.getElementById('pp-a12').value)],
+      [parseFloat(document.getElementById('pp-a21').value),parseFloat(document.getElementById('pp-a22').value)]
+    ];
+  }
+
+  function draw(){
+    const A=getA();
+    ['pp-a11','pp-a12','pp-a21','pp-a22'].forEach(id=>{
+      document.getElementById(id+'-val').textContent=parseFloat(document.getElementById(id).value).toFixed(1);
+    });
+
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+
+    const range=4;
+    const cx=w/2,cy=h/2;
+    const scale=Math.min(w,h)/(2*range);
+
+    function tx(x){return cx+x*scale;}
+    function ty(y){return cy-y*scale;}
+
+    // Grid
+    ctx.strokeStyle='rgba(0,229,255,0.06)';ctx.lineWidth=0.5;
+    for(let v=-range;v<=range;v++){
+      ctx.beginPath();ctx.moveTo(tx(v),0);ctx.lineTo(tx(v),h);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(0,ty(v));ctx.lineTo(w,ty(v));ctx.stroke();
+    }
+    // Axes
+    ctx.strokeStyle='rgba(138,155,181,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,h);ctx.stroke();
+    ctx.fillStyle='#8a9bb5';ctx.font='11px Inter';ctx.fillText('x₁',w-20,cy-8);ctx.fillText('x₂',cx+8,14);
+
+    // Vector field
+    const deriv=(t,s)=>[A[0][0]*s[0]+A[0][1]*s[1], A[1][0]*s[0]+A[1][1]*s[1]];
+    const step=0.6;
+    ctx.strokeStyle='rgba(0,229,255,0.12)';ctx.lineWidth=0.8;
+    for(let x=-range;x<=range;x+=step){
+      for(let y=-range;y<=range;y+=step){
+        const [dx,dy]=deriv(0,[x,y]);
+        const mag=Math.sqrt(dx*dx+dy*dy);
+        if(mag<0.01)continue;
+        const s=0.2/Math.max(1,mag)*Math.min(mag,2);
+        ctx.beginPath();ctx.moveTo(tx(x),ty(y));ctx.lineTo(tx(x+dx*s),ty(y+dy*s));ctx.stroke();
+      }
+    }
+
+    // Trajectories
+    trajectories.forEach((traj,ti)=>{
+      const hue=(ti*60)%360;
+      ctx.strokeStyle=`hsl(${hue},80%,60%)`;ctx.lineWidth=1.5;ctx.beginPath();
+      let state=[...traj];
+      for(let i=0;i<800;i++){
+        const px=tx(state[0]),py=ty(state[1]);
+        if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+        state=rk4Step(deriv,i*0.01,state,0.01);
+        if(Math.abs(state[0])>range*2||Math.abs(state[1])>range*2)break;
+      }
+      ctx.stroke();
+      // Start point
+      ctx.fillStyle=`hsl(${hue},80%,60%)`;ctx.beginPath();ctx.arc(tx(traj[0]),ty(traj[1]),4,0,Math.PI*2);ctx.fill();
+    });
+
+    // Eigenvalue info
+    const tr=A[0][0]+A[1][1],det=A[0][0]*A[1][1]-A[0][1]*A[1][0];
+    const disc=tr*tr-4*det;
+    let type;
+    if(disc>=0){
+      const l1=(tr+Math.sqrt(disc))/2,l2=(tr-Math.sqrt(disc))/2;
+      if(l1<0&&l2<0)type='Stable node';
+      else if(l1>0&&l2>0)type='Unstable node';
+      else type='Saddle point';
+    } else {
+      const re=tr/2;
+      if(re<0)type='Stable spiral';
+      else if(re>0)type='Unstable spiral';
+      else type='Center';
+    }
+    document.getElementById('pp-info').textContent=`Classification: ${type} | tr(A)=${tr.toFixed(2)}, det(A)=${det.toFixed(2)}`;
+  }
+
+  canvas.addEventListener('click',e=>{
+    const rect=canvas.getBoundingClientRect();
+    const range=4,scale=Math.min(canvas.clientWidth,canvas.clientHeight)/(2*range);
+    const x=(e.clientX-rect.left-canvas.clientWidth/2)/scale;
+    const y=-(e.clientY-rect.top-canvas.clientHeight/2)/scale;
+    trajectories.push([x,y]);
+    draw();
+  });
+
+  ['pp-a11','pp-a12','pp-a21','pp-a22'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',()=>{trajectories=[];draw();});
+  });
+  document.getElementById('pp-clear').addEventListener('click',()=>{trajectories=[];draw();});
+
+  // Default trajectories
+  trajectories=[[2,1],[-2,1],[1,-2],[-1,-1],[3,0],[0,3]];
+  draw();
+  </script>
+</body>
+</html>

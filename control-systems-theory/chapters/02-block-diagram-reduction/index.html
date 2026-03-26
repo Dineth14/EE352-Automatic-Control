@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 2 — Block Diagram Reduction | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html" class="active"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 02</span>
+        <h1>Block Diagram Reduction</h1>
+        <p class="subtitle">Signal flow, feedback loops, and Mason's Gain Formula</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>Block diagrams are the visual language of control systems. This chapter teaches you to reduce complex interconnections of transfer functions into a single equivalent transfer function using algebraic rules and Mason's Gain Formula.</p>
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Draw and interpret block diagrams with summing junctions and pickoff points</li>
+          <li>Apply series, parallel, and feedback reduction rules</li>
+          <li>Move pickoff points and summing junctions across blocks</li>
+          <li>Construct signal flow graphs from block diagrams</li>
+          <li>Apply Mason's Gain Formula to determine overall transfer functions</li>
+        </ul>
+      </div>
+
+      <!-- Section 2.1: Block Diagram Basics -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 2.1 — Block Diagram Components</h2>
+        <p>A <strong>block diagram</strong> is a graphical representation of a system showing the functional relationships between components. The fundamental elements are:</p>
+        <ul style="color:var(--text-secondary);padding-left:24px;margin:16px 0;">
+          <li><strong>Blocks</strong> — represent transfer functions $G(s)$. Output = $G(s) \times$ Input.</li>
+          <li><strong>Summing junctions</strong> (circles with ±) — add or subtract signals.</li>
+          <li><strong>Pickoff points</strong> (branch points) — where a signal is tapped without modification.</li>
+          <li><strong>Arrows</strong> — indicate signal flow direction.</li>
+        </ul>
+      </section>
+
+      <!-- Section 2.2: Reduction Rules -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 2.2 — Block Diagram Algebra</h2>
+
+        <h3>Series (Cascade) Connection</h3>
+        <div class="eq-definition">
+          <span class="eq-label">Series Rule</span>
+          $$G_{eq}(s) = G_1(s) \cdot G_2(s) \cdots G_n(s)$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">Blocks in series: multiply their transfer functions.</p>
+        </div>
+
+        <h3>Parallel Connection</h3>
+        <div class="eq-definition">
+          <span class="eq-label">Parallel Rule</span>
+          $$G_{eq}(s) = G_1(s) \pm G_2(s) \pm \cdots \pm G_n(s)$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">Blocks in parallel: add (or subtract) their transfer functions.</p>
+        </div>
+
+        <h3>Negative Feedback Loop</h3>
+        <div class="eq-critical">
+          <span class="eq-label">Closed-Loop Transfer Function</span>
+          $$T(s) = \frac{G(s)}{1 + G(s)H(s)}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">For negative feedback. For positive feedback, the denominator becomes $1 - G(s)H(s)$.</p>
+        </div>
+
+        <div class="collapsible open">
+          <div class="collapsible-header">Derivation: Closed-Loop Transfer Function <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Let $R(s)$ be the reference input, $E(s)$ the error signal, $Y(s)$ the output, with forward path $G(s)$ and feedback path $H(s)$:</p>
+                $$E(s) = R(s) - H(s)Y(s)$$
+                $$Y(s) = G(s)E(s)$$
+              </div>
+              <div class="deriv-step">
+                <p>Substitute $E(s)$ into the second equation:</p>
+                $$Y(s) = G(s)[R(s) - H(s)Y(s)]$$
+                $$Y(s) + G(s)H(s)Y(s) = G(s)R(s)$$
+              </div>
+              <div class="deriv-step">
+                <p>Factor and solve:</p>
+                $$Y(s)[1 + G(s)H(s)] = G(s)R(s) \implies \boxed{T(s) = \frac{Y(s)}{R(s)} = \frac{G(s)}{1+G(s)H(s)}}$$
+                <div class="why-matters">The denominator $1 + G(s)H(s)$ is called the <strong>characteristic polynomial</strong>. Its roots (the closed-loop poles) determine system stability. Setting it to zero gives the <strong>characteristic equation</strong> — the single most important equation in classical control.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Block Movement Rules</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">Pickoff and Summing Junction Moves</span>
+          <table class="formula-table">
+            <tr><td>Move pickoff past block (right)</td><td>Multiply branch by $1/G(s)$</td></tr>
+            <tr><td>Move pickoff before block (left)</td><td>Multiply branch by $G(s)$</td></tr>
+            <tr><td>Move summing junction past block (right)</td><td>Multiply added signal by $1/G(s)$</td></tr>
+            <tr><td>Move summing junction before block (left)</td><td>Multiply added signal by $G(s)$</td></tr>
+          </table>
+        </div>
+
+        <div class="worked-example">
+          <div class="worked-example-header">Worked Example: Multi-Loop Reduction <span class="arrow">▸</span></div>
+          <div class="worked-example-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Given: Forward path $G_1, G_2, G_3$ in series, inner loop feedback $H_1$ around $G_2$, outer loop feedback $H_2$ from output around entire forward path.</p>
+              </div>
+              <div class="deriv-step">
+                <p><strong>Step 1:</strong> Reduce the inner loop first:</p>
+                $$G_{inner}(s) = \frac{G_2}{1 + G_2 H_1}$$
+              </div>
+              <div class="deriv-step">
+                <p><strong>Step 2:</strong> Cascade with remaining blocks:</p>
+                $$G_{fwd}(s) = G_1 \cdot \frac{G_2}{1 + G_2 H_1} \cdot G_3$$
+              </div>
+              <div class="deriv-step">
+                <p><strong>Step 3:</strong> Close the outer loop:</p>
+                $$T(s) = \frac{G_{fwd}}{1 + G_{fwd} H_2} = \frac{G_1 G_2 G_3}{(1 + G_2 H_1) + G_1 G_2 G_3 H_2}$$
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2.3: Signal Flow Graphs -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 2.3 — Signal Flow Graphs</h2>
+        <p>A <strong>signal flow graph (SFG)</strong> uses nodes (representing signals) and directed branches (representing gains/transfer functions) to model the same relationships as block diagrams but in a form suitable for Mason's formula.</p>
+        <h4>Terminology</h4>
+        <ul style="color:var(--text-secondary);padding-left:24px;margin:16px 0;">
+          <li><strong>Node:</strong> represents a signal variable.</li>
+          <li><strong>Branch:</strong> directed edge with gain $G(s)$ from one node to another.</li>
+          <li><strong>Source node:</strong> node with only outgoing branches (input).</li>
+          <li><strong>Sink node:</strong> node with only incoming branches (output).</li>
+          <li><strong>Forward path:</strong> a path from source to sink that visits each node at most once.</li>
+          <li><strong>Loop:</strong> a closed path that starts and ends at the same node, visiting no node twice.</li>
+          <li><strong>Non-touching loops:</strong> loops that share no common nodes.</li>
+        </ul>
+      </section>
+
+      <!-- Section 2.4: Mason's Gain Formula -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 2.4 — Mason's Gain Formula</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Mason's Gain Formula</span>
+          $$T(s) = \frac{\sum_{k} P_k \Delta_k}{\Delta}$$
+          <p style="margin-top:8px;">where</p>
+          $$\Delta = 1 - \sum L_i + \sum L_iL_j - \sum L_iL_jL_k + \cdots$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">
+            $P_k$ = gain of $k$-th forward path<br>
+            $\Delta$ = graph determinant<br>
+            $\Delta_k$ = cofactor of $P_k$ (determinant with all loops touching path $k$ removed)<br>
+            $L_i$ = gain of $i$-th individual loop<br>
+            $L_iL_j$ = product of gains of $i$-th and $j$-th non-touching loops
+          </p>
+        </div>
+
+        <div class="collapsible open">
+          <div class="collapsible-header">Worked Example: Mason's Formula Application <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Consider the signal flow graph: $R \xrightarrow{1} x_1 \xrightarrow{G_1} x_2 \xrightarrow{G_2} x_3 \xrightarrow{G_3} Y$ with loops $L_1 = -G_2 H_1$ (at $x_2$-$x_3$) and $L_2 = -G_1 G_2 G_3 H_2$ (outer).</p>
+              </div>
+              <div class="deriv-step">
+                <p>There is one forward path: $P_1 = G_1 G_2 G_3$.</p>
+              </div>
+              <div class="deriv-step">
+                <p>Check non-touching loops: $L_1$ and $L_2$ share node $x_2$, so they <em>touch</em>. No non-touching pairs.</p>
+              </div>
+              <div class="deriv-step">
+                <p>Graph determinant:</p>
+                $$\Delta = 1 - (L_1 + L_2) = 1 + G_2 H_1 + G_1 G_2 G_3 H_2$$
+              </div>
+              <div class="deriv-step">
+                <p>$\Delta_1$: remove loops touching path 1 — both loops touch it, so $\Delta_1 = 1$.</p>
+                $$T(s) = \frac{P_1 \Delta_1}{\Delta} = \frac{G_1 G_2 G_3}{1 + G_2 H_1 + G_1 G_2 G_3 H_2}$$
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Simulation 1: Block Diagram Builder ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Feedback Loop Analyzer</h2>
+        <div class="sim-container" id="sim-feedback-loop">
+          <div class="sim-title">① Feedback Loop — Adjust G(s) and H(s)</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">See how changing the forward and feedback gains affects the closed-loop transfer function and step response.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="fb-block-canvas" width="400" height="250" aria-label="Block diagram visualization"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="fb-response-canvas" width="400" height="250" aria-label="Step response of closed loop"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>G gain K: <span class="value" id="fb-k-val">5.00</span></label>
+              <input type="range" id="fb-k" min="0.1" max="50" step="0.1" value="5" aria-label="Forward gain K">
+            </div>
+            <div class="slider-group">
+              <label>G pole (−p): <span class="value" id="fb-p-val">2.00</span></label>
+              <input type="range" id="fb-p" min="0.1" max="10" step="0.1" value="2" aria-label="G pole location">
+            </div>
+            <div class="slider-group">
+              <label>H (feedback gain): <span class="value" id="fb-h-val">1.00</span></label>
+              <input type="range" id="fb-h" min="0" max="5" step="0.1" value="1" aria-label="Feedback gain H">
+            </div>
+          </div>
+          <div id="fb-formula" style="text-align:center;padding:8px;font-family:var(--font-mono);color:var(--accent-cyan);font-size:0.95rem;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Simulation 2: Signal Flow Graph ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Signal Flow Graph Visualizer</h2>
+        <div class="sim-container" id="sim-sfg">
+          <div class="sim-title">② Signal Flow Graph — Mason's Gain Formula</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Adjust branch gains and watch Mason's formula compute the overall transfer function in real time.</p>
+          <div class="sim-canvas-wrapper"><canvas id="sfg-canvas" width="700" height="300" aria-label="Signal flow graph"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>G₁: <span class="value" id="sfg-g1-val">2.0</span></label>
+              <input type="range" id="sfg-g1" min="0.1" max="10" step="0.1" value="2" aria-label="G1 gain">
+            </div>
+            <div class="slider-group">
+              <label>G₂: <span class="value" id="sfg-g2-val">3.0</span></label>
+              <input type="range" id="sfg-g2" min="0.1" max="10" step="0.1" value="3" aria-label="G2 gain">
+            </div>
+            <div class="slider-group">
+              <label>G₃: <span class="value" id="sfg-g3-val">1.0</span></label>
+              <input type="range" id="sfg-g3" min="0.1" max="10" step="0.1" value="1" aria-label="G3 gain">
+            </div>
+            <div class="slider-group">
+              <label>H₁: <span class="value" id="sfg-h1-val">0.5</span></label>
+              <input type="range" id="sfg-h1" min="0" max="5" step="0.1" value="0.5" aria-label="H1 feedback">
+            </div>
+            <div class="slider-group">
+              <label>H₂: <span class="value" id="sfg-h2-val">0.2</span></label>
+              <input type="range" id="sfg-h2" min="0" max="5" step="0.1" value="0.2" aria-label="H2 feedback">
+            </div>
+          </div>
+          <div id="sfg-result" style="text-align:center;padding:12px;font-family:var(--font-mono);color:var(--accent-green);font-size:1rem;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Simulation 3: Multi-Loop Reduction ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Multi-Loop Step-by-Step Reducer</h2>
+        <div class="sim-container" id="sim-multiloop">
+          <div class="sim-title">③ Multi-Loop Reduction — Step by Step</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Click through each reduction step to see inner loops collapse first, then outer loops.</p>
+          <div class="sim-canvas-wrapper"><canvas id="ml-canvas" width="700" height="300" aria-label="Multi-loop block diagram"></canvas></div>
+          <div class="sim-controls">
+            <button class="btn btn-sm" id="ml-prev">◂ Prev Step</button>
+            <span id="ml-step-label" style="color:var(--text-secondary);font-size:0.9rem;">Step 0 / 3</span>
+            <button class="btn btn-sm" id="ml-next">Next Step ▸</button>
+            <button class="btn btn-sm" id="ml-reset">Reset</button>
+          </div>
+          <div id="ml-explanation" style="padding:12px;font-size:0.95rem;color:var(--text-secondary);"></div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 2</h3>
+          <table class="formula-table">
+            <tr><td>Series</td><td>$G_{eq} = G_1 G_2$</td></tr>
+            <tr><td>Parallel</td><td>$G_{eq} = G_1 \pm G_2$</td></tr>
+            <tr><td>Negative Feedback</td><td>$T = G/(1+GH)$</td></tr>
+            <tr><td>Positive Feedback</td><td>$T = G/(1-GH)$</td></tr>
+            <tr><td>Mason's Formula</td><td>$T = \sum P_k\Delta_k / \Delta$</td></tr>
+            <tr><td>Graph Determinant</td><td>$\Delta = 1 - \sum L_i + \sum L_iL_j - \cdots$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../01-laplace-transfer-functions/index.html">
+          <span class="label">← Previous</span><span class="title">Laplace &amp; Transfer Functions</span>
+        </a>
+        <a href="../03-state-space/index.html" class="next">
+          <span class="label">Next Chapter →</span><span class="title">State Space Analysis</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(0,2,8);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.4));const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(3,5,5);scene.add(dl);
+
+    // Blocks and arrows representing feedback loop
+    const blockMat=new THREE.MeshStandardMaterial({color:0x7c4dff,transparent:true,opacity:0.7});
+    const blocks=[[-3,0,0],[0,0,0],[3,0,0]];
+    blocks.forEach(pos=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.8,0.3),blockMat);m.position.set(...pos);scene.add(m);});
+
+    // Arrows
+    const arrowMat=new THREE.LineBasicMaterial({color:0x00e5ff,linewidth:2});
+    const arrowPts=[[-5,0,0],[-3.8,0,0]];
+    function mkLine(pts){const g=new THREE.BufferGeometry().setFromPoints(pts.map(p=>new THREE.Vector3(...p)));scene.add(new THREE.Line(g,arrowMat));}
+    mkLine([[-5,0,0],[-3.8,0,0]]);mkLine([[-2.2,0,0],[-0.8,0,0]]);mkLine([[0.8,0,0],[2.2,0,0]]);mkLine([[3.8,0,0],[5,0,0]]);
+    // Feedback
+    const fbMat=new THREE.LineBasicMaterial({color:0xffab40,linewidth:2});
+    mkLine([[4.5,0,0],[4.5,-1.5,0]]);mkLine([[4.5,-1.5,0],[-4.5,-1.5,0]]);mkLine([[-4.5,-1.5,0],[-4.5,0,0]]);
+    function mkLine2(pts,mat){const g=new THREE.BufferGeometry().setFromPoints(pts.map(p=>new THREE.Vector3(...p)));scene.add(new THREE.Line(g,mat||arrowMat));}
+
+    let mx=0,my=0;document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-0.5);my=(e.clientY/innerHeight-0.5);});
+    function animate(){requestAnimationFrame(animate);cam.position.x=mx*3;cam.position.y=2-my*2;cam.lookAt(0,0,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: Feedback Loop Analyzer -->
+  <script type="module">
+  import { linspace, rk4Step } from '../../assets/js/utils.js';
+
+  const blockCanvas=document.getElementById('fb-block-canvas');
+  const respCanvas=document.getElementById('fb-response-canvas');
+  if(!blockCanvas||!respCanvas) throw new Error('Canvas missing');
+
+  const bCtx=blockCanvas.getContext('2d'), rCtx=respCanvas.getContext('2d');
+  const kSlider=document.getElementById('fb-k'),pSlider=document.getElementById('fb-p'),hSlider=document.getElementById('fb-h');
+
+  function drawBlockDiagram(K,p,H){
+    const dpr=devicePixelRatio||1;blockCanvas.width=blockCanvas.clientWidth*dpr;blockCanvas.height=blockCanvas.clientHeight*dpr;
+    bCtx.setTransform(dpr,0,0,dpr,0,0);
+    const w=blockCanvas.clientWidth,h=blockCanvas.clientHeight;
+    const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    bCtx.fillStyle=bg;bCtx.fillRect(0,0,w,h);
+
+    const cy=h*0.4,bw=120,bh=50;
+    // R -> summing junction -> G -> Y
+    bCtx.strokeStyle='#00e5ff';bCtx.lineWidth=2;
+    // R arrow
+    bCtx.beginPath();bCtx.moveTo(20,cy);bCtx.lineTo(70,cy);bCtx.stroke();
+    bCtx.fillStyle='#e8edf8';bCtx.font='13px Inter';bCtx.fillText('R(s)',22,cy-10);
+    // Summing junction
+    bCtx.beginPath();bCtx.arc(85,cy,14,0,Math.PI*2);bCtx.strokeStyle='#ffab40';bCtx.stroke();
+    bCtx.font='11px Inter';bCtx.fillStyle='#ffab40';bCtx.fillText('+',78,cy-16);bCtx.fillText('−',78,cy+24);
+    // G(s) block
+    bCtx.strokeStyle='#7c4dff';bCtx.lineWidth=2;bCtx.strokeRect(130,cy-bh/2,bw,bh);
+    bCtx.fillStyle='#e8edf8';bCtx.font='14px JetBrains Mono';bCtx.textAlign='center';
+    bCtx.fillText(`${K.toFixed(1)}/(s+${p.toFixed(1)})`,130+bw/2,cy+5);bCtx.textAlign='left';
+    // Arrow to G
+    bCtx.strokeStyle='#00e5ff';bCtx.beginPath();bCtx.moveTo(99,cy);bCtx.lineTo(130,cy);bCtx.stroke();
+    // Arrow from G
+    bCtx.beginPath();bCtx.moveTo(250,cy);bCtx.lineTo(w-25,cy);bCtx.stroke();
+    bCtx.fillStyle='#e8edf8';bCtx.font='13px Inter';bCtx.fillText('Y(s)',w-45,cy-10);
+    // Feedback path
+    const fy=cy+65;
+    bCtx.strokeStyle='#ffab40';bCtx.setLineDash([4,4]);
+    bCtx.beginPath();bCtx.moveTo(w-60,cy);bCtx.lineTo(w-60,fy);bCtx.lineTo(85,fy);bCtx.lineTo(85,cy+14);bCtx.stroke();
+    bCtx.setLineDash([]);
+    // H block
+    bCtx.strokeRect(140,fy-20,80,40);bCtx.fillStyle='#e8edf8';bCtx.font='14px JetBrains Mono';bCtx.textAlign='center';
+    bCtx.fillText(`H=${H.toFixed(1)}`,180,fy+5);bCtx.textAlign='left';
+  }
+
+  function drawStepResponse(K,p,H){
+    const dpr=devicePixelRatio||1;respCanvas.width=respCanvas.clientWidth*dpr;respCanvas.height=respCanvas.clientHeight*dpr;
+    rCtx.setTransform(dpr,0,0,dpr,0,0);
+    const w=respCanvas.clientWidth,h=respCanvas.clientHeight;
+    const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    rCtx.fillStyle=bg;rCtx.fillRect(0,0,w,h);
+
+    // T(s) = K/(s+p+KH) → y(t) = K/(p+KH) * (1 - e^(-(p+KH)t))
+    const clPole = p + K*H;
+    const dcGain = K / clPole;
+    const tMax = Math.max(2, 6 / clPole);
+    const tArr = linspace(0, tMax, 400);
+    const yArr = tArr.map(t => dcGain * (1 - Math.exp(-clPole * t)));
+
+    const pad={top:20,right:20,bottom:28,left:45};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    let yMax=Math.max(dcGain*1.2,0.1);
+
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(y){return pad.top+(1-y/yMax)*ph;}
+
+    rCtx.strokeStyle='rgba(0,229,255,0.06)';rCtx.lineWidth=0.5;
+    for(let i=0;i<=5;i++){const gx=pad.left+pw*i/5;rCtx.beginPath();rCtx.moveTo(gx,pad.top);rCtx.lineTo(gx,pad.top+ph);rCtx.stroke();}
+
+    rCtx.strokeStyle='rgba(255,171,64,0.2)';rCtx.setLineDash([4,4]);
+    rCtx.beginPath();rCtx.moveTo(pad.left,ty(dcGain));rCtx.lineTo(pad.left+pw,ty(dcGain));rCtx.stroke();rCtx.setLineDash([]);
+
+    rCtx.strokeStyle='#00e5ff';rCtx.lineWidth=2;rCtx.shadowColor='rgba(0,229,255,0.4)';rCtx.shadowBlur=6;
+    rCtx.beginPath();
+    for(let i=0;i<tArr.length;i++){const x=tx(tArr[i]),y=ty(yArr[i]);i===0?rCtx.moveTo(x,y):rCtx.lineTo(x,y);}
+    rCtx.stroke();rCtx.shadowBlur=0;
+
+    rCtx.fillStyle='#8a9bb5';rCtx.font='10px Inter';rCtx.textAlign='center';
+    rCtx.fillText('t (s)',w/2,h-3);
+    rCtx.fillStyle='#ffab40';rCtx.font='10px JetBrains Mono';
+    rCtx.fillText(`DC=${dcGain.toFixed(2)}`,pad.left+pw-30,ty(dcGain)-5);
+  }
+
+  function update(){
+    const K=parseFloat(kSlider.value),p=parseFloat(pSlider.value),H=parseFloat(hSlider.value);
+    document.getElementById('fb-k-val').textContent=K.toFixed(2);
+    document.getElementById('fb-p-val').textContent=p.toFixed(2);
+    document.getElementById('fb-h-val').textContent=H.toFixed(2);
+    drawBlockDiagram(K,p,H);drawStepResponse(K,p,H);
+    const cl=p+K*H;
+    document.getElementById('fb-formula').textContent=`T(s) = ${K.toFixed(1)} / (s + ${cl.toFixed(2)})  |  CL pole = -${cl.toFixed(2)}  |  DC gain = ${(K/cl).toFixed(3)}`;
+  }
+
+  [kSlider,pSlider,hSlider].forEach(s=>s.addEventListener('input',update));
+  update();
+  </script>
+
+  <!-- Sim 2: Signal Flow Graph -->
+  <script type="module">
+  const sfgCanvas=document.getElementById('sfg-canvas');if(!sfgCanvas)throw new Error('Missing');
+  const ctx=sfgCanvas.getContext('2d');
+  const ids=['sfg-g1','sfg-g2','sfg-g3','sfg-h1','sfg-h2'];
+
+  function draw(){
+    const dpr=devicePixelRatio||1;sfgCanvas.width=sfgCanvas.clientWidth*dpr;sfgCanvas.height=sfgCanvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=sfgCanvas.clientWidth,h=sfgCanvas.clientHeight;
+    const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+
+    const g1=parseFloat(document.getElementById('sfg-g1').value);
+    const g2=parseFloat(document.getElementById('sfg-g2').value);
+    const g3=parseFloat(document.getElementById('sfg-g3').value);
+    const h1=parseFloat(document.getElementById('sfg-h1').value);
+    const h2=parseFloat(document.getElementById('sfg-h2').value);
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      document.getElementById(id+'-val').textContent=parseFloat(el.value).toFixed(1);
+    });
+
+    // Nodes
+    const nodes=[{x:50,y:h/2,label:'R'},{x:170,y:h/2,label:'x₁'},{x:310,y:h/2,label:'x₂'},{x:450,y:h/2,label:'x₃'},{x:590,y:h/2,label:'Y'}];
+    const nodeR=8;
+
+    // Draw branches
+    function drawBranch(from,to,label,color,curveY){
+      ctx.strokeStyle=color;ctx.lineWidth=2;
+      if(!curveY){
+        ctx.beginPath();ctx.moveTo(from.x+nodeR,from.y);ctx.lineTo(to.x-nodeR,to.y);ctx.stroke();
+        const midX=(from.x+to.x)/2,midY=from.y-15;
+        ctx.fillStyle=color;ctx.font='13px JetBrains Mono';ctx.textAlign='center';ctx.fillText(label,midX,midY);
+      } else {
+        ctx.beginPath();ctx.moveTo(to.x,to.y+nodeR);
+        ctx.quadraticCurveTo((from.x+to.x)/2,curveY,from.x,from.y+nodeR);ctx.stroke();
+        ctx.fillStyle=color;ctx.font='12px JetBrains Mono';ctx.textAlign='center';ctx.fillText(label,(from.x+to.x)/2,curveY+(curveY>h/2?14:-8));
+      }
+      // Arrowhead
+      const angle=Math.atan2(to.y-from.y,to.x-from.x);
+      if(!curveY){
+        const ax=to.x-nodeR,ay=to.y;
+        ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax-8,ay-4);ctx.lineTo(ax-8,ay+4);ctx.fill();
+      }
+    }
+
+    // Forward path branches
+    drawBranch(nodes[0],nodes[1],`1`,'#8a9bb5');
+    drawBranch(nodes[1],nodes[2],`G₁=${g1.toFixed(1)}`,'#00e5ff');
+    drawBranch(nodes[2],nodes[3],`G₂=${g2.toFixed(1)}`,'#00e5ff');
+    drawBranch(nodes[3],nodes[4],`G₃=${g3.toFixed(1)}`,'#00e5ff');
+
+    // Feedback branches
+    drawBranch(nodes[3],nodes[2],`-H₁=${(-h1).toFixed(1)}`,'#ff3d71',h/2+55);
+    drawBranch(nodes[4],nodes[1],`-H₂=${(-h2).toFixed(1)}`,'#ffab40',h/2+85);
+
+    // Draw nodes
+    nodes.forEach(n=>{
+      ctx.beginPath();ctx.arc(n.x,n.y,nodeR,0,Math.PI*2);
+      ctx.fillStyle='#060a14';ctx.fill();ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#e8edf8';ctx.font='11px Inter';ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y-14);
+    });
+
+    // Mason's formula computation
+    const P1=g1*g2*g3;
+    const L1=-g2*h1, L2=-g1*g2*g3*h2;
+    const delta=1-(L1+L2);
+    const delta1=1;
+    const T=P1*delta1/delta;
+
+    const res=document.getElementById('sfg-result');
+    res.textContent=`P₁=${P1.toFixed(2)} | L₁=${L1.toFixed(2)} | L₂=${L2.toFixed(2)} | Δ=${delta.toFixed(2)} | T = P₁/Δ = ${T.toFixed(4)}`;
+  }
+
+  ids.forEach(id=>document.getElementById(id).addEventListener('input',draw));
+  draw();
+  </script>
+
+  <!-- Sim 3: Multi-Loop Step-by-Step -->
+  <script type="module">
+  const mlCanvas=document.getElementById('ml-canvas');if(!mlCanvas)throw new Error('Missing');
+  const ctx=mlCanvas.getContext('2d');
+  let currentStep=0;const totalSteps=3;
+
+  const steps=[
+    {title:'Step 0: Original System',desc:'Three blocks G₁, G₂, G₃ in cascade. Inner loop H₁ around G₂. Outer loop H₂ around all.',
+     draw:function(ctx,w,h){drawFullSystem(ctx,w,h,false,false);}},
+    {title:'Step 1: Reduce Inner Loop',desc:'Collapse G₂ with feedback H₁ into G₂\'=G₂/(1+G₂H₁).',
+     draw:function(ctx,w,h){drawFullSystem(ctx,w,h,true,false);}},
+    {title:'Step 2: Cascade Series Blocks',desc:'Combine G₁ · G₂\' · G₃ into a single forward block G_fwd.',
+     draw:function(ctx,w,h){drawFullSystem(ctx,w,h,true,true);}},
+    {title:'Step 3: Close Outer Loop',desc:'Final: T(s) = G_fwd / (1 + G_fwd · H₂) = G₁G₂G₃ / (1+G₂H₁+G₁G₂G₃H₂)',
+     draw:function(ctx,w,h){drawFinal(ctx,w,h);}}
+  ];
+
+  function drawFullSystem(ctx,w,h,innerReduced,cascaded){
+    const cy=h*0.35,bw=90,bh=45;
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;
+    // R arrow
+    ctx.beginPath();ctx.moveTo(15,cy);ctx.lineTo(50,cy);ctx.stroke();
+    ctx.fillStyle='#e8edf8';ctx.font='12px Inter';ctx.fillText('R',18,cy-10);
+    // Summing junction
+    ctx.beginPath();ctx.arc(62,cy,10,0,Math.PI*2);ctx.strokeStyle='#ffab40';ctx.stroke();
+
+    if(!cascaded){
+      // Three blocks
+      const bx=[90,220,350];const labels=innerReduced?['G₁','G₂\'','G₃']:['G₁','G₂','G₃'];
+      const colors=['#7c4dff',innerReduced?'#69ff47':'#7c4dff','#7c4dff'];
+      bx.forEach((x,i)=>{
+        ctx.strokeStyle=colors[i];ctx.lineWidth=2;ctx.strokeRect(x,cy-bh/2,bw,bh);
+        ctx.fillStyle='#e8edf8';ctx.font='13px JetBrains Mono';ctx.textAlign='center';ctx.fillText(labels[i],x+bw/2,cy+5);ctx.textAlign='left';
+        if(i<bx.length-1){ctx.strokeStyle='#00e5ff';ctx.beginPath();ctx.moveTo(x+bw,cy);ctx.lineTo(bx[i+1],cy);ctx.stroke();}
+      });
+      ctx.strokeStyle='#00e5ff';ctx.beginPath();ctx.moveTo(72,cy);ctx.lineTo(90,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(350+bw,cy);ctx.lineTo(w-25,cy);ctx.stroke();
+      ctx.fillStyle='#e8edf8';ctx.fillText('Y',w-40,cy-10);
+      // Inner loop (if not reduced)
+      if(!innerReduced){
+        const fly=cy+60;
+        ctx.strokeStyle='#ff3d71';ctx.setLineDash([4,4]);
+        ctx.beginPath();ctx.moveTo(350,cy);ctx.lineTo(350,fly);ctx.lineTo(220,fly);ctx.lineTo(220,cy+bh/2);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeRect(255,fly-15,60,30);ctx.fillStyle='#e8edf8';ctx.font='11px JetBrains Mono';ctx.textAlign='center';ctx.fillText('H₁',285,fly+4);ctx.textAlign='left';
+      }
+    } else {
+      // Single forward block
+      ctx.strokeStyle='#69ff47';ctx.lineWidth=2;ctx.strokeRect(100,cy-bh/2,200,bh);
+      ctx.fillStyle='#e8edf8';ctx.font='13px JetBrains Mono';ctx.textAlign='center';ctx.fillText('G_fwd = G₁G₂\'G₃',200,cy+5);ctx.textAlign='left';
+      ctx.strokeStyle='#00e5ff';ctx.beginPath();ctx.moveTo(72,cy);ctx.lineTo(100,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(300,cy);ctx.lineTo(w-25,cy);ctx.stroke();
+      ctx.fillStyle='#e8edf8';ctx.fillText('Y',w-40,cy-10);
+    }
+    // Outer loop
+    const ofy=cy+100;
+    ctx.strokeStyle='#ffab40';ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(w-50,cy);ctx.lineTo(w-50,ofy);ctx.lineTo(62,ofy);ctx.lineTo(62,cy+10);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeRect(200,ofy-15,60,30);ctx.fillStyle='#e8edf8';ctx.font='11px JetBrains Mono';ctx.textAlign='center';ctx.fillText('H₂',230,ofy+4);ctx.textAlign='left';
+  }
+
+  function drawFinal(ctx,w,h){
+    const cy=h/2,bw=300,bh=60;
+    ctx.strokeStyle='#69ff47';ctx.lineWidth=3;ctx.strokeRect(w/2-bw/2,cy-bh/2,bw,bh);
+    ctx.fillStyle='#e8edf8';ctx.font='14px JetBrains Mono';ctx.textAlign='center';
+    ctx.fillText('T(s) = G₁G₂G₃',w/2,cy-5);
+    ctx.font='12px JetBrains Mono';ctx.fillText('(1+G₂H₁) + G₁G₂G₃H₂',w/2,cy+15);
+    ctx.strokeStyle='#8a9bb5';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w/2-120,cy+2);ctx.lineTo(w/2+120,cy+2);ctx.stroke();
+    ctx.textAlign='left';
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(20,cy);ctx.lineTo(w/2-bw/2,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w/2+bw/2,cy);ctx.lineTo(w-20,cy);ctx.stroke();
+    ctx.fillStyle='#e8edf8';ctx.font='13px Inter';ctx.fillText('R',22,cy-10);ctx.fillText('Y',w-40,cy-10);
+  }
+
+  function render(){
+    const dpr=devicePixelRatio||1;mlCanvas.width=mlCanvas.clientWidth*dpr;mlCanvas.height=mlCanvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=mlCanvas.clientWidth,h=mlCanvas.clientHeight;
+    const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+    steps[currentStep].draw(ctx,w,h);
+    document.getElementById('ml-step-label').textContent=`Step ${currentStep} / ${totalSteps}`;
+    document.getElementById('ml-explanation').innerHTML=`<strong>${steps[currentStep].title}</strong><br>${steps[currentStep].desc}`;
+  }
+
+  document.getElementById('ml-next').addEventListener('click',()=>{if(currentStep<totalSteps)currentStep++;render();});
+  document.getElementById('ml-prev').addEventListener('click',()=>{if(currentStep>0)currentStep--;render();});
+  document.getElementById('ml-reset').addEventListener('click',()=>{currentStep=0;render();});
+  render();
+  </script>
+</body>
+</html>

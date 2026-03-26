@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 9 — Digital Control | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html" class="active"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 09</span>
+        <h1>Digital Control</h1>
+        <p class="subtitle">Z-transforms, sampling, and discrete-time systems</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>Modern controllers are implemented digitally. This chapter bridges continuous and discrete worlds — covering sampling, the Z-transform, zero-order hold, and discrete stability analysis where the unit circle replaces the jω-axis.</p>
+      </div>
+
+      <!-- 9.1 Sampling & ZOH -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 9.1 — Sampling &amp; Zero-Order Hold</h2>
+
+        <div class="eq-definition">
+          <span class="eq-label">Ideal Sampler</span>
+          $$x^*(t) = \sum_{k=0}^{\infty} x(kT)\,\delta(t - kT)$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:6px;">The sampler converts a continuous signal to an impulse train at period $T$.</p>
+        </div>
+
+        <div class="eq-definition">
+          <span class="eq-label">Zero-Order Hold (ZOH)</span>
+          $$G_{\text{ZOH}}(s) = \frac{1 - e^{-sT}}{s}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">Holds each sample constant until the next sample arrives.</p>
+        </div>
+
+        <div class="eq-critical">
+          <span class="eq-label">Nyquist-Shannon Sampling Theorem</span>
+          $$f_s > 2 f_{\max} \qquad\text{(or equivalently } \omega_s > 2\omega_{\max}\text{)}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">If the sampling rate is too low, aliasing corrupts the signal irreversibly.</p>
+        </div>
+      </section>
+
+      <!-- 9.2 Z-Transform -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 9.2 — The Z-Transform</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Z-Transform Definition</span>
+          $$X(z) = \mathcal{Z}\{x[k]\} = \sum_{k=0}^{\infty} x[k]\, z^{-k}$$
+        </div>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Common Z-Transform Pairs</span>
+          <table class="formula-table">
+            <tr><td>$\delta[k]$</td><td>$1$</td></tr>
+            <tr><td>$u[k]$</td><td>$\dfrac{z}{z-1}$</td></tr>
+            <tr><td>$a^k u[k]$</td><td>$\dfrac{z}{z-a}$</td></tr>
+            <tr><td>$k\,u[k]$</td><td>$\dfrac{z}{(z-1)^2}$</td></tr>
+            <tr><td>$e^{-akT}u[k]$</td><td>$\dfrac{z}{z-e^{-aT}}$</td></tr>
+          </table>
+        </div>
+
+        <div class="eq-key-result">
+          <span class="eq-label">s-to-z Mapping</span>
+          $$z = e^{sT}$$
+          <p style="color:var(--text-secondary);font-size:0.85rem;">The left half s-plane maps to the interior of the unit circle $|z| < 1$.</p>
+        </div>
+      </section>
+
+      <!-- 9.3 Discrete Transfer Functions -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 9.3 — Discrete Transfer Functions &amp; Stability</h2>
+
+        <div class="eq-definition">
+          <span class="eq-label">Pulse Transfer Function</span>
+          $$G(z) = \frac{Y(z)}{U(z)} = \frac{b_0 + b_1 z^{-1} + \cdots + b_m z^{-m}}{1 + a_1 z^{-1} + \cdots + a_n z^{-n}}$$
+        </div>
+
+        <div class="eq-critical">
+          <span class="eq-label">Discrete-Time Stability</span>
+          <p style="color:var(--text-secondary);margin-bottom:8px;">A discrete system is <strong>BIBO stable</strong> if and only if all poles of $G(z)$ lie <strong>inside the unit circle</strong>:</p>
+          $$|z_i| < 1 \quad \forall\, i$$
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Bilinear (Tustin) Approximation <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>The Tustin method maps $s \leftrightarrow z$ via:</p>
+                $$s = \frac{2}{T}\,\frac{z-1}{z+1}, \qquad z = \frac{1 + sT/2}{1 - sT/2}$$
+              </div>
+              <div class="deriv-step">
+                <p>This maps the jω-axis to the unit circle exactly, preserving stability — but introduces frequency warping: $\omega_d = \frac{2}{T}\tan(\omega T/2)$.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 1: Sampling Visualizer ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Sampling &amp; Aliasing</h2>
+        <div class="sim-container" id="sim-sampling">
+          <div class="sim-title">① See How Sampling Rate Affects Signal Reconstruction</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">A continuous sinusoid is sampled at rate $f_s$. When $f_s < 2f$, aliasing occurs.</p>
+          <div class="sim-canvas-wrapper"><canvas id="samp-canvas" width="700" height="300" aria-label="Sampling visualization"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>Signal freq f: <span class="value" id="samp-f-val">1.0</span> Hz</label>
+              <input type="range" id="samp-f" min="0.5" max="10" step="0.1" value="1">
+            </div>
+            <div class="slider-group">
+              <label>Sample rate f<sub>s</sub>: <span class="value" id="samp-fs-val">10</span> Hz</label>
+              <input type="range" id="samp-fs" min="1" max="30" step="0.5" value="10">
+            </div>
+          </div>
+          <div id="samp-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: Z-Plane Stability ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Z-Plane Pole Viewer</h2>
+        <div class="sim-container" id="sim-zplane">
+          <div class="sim-title">② Discrete Stability — Unit Circle</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Place discrete poles and zeros. Step response of the discrete system updates live.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="zp-plane" width="400" height="400" aria-label="Z-plane"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="zp-step" width="400" height="300" aria-label="Discrete step response"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>Pole radius r: <span class="value" id="zp-r-val">0.8</span></label>
+              <input type="range" id="zp-r" min="0" max="1.3" step="0.01" value="0.8">
+            </div>
+            <div class="slider-group">
+              <label>Pole angle θ: <span class="value" id="zp-a-val">45</span>°</label>
+              <input type="range" id="zp-a" min="0" max="180" step="1" value="45">
+            </div>
+          </div>
+          <div id="zp-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: s-to-z Mapping ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: s-Plane → z-Plane Mapping</h2>
+        <div class="sim-container" id="sim-szmapping">
+          <div class="sim-title">③ Watch How s-Plane Regions Map to the z-Plane</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Points in the s-plane are mapped via $z = e^{sT}$. Adjust sampling period T.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="sz-splane" width="350" height="350" aria-label="S-plane mapping"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="sz-zplane" width="350" height="350" aria-label="Z-plane mapping"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>T: <span class="value" id="sz-t-val">0.5</span> s</label>
+              <input type="range" id="sz-t" min="0.05" max="2" step="0.05" value="0.5">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 9</h3>
+          <table class="formula-table">
+            <tr><td>Z-Transform</td><td>$X(z)=\sum x[k]z^{-k}$</td></tr>
+            <tr><td>Mapping</td><td>$z=e^{sT}$</td></tr>
+            <tr><td>ZOH</td><td>$G_{ZOH}=(1-e^{-sT})/s$</td></tr>
+            <tr><td>Stability</td><td>All poles $|z_i|<1$</td></tr>
+            <tr><td>Nyquist Theorem</td><td>$f_s>2f_{max}$</td></tr>
+            <tr><td>Tustin</td><td>$s=(2/T)(z-1)/(z+1)$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../08-pid-controllers/index.html"><span class="label">← Previous</span><span class="title">PID Controllers</span></a>
+        <a href="../10-modern-control/index.html" class="next"><span class="label">Next Chapter →</span><span class="title">Modern Control</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D: discrete samples -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(0,2,6);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));scene.add(new THREE.DirectionalLight(0xffffff,0.7));
+    // Staircase samples
+    for(let i=0;i<30;i++){
+      const x=(i-15)*0.4;const y=Math.sin(i*0.5)*1.5;
+      const geo=new THREE.BoxGeometry(0.15,Math.abs(y)+0.05,0.15);
+      const mat=new THREE.MeshStandardMaterial({color:0x00e5ff,transparent:true,opacity:0.5+Math.random()*0.3});
+      const m=new THREE.Mesh(geo,mat);m.position.set(x,y/2,0);scene.add(m);
+    }
+    let t=0;
+    function animate(){requestAnimationFrame(animate);t+=0.005;cam.position.x=4*Math.sin(t);cam.position.z=4*Math.cos(t);cam.lookAt(0,0,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: Sampling & Aliasing -->
+  <script type="module">
+  const canvas=document.getElementById('samp-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+
+  function draw(){
+    const f=parseFloat(document.getElementById('samp-f').value);
+    const fs=parseFloat(document.getElementById('samp-fs').value);
+    document.getElementById('samp-f-val').textContent=f.toFixed(1);
+    document.getElementById('samp-fs-val').textContent=fs.toFixed(1);
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+    const pad={top:20,right:20,bottom:25,left:40};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const tMax=3;
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(v){return pad.top+ph/2-v*ph/2*0.8;}
+    // Continuous
+    ctx.strokeStyle='rgba(0,229,255,0.3)';ctx.lineWidth=1;ctx.beginPath();
+    for(let i=0;i<=500;i++){const t=i/500*tMax;i===0?ctx.moveTo(tx(t),ty(Math.sin(2*Math.PI*f*t))):ctx.lineTo(tx(t),ty(Math.sin(2*Math.PI*f*t)));}
+    ctx.stroke();
+    // Samples
+    const T=1/fs;const nSamp=Math.ceil(tMax/T);
+    ctx.fillStyle='#ffab40';
+    for(let k=0;k<=nSamp;k++){
+      const t=k*T;if(t>tMax)break;
+      const v=Math.sin(2*Math.PI*f*t);
+      ctx.beginPath();ctx.arc(tx(t),ty(v),4,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#ffab40';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx(t),ty(0));ctx.lineTo(tx(t),ty(v));ctx.stroke();
+    }
+    // ZOH reconstruction
+    ctx.strokeStyle='#69ff47';ctx.lineWidth=2;ctx.beginPath();
+    for(let k=0;k<=nSamp;k++){
+      const t=k*T;if(t>tMax)break;
+      const v=Math.sin(2*Math.PI*f*t);
+      ctx.lineTo(tx(t),ty(v));
+      const tNext=Math.min((k+1)*T,tMax);
+      ctx.lineTo(tx(tNext),ty(v));
+    }
+    ctx.stroke();
+    const alias=fs<2*f;
+    document.getElementById('samp-info').innerHTML=`f = ${f.toFixed(1)} Hz, f<sub>s</sub> = ${fs.toFixed(1)} Hz, Nyquist = ${(2*f).toFixed(1)} Hz — <span style="color:${alias?'#ff3d71':'#69ff47'}">${alias?'ALIASING!':'OK'}</span>`;
+  }
+  document.getElementById('samp-f').addEventListener('input',draw);
+  document.getElementById('samp-fs').addEventListener('input',draw);
+  draw();
+  </script>
+
+  <!-- Sim 2: Z-Plane -->
+  <script type="module">
+  const pC=document.getElementById('zp-plane'),sC=document.getElementById('zp-step');
+  if(!pC||!sC)throw new Error();
+  const pCtx=pC.getContext('2d'),sCtx=sC.getContext('2d');
+
+  function draw(){
+    const r=parseFloat(document.getElementById('zp-r').value);
+    const aDeg=parseFloat(document.getElementById('zp-a').value);
+    document.getElementById('zp-r-val').textContent=r.toFixed(2);
+    document.getElementById('zp-a-val').textContent=aDeg.toFixed(0);
+    const aRad=aDeg*Math.PI/180;
+    const p1={re:r*Math.cos(aRad),im:r*Math.sin(aRad)};
+    const p2={re:r*Math.cos(aRad),im:-r*Math.sin(aRad)};
+    const stable=r<1;
+
+    // Z-plane
+    const dpr=devicePixelRatio||1;pC.width=pC.clientWidth*dpr;pC.height=pC.clientHeight*dpr;
+    pCtx.setTransform(dpr,0,0,dpr,0,0);
+    const w=pC.clientWidth,h=pC.clientHeight,range=1.5,pad=30;
+    pCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    pCtx.fillRect(0,0,w,h);
+    function sx(re){return pad+(re+range)/(2*range)*(w-2*pad);}
+    function sy(im){return pad+(range-im)/(2*range)*(h-2*pad);}
+    // Unit circle
+    pCtx.strokeStyle='rgba(255,61,113,0.4)';pCtx.lineWidth=2;pCtx.beginPath();pCtx.arc(sx(0),sy(0),(w-2*pad)/(2*range)*1,0,Math.PI*2);pCtx.stroke();
+    // Interior stable
+    pCtx.fillStyle='rgba(105,255,71,0.03)';pCtx.beginPath();pCtx.arc(sx(0),sy(0),(w-2*pad)/(2*range)*1,0,Math.PI*2);pCtx.fill();
+    // Axes
+    pCtx.strokeStyle='rgba(138,155,181,0.2)';pCtx.lineWidth=1;
+    pCtx.beginPath();pCtx.moveTo(pad,sy(0));pCtx.lineTo(w-pad,sy(0));pCtx.stroke();
+    pCtx.beginPath();pCtx.moveTo(sx(0),pad);pCtx.lineTo(sx(0),h-pad);pCtx.stroke();
+    // Poles
+    [p1,p2].forEach(p=>{
+      const c=stable?'#69ff47':'#ff3d71';
+      pCtx.fillStyle=c;pCtx.shadowColor=c;pCtx.shadowBlur=8;
+      pCtx.beginPath();pCtx.arc(sx(p.re),sy(p.im),5,0,Math.PI*2);pCtx.fill();pCtx.shadowBlur=0;
+    });
+    pCtx.fillStyle=stable?'#69ff47':'#ff3d71';pCtx.font='bold 14px Syne';pCtx.textAlign='center';
+    pCtx.fillText(stable?'STABLE (|z|<1)':'UNSTABLE (|z|≥1)',w/2,h-8);
+
+    // Step response: y[k] = driven by poles
+    sC.width=sC.clientWidth*dpr;sC.height=sC.clientHeight*dpr;
+    sCtx.setTransform(dpr,0,0,dpr,0,0);
+    const sw=sC.clientWidth,sh=sC.clientHeight;
+    sCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    sCtx.fillRect(0,0,sw,sh);
+    // Discrete step response for G(z)=z²/((z-p1)(z-p2))
+    const N=50;const y=new Array(N).fill(0);
+    // Difference equation: y[k] - 2*r*cos(θ)*y[k-1] + r²*y[k-2] = u[k]
+    const a1=-2*r*Math.cos(aRad),a2=r*r;
+    for(let k=0;k<N;k++){
+      const u=1; // step
+      y[k]=u-(k>=1?a1*y[k-1]:0)-(k>=2?a2*y[k-2]:0);
+      if(!isFinite(y[k]))y[k]=Math.sign(y[k]||1)*10;
+      y[k]=Math.max(-10,Math.min(10,y[k]));
+    }
+    const spad={top:15,right:15,bottom:25,left:40};
+    const spw=sw-spad.left-spad.right,sph=sh-spad.top-spad.bottom;
+    let yMax=Math.max(2,...y.map(Math.abs));
+    function stx(k){return spad.left+k/(N-1)*spw;}
+    function sty(v){return spad.top+sph/2-v/yMax*sph/2*0.85;}
+    sCtx.strokeStyle='rgba(138,155,181,0.1)';sCtx.setLineDash([4,4]);sCtx.beginPath();sCtx.moveTo(spad.left,sty(0));sCtx.lineTo(spad.left+spw,sty(0));sCtx.stroke();sCtx.setLineDash([]);
+    // Stems
+    for(let k=0;k<N;k++){
+      sCtx.strokeStyle='rgba(0,229,255,0.3)';sCtx.lineWidth=1;
+      sCtx.beginPath();sCtx.moveTo(stx(k),sty(0));sCtx.lineTo(stx(k),sty(y[k]));sCtx.stroke();
+      sCtx.fillStyle='#00e5ff';sCtx.beginPath();sCtx.arc(stx(k),sty(y[k]),3,0,Math.PI*2);sCtx.fill();
+    }
+    sCtx.fillStyle='#e8edf8';sCtx.font='11px Inter';sCtx.textAlign='center';sCtx.fillText('Discrete Step Response y[k]',sw/2,spad.top-2);
+    document.getElementById('zp-info').textContent=`Poles: ${p1.re.toFixed(2)}±${Math.abs(p1.im).toFixed(2)}j | |z|=${r.toFixed(2)}`;
+  }
+  document.getElementById('zp-r').addEventListener('input',draw);
+  document.getElementById('zp-a').addEventListener('input',draw);
+  draw();
+  </script>
+
+  <!-- Sim 3: s-to-z mapping -->
+  <script type="module">
+  const sC=document.getElementById('sz-splane'),zC=document.getElementById('sz-zplane');
+  if(!sC||!zC)throw new Error();
+  const sCtx=sC.getContext('2d'),zCtx=zC.getContext('2d');
+
+  function draw(){
+    const T=parseFloat(document.getElementById('sz-t').value);
+    document.getElementById('sz-t-val').textContent=T.toFixed(2);
+    const dpr=devicePixelRatio||1;
+    [sC,zC].forEach(c=>{c.width=c.clientWidth*dpr;c.height=c.clientHeight*dpr;});
+    [sCtx,zCtx].forEach(c=>c.setTransform(dpr,0,0,dpr,0,0));
+    const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+
+    // S-plane
+    const sw=sC.clientWidth,sh=sC.clientHeight,sr=5,sp=25;
+    sCtx.fillStyle=bg;sCtx.fillRect(0,0,sw,sh);
+    function ssx(re){return sp+(re+sr)/(2*sr)*(sw-2*sp);}
+    function ssy(im){return sp+(sr-im)/(2*sr)*(sh-2*sp);}
+    sCtx.fillStyle='rgba(105,255,71,0.03)';sCtx.fillRect(sp,sp,(sw-2*sp)/2,sh-2*sp);
+    sCtx.strokeStyle='rgba(255,61,113,0.3)';sCtx.lineWidth=2;sCtx.beginPath();sCtx.moveTo(ssx(0),sp);sCtx.lineTo(ssx(0),sh-sp);sCtx.stroke();
+    sCtx.strokeStyle='rgba(138,155,181,0.2)';sCtx.lineWidth=1;sCtx.beginPath();sCtx.moveTo(sp,ssy(0));sCtx.lineTo(sw-sp,ssy(0));sCtx.stroke();
+    // Grid of points
+    const pts=[];
+    for(let sig=-4;sig<=1;sig+=0.5){for(let om=-4;om<=4;om+=0.5){pts.push({re:sig,im:om});}}
+    pts.forEach(p=>{
+      const inLHP=p.re<0;
+      sCtx.fillStyle=inLHP?'rgba(105,255,71,0.3)':'rgba(255,61,113,0.3)';
+      sCtx.beginPath();sCtx.arc(ssx(p.re),ssy(p.im),2,0,Math.PI*2);sCtx.fill();
+    });
+    sCtx.fillStyle='#e8edf8';sCtx.font='11px Inter';sCtx.textAlign='center';sCtx.fillText('s-Plane',sw/2,sp-5);
+
+    // Z-plane
+    const zw=zC.clientWidth,zh=zC.clientHeight,zr=2,zp=25;
+    zCtx.fillStyle=bg;zCtx.fillRect(0,0,zw,zh);
+    function zsx(re){return zp+(re+zr)/(2*zr)*(zw-2*zp);}
+    function zsy(im){return zp+(zr-im)/(2*zr)*(zh-2*zp);}
+    // Unit circle
+    const ucR=(zw-2*zp)/(2*zr)*1;
+    zCtx.fillStyle='rgba(105,255,71,0.03)';zCtx.beginPath();zCtx.arc(zsx(0),zsy(0),ucR,0,Math.PI*2);zCtx.fill();
+    zCtx.strokeStyle='rgba(255,61,113,0.4)';zCtx.lineWidth=2;zCtx.beginPath();zCtx.arc(zsx(0),zsy(0),ucR,0,Math.PI*2);zCtx.stroke();
+    zCtx.strokeStyle='rgba(138,155,181,0.2)';zCtx.lineWidth=1;
+    zCtx.beginPath();zCtx.moveTo(zp,zsy(0));zCtx.lineTo(zw-zp,zsy(0));zCtx.stroke();
+    zCtx.beginPath();zCtx.moveTo(zsx(0),zp);zCtx.lineTo(zsx(0),zh-zp);zCtx.stroke();
+    // Mapped points z=e^(sT)
+    pts.forEach(p=>{
+      const zRe=Math.exp(p.re*T)*Math.cos(p.im*T);
+      const zIm=Math.exp(p.re*T)*Math.sin(p.im*T);
+      if(Math.abs(zRe)>zr||Math.abs(zIm)>zr)return;
+      const inside=Math.sqrt(zRe*zRe+zIm*zIm)<1;
+      zCtx.fillStyle=inside?'rgba(105,255,71,0.4)':'rgba(255,61,113,0.4)';
+      zCtx.beginPath();zCtx.arc(zsx(zRe),zsy(zIm),2.5,0,Math.PI*2);zCtx.fill();
+    });
+    zCtx.fillStyle='#e8edf8';zCtx.font='11px Inter';zCtx.textAlign='center';zCtx.fillText('z-Plane (z=e^{sT})',zw/2,zp-5);
+  }
+  document.getElementById('sz-t').addEventListener('input',draw);
+  draw();
+  </script>
+</body>
+</html>

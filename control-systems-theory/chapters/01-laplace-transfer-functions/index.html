@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 1 — Laplace Transform &amp; Transfer Functions | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- Scroll Progress -->
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+
+  <!-- Sidebar -->
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header">
+      <a href="../../index.html" class="sidebar-logo">Control Systems Theory</a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html" class="active"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer">
+      <button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Hero -->
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 01</span>
+        <h1>Laplace Transform &amp; Transfer Functions</h1>
+        <p class="subtitle">The mathematical foundation of linear control systems analysis</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+
+      <!-- Overview Card -->
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>This chapter establishes the core mathematical framework used throughout control systems engineering. We derive the Laplace transform from first principles, develop the concept of transfer functions, and analyze how pole-zero locations determine system behavior.</p>
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Derive Laplace transforms of common signals from the definition integral</li>
+          <li>Apply transform properties: linearity, shifting, differentiation, convolution</li>
+          <li>Compute inverse transforms via partial fractions for all pole types</li>
+          <li>Define and interpret transfer functions H(s) = Y(s)/U(s)</li>
+          <li>Relate pole/zero locations to time-domain behavior and stability</li>
+          <li>Analyze first- and second-order system responses quantitatively</li>
+          <li>Calculate steady-state errors using the Final Value Theorem</li>
+        </ul>
+        <h4>Prerequisites</h4>
+        <ul>
+          <li>Differential equations (linear, constant-coefficient ODEs)</li>
+          <li>Complex variables (basic complex arithmetic, Euler's formula)</li>
+          <li>Integration techniques (integration by parts, improper integrals)</li>
+        </ul>
+      </div>
+
+      <!-- ====== SECTION 1: Laplace Transform Definition ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.1 — The Laplace Transform</h2>
+
+        <p>The <strong>Laplace Transform</strong> converts a time-domain function $f(t)$ into a complex-frequency domain function $F(s)$, where $s = \sigma + j\omega$ is the complex frequency variable. This transform is the cornerstone of linear systems analysis because it converts differential equations into algebraic equations.</p>
+
+        <div class="eq-definition">
+          <span class="eq-label">Definition — Unilateral Laplace Transform</span>
+          $$\mathcal{L}\{f(t)\} = F(s) = \int_0^{\infty} f(t)\,e^{-st}\,dt$$
+          <p style="margin-top:8px;color:var(--text-secondary);font-size:0.9rem;">The integral converges for $\text{Re}(s) > \sigma_0$ where $\sigma_0$ is the <em>abscissa of convergence</em>. The region $\text{Re}(s) > \sigma_0$ is called the <strong>Region of Convergence (ROC)</strong>.</p>
+        </div>
+
+        <h3>Derivation of Common Transforms</h3>
+
+        <div class="collapsible open">
+          <div class="collapsible-header">Unit Step: $\mathcal{L}\{u(t)\} = 1/s$ <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Apply the definition with $f(t) = u(t) = 1$ for $t \geq 0$:</p>
+                $$F(s) = \int_0^{\infty} 1 \cdot e^{-st}\,dt$$
+              </div>
+              <div class="deriv-step">
+                <p>Evaluate the integral directly:</p>
+                $$F(s) = \left[-\frac{1}{s}e^{-st}\right]_0^{\infty} = 0 - \left(-\frac{1}{s}\right) = \frac{1}{s}$$
+                <div class="why-matters">The step function transform $1/s$ has a single pole at $s=0$, representing the constant DC component that persists forever. ROC: $\text{Re}(s) > 0$.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Exponential: $\mathcal{L}\{e^{-at}\} = 1/(s+a)$ <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Apply the definition:</p>
+                $$F(s) = \int_0^{\infty} e^{-at} e^{-st}\,dt = \int_0^{\infty} e^{-(s+a)t}\,dt$$
+              </div>
+              <div class="deriv-step">
+                <p>Evaluate:</p>
+                $$F(s) = \left[-\frac{1}{s+a}e^{-(s+a)t}\right]_0^{\infty} = \frac{1}{s+a}$$
+                <div class="why-matters">The pole location $s = -a$ directly reveals the exponential decay rate. Faster decay (larger $a$) moves the pole further left in the s-plane. ROC: $\text{Re}(s) > -a$.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Ramp: $\mathcal{L}\{t\} = 1/s^2$ <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Apply integration by parts with $u = t$, $dv = e^{-st}dt$:</p>
+                $$F(s) = \left[-\frac{t}{s}e^{-st}\right]_0^{\infty} + \frac{1}{s}\int_0^{\infty} e^{-st}\,dt$$
+              </div>
+              <div class="deriv-step">
+                <p>The boundary term vanishes (for $\text{Re}(s) > 0$), and the remaining integral is $1/s$:</p>
+                $$F(s) = \frac{1}{s} \cdot \frac{1}{s} = \frac{1}{s^2}$$
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Sinusoid: $\mathcal{L}\{\sin(\omega t)\} = \omega/(s^2+\omega^2)$ <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Express the sine using Euler's formula: $\sin(\omega t) = \frac{e^{j\omega t} - e^{-j\omega t}}{2j}$</p>
+              </div>
+              <div class="deriv-step">
+                <p>Apply linearity and the exponential transform:</p>
+                $$F(s) = \frac{1}{2j}\left[\frac{1}{s - j\omega} - \frac{1}{s + j\omega}\right]$$
+              </div>
+              <div class="deriv-step">
+                <p>Combine fractions:</p>
+                $$F(s) = \frac{1}{2j} \cdot \frac{2j\omega}{s^2 + \omega^2} = \frac{\omega}{s^2 + \omega^2}$$
+                <div class="why-matters">The poles at $s = \pm j\omega$ lie on the imaginary axis — this corresponds to a perpetual oscillation that neither grows nor decays.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Impulse: $\mathcal{L}\{\delta(t)\} = 1$ <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>By the sifting property of the Dirac delta:</p>
+                $$F(s) = \int_0^{\infty} \delta(t)\,e^{-st}\,dt = e^{-s \cdot 0} = 1$$
+                <div class="why-matters">The impulse transform is unity — the impulse excites all frequencies equally, making it the ideal test signal for system identification.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SECTION 2: Properties ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.2 — Transform Properties</h2>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Key Properties</span>
+          <table class="formula-table">
+            <tr><td>Linearity</td><td>$\mathcal{L}\{af + bg\} = aF(s) + bG(s)$</td></tr>
+            <tr><td>Differentiation</td><td>$\mathcal{L}\{f'(t)\} = sF(s) - f(0^-)$</td></tr>
+            <tr><td>Integration</td><td>$\mathcal{L}\{\int_0^t f(\tau)d\tau\} = F(s)/s$</td></tr>
+            <tr><td>Time Shifting</td><td>$\mathcal{L}\{f(t-a)u(t-a)\} = e^{-as}F(s)$</td></tr>
+            <tr><td>Frequency Shifting</td><td>$\mathcal{L}\{e^{-at}f(t)\} = F(s+a)$</td></tr>
+            <tr><td>Convolution</td><td>$\mathcal{L}\{f*g\} = F(s)G(s)$</td></tr>
+          </table>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Derivation: Differentiation Property <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Start with the definition and integrate by parts, setting $u = e^{-st}$ and $dv = f'(t)dt$:</p>
+                $$\mathcal{L}\{f'(t)\} = \int_0^{\infty} f'(t)e^{-st}\,dt = \left[f(t)e^{-st}\right]_0^{\infty} + s\int_0^{\infty} f(t)e^{-st}\,dt$$
+              </div>
+              <div class="deriv-step">
+                <p>Assuming $f(t)e^{-st} \to 0$ as $t \to \infty$ (guaranteed in the ROC):</p>
+                $$\mathcal{L}\{f'(t)\} = -f(0^-) + sF(s) = sF(s) - f(0^-)$$
+                <div class="why-matters">This property is what makes Laplace transforms so powerful for solving ODEs — differentiation becomes multiplication by $s$, converting differential equations into polynomial equations. The $f(0^-)$ term captures the initial condition.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Initial and Final Value Theorems</h3>
+        <div class="eq-definition">
+          <span class="eq-label">Initial Value Theorem</span>
+          $$f(0^+) = \lim_{s \to \infty} sF(s)$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">Provided the limit exists. Allows finding initial values directly from the Laplace domain.</p>
+        </div>
+        <div class="eq-critical">
+          <span class="eq-label">Final Value Theorem</span>
+          $$\lim_{t \to \infty} f(t) = \lim_{s \to 0} sF(s)$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;"><strong>Critical condition:</strong> Valid only if all poles of $sF(s)$ have negative real parts (i.e., the limit must exist and be finite). If $F(s)$ has poles on the $j\omega$-axis or in the RHP, the FVT does <em>not</em> apply — it will give a wrong answer!</p>
+        </div>
+      </section>
+
+      <!-- ====== SECTION 3: Inverse Laplace ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.3 — Inverse Laplace Transform</h2>
+
+        <p>The primary technique for computing the inverse Laplace transform is <strong>partial fraction expansion</strong>. Given $F(s) = N(s)/D(s)$, we decompose it into simpler fractions whose inverses are known.</p>
+
+        <h3>Case 1: Distinct Real Poles</h3>
+        <div class="eq-definition">
+          <span class="eq-label">Partial Fraction — Distinct Poles</span>
+          $$F(s) = \frac{N(s)}{(s+p_1)(s+p_2)\cdots(s+p_n)} = \frac{A_1}{s+p_1} + \frac{A_2}{s+p_2} + \cdots + \frac{A_n}{s+p_n}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">where $A_k = \lim_{s \to -p_k} (s+p_k)F(s)$ (the residue at each pole).</p>
+        </div>
+
+        <h3>Case 2: Repeated Poles</h3>
+        <p>For a pole of multiplicity $r$ at $s = -p$:</p>
+        $$\frac{N(s)}{(s+p)^r} = \frac{A_1}{s+p} + \frac{A_2}{(s+p)^2} + \cdots + \frac{A_r}{(s+p)^r}$$
+        <p>where</p>
+        $$A_k = \frac{1}{(r-k)!}\lim_{s \to -p} \frac{d^{r-k}}{ds^{r-k}}\left[(s+p)^r F(s)\right]$$
+
+        <h3>Case 3: Complex Conjugate Poles</h3>
+        <p>For a pair of complex poles at $s = -\alpha \pm j\beta$, keep the quadratic factor intact:</p>
+        $$\frac{N(s)}{s^2 + 2\alpha s + (\alpha^2+\beta^2)} \longrightarrow \frac{As + B}{s^2 + 2\alpha s + (\alpha^2+\beta^2)}$$
+        <p>Then complete the square and use the transform pair:</p>
+        $$\mathcal{L}^{-1}\left\{\frac{s+\alpha}{(s+\alpha)^2+\beta^2}\right\} = e^{-\alpha t}\cos(\beta t), \quad \mathcal{L}^{-1}\left\{\frac{\beta}{(s+\alpha)^2+\beta^2}\right\} = e^{-\alpha t}\sin(\beta t)$$
+
+        <div class="worked-example">
+          <div class="worked-example-header">Worked Example: Inverse of $F(s) = \frac{5s+3}{(s+1)(s+2)}$ <span class="arrow">▸</span></div>
+          <div class="worked-example-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Set up partial fractions:</p>
+                $$\frac{5s+3}{(s+1)(s+2)} = \frac{A}{s+1} + \frac{B}{s+2}$$
+              </div>
+              <div class="deriv-step">
+                <p>Find $A$ by the cover-up method: set $s = -1$:</p>
+                $$A = \frac{5(-1)+3}{(-1+2)} = \frac{-2}{1} = -2$$
+              </div>
+              <div class="deriv-step">
+                <p>Find $B$ by setting $s = -2$:</p>
+                $$B = \frac{5(-2)+3}{(-2+1)} = \frac{-7}{-1} = 7$$
+              </div>
+              <div class="deriv-step">
+                <p>Invert each term:</p>
+                $$f(t) = -2e^{-t} + 7e^{-2t}, \quad t \geq 0$$
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SECTION 4: Transfer Function ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.4 — Transfer Functions</h2>
+
+        <p>The <strong>transfer function</strong> is the central concept linking the Laplace domain to system behavior. It is defined as the Laplace transform of the output divided by the Laplace transform of the input, assuming zero initial conditions.</p>
+
+        <div class="eq-critical">
+          <span class="eq-label">Transfer Function Definition</span>
+          $$H(s) = \frac{Y(s)}{U(s)} = \frac{b_m s^m + b_{m-1}s^{m-1} + \cdots + b_0}{a_n s^n + a_{n-1}s^{n-1} + \cdots + a_0}$$
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Derivation from Differential Equation <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Consider the general linear ODE with constant coefficients:</p>
+                $$a_n y^{(n)} + a_{n-1}y^{(n-1)} + \cdots + a_0 y = b_m u^{(m)} + b_{m-1}u^{(m-1)} + \cdots + b_0 u$$
+              </div>
+              <div class="deriv-step">
+                <p>Take the Laplace transform of both sides, assuming zero initial conditions:</p>
+                $$(a_n s^n + a_{n-1}s^{n-1} + \cdots + a_0)Y(s) = (b_m s^m + b_{m-1}s^{m-1} + \cdots + b_0)U(s)$$
+              </div>
+              <div class="deriv-step">
+                <p>Divide both sides by $U(s)$ and by the denominator polynomial:</p>
+                $$H(s) = \frac{Y(s)}{U(s)} = \frac{b_m s^m + \cdots + b_0}{a_n s^n + \cdots + a_0}$$
+                <div class="why-matters">$H(s)$ is the Laplace transform of the impulse response $h(t)$. This means: if you know $H(s)$, you know the system's response to any input via $Y(s) = H(s)U(s)$ — multiplication in the s-domain replaces convolution in time.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SECTION 5: Poles and Zeros ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.5 — Poles and Zeros</h2>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Definitions</span>
+          <p><strong>Poles</strong> are the values of $s$ where $H(s) \to \infty$ — roots of the denominator $D(s) = 0$.</p>
+          <p><strong>Zeros</strong> are the values of $s$ where $H(s) = 0$ — roots of the numerator $N(s) = 0$.</p>
+        </div>
+
+        <p>The <strong>characteristic equation</strong> $D(s) = 0$ determines the natural modes of the system. Each pole $p_i$ contributes a term $e^{p_i t}$ to the impulse response. Therefore:</p>
+
+        <ul style="margin:16px 0;padding-left:24px;color:var(--text-secondary);">
+          <li>Poles with $\text{Re}(p_i) < 0$ → <span style="color:var(--accent-green);">decaying modes (stable)</span></li>
+          <li>Poles with $\text{Re}(p_i) > 0$ → <span style="color:var(--accent-red);">growing modes (unstable)</span></li>
+          <li>Poles with $\text{Re}(p_i) = 0$ → <span style="color:var(--accent-amber);">marginal (sustained oscillations or constant)</span></li>
+          <li>Complex poles → oscillatory behavior with envelope $e^{\sigma t}$</li>
+          <li>Repeated poles at $p$ → terms $t^k e^{pt}$ (polynomial growth modulated by exponential)</li>
+        </ul>
+
+        <h3>Pole-Zero Cancellation</h3>
+        <p>If a pole and zero coincide, the corresponding mode is "hidden" from the input-output transfer function. However, the mode still exists internally — it is an <strong>unobservable</strong> or <strong>uncontrollable</strong> mode. If this hidden mode is unstable, the system appears stable from input-output but is internally unstable, making pole-zero cancellation of RHP poles/zeros dangerous.</p>
+      </section>
+
+      <!-- ====== SECTION 6: First-Order Systems ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.6 — First-Order Systems</h2>
+
+        <div class="eq-definition">
+          <span class="eq-label">Standard First-Order Form</span>
+          $$H(s) = \frac{K}{\tau s + 1}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">where $K$ is the DC gain and $\tau$ is the time constant (seconds).</p>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Derivation: Step Response <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>For a unit step input $U(s) = 1/s$:</p>
+                $$Y(s) = \frac{K}{\tau s + 1} \cdot \frac{1}{s} = K\left(\frac{1}{s} - \frac{1}{s + 1/\tau}\right)$$
+              </div>
+              <div class="deriv-step">
+                <p>Inverse Laplace transform:</p>
+                $$y(t) = K\left(1 - e^{-t/\tau}\right)u(t)$$
+                <div class="why-matters">At $t = \tau$: $y(\tau) = K(1-e^{-1}) = 0.632K$ — the system reaches 63.2% of its final value after one time constant. Settling time (2%): $t_s \approx 4\tau$. Rise time (10% to 90%): $t_r \approx 2.2\tau$.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SECTION 7: Second-Order Systems ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.7 — Second-Order Systems</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Standard Second-Order Form</span>
+          $$H(s) = \frac{\omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">$\omega_n$ = natural frequency (rad/s), $\zeta$ = damping ratio (dimensionless). Poles at $s = -\zeta\omega_n \pm \omega_n\sqrt{\zeta^2 - 1}$.</p>
+        </div>
+
+        <div class="collapsible open">
+          <div class="collapsible-header">Underdamped Step Response ($\zeta < 1$) — Full Derivation <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Step input $U(s) = 1/s$. Output in s-domain:</p>
+                $$Y(s) = \frac{\omega_n^2}{s(s^2 + 2\zeta\omega_n s + \omega_n^2)}$$
+              </div>
+              <div class="deriv-step">
+                <p>Partial fractions. The quadratic has complex roots $s = -\sigma \pm j\omega_d$ where $\sigma = \zeta\omega_n$ and $\omega_d = \omega_n\sqrt{1-\zeta^2}$:</p>
+                $$Y(s) = \frac{1}{s} - \frac{s + 2\zeta\omega_n}{s^2 + 2\zeta\omega_n s + \omega_n^2}$$
+              </div>
+              <div class="deriv-step">
+                <p>Complete the square and split:</p>
+                $$Y(s) = \frac{1}{s} - \frac{(s+\sigma)}{(s+\sigma)^2 + \omega_d^2} - \frac{\sigma}{\omega_d}\cdot\frac{\omega_d}{(s+\sigma)^2 + \omega_d^2}$$
+              </div>
+              <div class="deriv-step">
+                <p>Inverse transform:</p>
+                $$y(t) = 1 - e^{-\sigma t}\left[\cos(\omega_d t) + \frac{\sigma}{\omega_d}\sin(\omega_d t)\right]$$
+              </div>
+              <div class="deriv-step">
+                <p>Combine using the identity $A\cos\theta + B\sin\theta = C\sin(\theta+\phi)$:</p>
+                $$\boxed{y(t) = 1 - \frac{e^{-\zeta\omega_n t}}{\sqrt{1-\zeta^2}}\sin(\omega_d t + \phi)}$$
+                <p>where $\phi = \cos^{-1}(\zeta) = \tan^{-1}\!\left(\frac{\sqrt{1-\zeta^2}}{\zeta}\right)$.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Transient Specifications</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">Key Formulas (Underdamped, $0 < \zeta < 1$)</span>
+          <table class="formula-table">
+            <tr><td>Damped frequency</td><td>$\omega_d = \omega_n\sqrt{1-\zeta^2}$</td></tr>
+            <tr><td>Peak time</td><td>$t_p = \dfrac{\pi}{\omega_d}$</td></tr>
+            <tr><td>% Overshoot</td><td>$M_p = e^{-\pi\zeta/\sqrt{1-\zeta^2}} \times 100\%$</td></tr>
+            <tr><td>2% Settling time</td><td>$t_s \approx \dfrac{4}{\zeta\omega_n}$</td></tr>
+            <tr><td>Rise time (approx.)</td><td>$t_r \approx \dfrac{1.8}{\omega_n}$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== SECTION 8: System Type & Steady-State Error ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 1.8 — System Type &amp; Steady-State Error</h2>
+
+        <p>For a unity-feedback system with open-loop transfer function $G(s) = \frac{K \prod(s+z_i)}{s^N \prod(s+p_j)}$, the <strong>system type</strong> is $N$ — the number of free integrators ($1/s$ terms) in the forward path.</p>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Error Constants</span>
+          <table class="formula-table">
+            <tr><td>Position constant</td><td>$K_p = \lim_{s\to 0} G(s)$</td></tr>
+            <tr><td>Velocity constant</td><td>$K_v = \lim_{s\to 0} sG(s)$</td></tr>
+            <tr><td>Acceleration constant</td><td>$K_a = \lim_{s\to 0} s^2 G(s)$</td></tr>
+          </table>
+        </div>
+
+        <p>The steady-state error for different inputs:</p>
+        <table>
+          <thead>
+            <tr><th>Input</th><th>Type 0</th><th>Type 1</th><th>Type 2</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Step $1/s$</td><td>$\frac{1}{1+K_p}$</td><td>0</td><td>0</td></tr>
+            <tr><td>Ramp $1/s^2$</td><td>$\infty$</td><td>$\frac{1}{K_v}$</td><td>0</td></tr>
+            <tr><td>Parabola $1/s^3$</td><td>$\infty$</td><td>$\infty$</td><td>$\frac{1}{K_a}$</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ====== SIMULATION 1: Laplace Explorer ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive Simulation: Laplace Explorer</h2>
+        <div class="sim-container" id="sim-laplace-explorer">
+          <div class="sim-title">① Laplace Explorer — Time ↔ Frequency Duality</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Select a time-domain function and visualize its Laplace transform. Drag poles on the s-plane to see instant time-domain updates.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper">
+              <canvas id="laplace-time-canvas" width="400" height="300" aria-label="Time domain plot showing f(t)"></canvas>
+            </div>
+            <div class="sim-canvas-wrapper">
+              <canvas id="laplace-splane-canvas" width="400" height="300" aria-label="S-plane showing poles and zeros of F(s)"></canvas>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>Signal Type</label>
+              <select id="laplace-signal" class="input-field" aria-label="Select signal type">
+                <option value="step">Unit Step u(t)</option>
+                <option value="ramp">Ramp t·u(t)</option>
+                <option value="exp">Exponential e^(-at)</option>
+                <option value="sin">Sinusoid sin(ωt)</option>
+                <option value="damped-sin">Damped sin: e^(-at)sin(ωt)</option>
+              </select>
+            </div>
+            <div class="slider-group">
+              <label>Parameter a: <span class="value" id="laplace-a-val">1.00</span></label>
+              <input type="range" id="laplace-a" min="0.1" max="5" step="0.1" value="1" aria-label="Parameter a">
+            </div>
+            <div class="slider-group">
+              <label>Parameter ω: <span class="value" id="laplace-w-val">2.00</span></label>
+              <input type="range" id="laplace-w" min="0.5" max="10" step="0.5" value="2" aria-label="Parameter omega">
+            </div>
+            <button class="btn btn-sm" id="laplace-reset">Reset</button>
+          </div>
+          <div id="laplace-formula" style="text-align:center;padding:12px;font-size:1.1rem;"></div>
+        </div>
+      </section>
+
+      <!-- ====== SIMULATION 2: Transfer Function Poles-Zeros ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive Simulation: Pole-Zero Designer</h2>
+        <div class="sim-container" id="sim-pz-designer">
+          <div class="sim-title">② Transfer Function Poles-Zeros Designer</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Click on the s-plane to place poles (left-click) or zeros (right-click, or toggle). Drag to move them. Watch the step response update live.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper">
+              <canvas id="pz-splane" width="400" height="400" aria-label="S-plane for placing poles and zeros"></canvas>
+            </div>
+            <div class="sim-canvas-wrapper">
+              <canvas id="pz-response" width="400" height="300" aria-label="Step response of designed system"></canvas>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <button class="btn btn-sm" id="pz-mode-pole" style="background:var(--accent-violet);color:white;border-color:var(--accent-violet);">Place Poles ×</button>
+            <button class="btn btn-sm" id="pz-mode-zero">Place Zeros ○</button>
+            <button class="btn btn-sm" id="pz-clear">Clear All</button>
+            <button class="btn btn-sm" id="pz-export">Export CSV</button>
+            <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-secondary);margin-left:auto;" id="pz-info">H(s) = 1</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SIMULATION 3: Step & Impulse Response ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive Simulation: Second-Order Response Analyzer</h2>
+        <div class="sim-container" id="sim-2nd-order">
+          <div class="sim-title">③ Step &amp; Impulse Response Analyzer</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Adjust damping ratio ζ and natural frequency ωₙ to see how the step and impulse responses change. Transient specs are annotated directly on the plots.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper">
+              <canvas id="step-canvas" width="400" height="300" aria-label="Step response plot"></canvas>
+            </div>
+            <div class="sim-canvas-wrapper">
+              <canvas id="impulse-canvas" width="400" height="300" aria-label="Impulse response plot"></canvas>
+            </div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>ζ (damping): <span class="value" id="zeta-val">0.30</span></label>
+              <input type="range" id="zeta-slider" min="0.01" max="2" step="0.01" value="0.3" aria-label="Damping ratio zeta">
+            </div>
+            <div class="slider-group">
+              <label>ωₙ (rad/s): <span class="value" id="wn-val">5.00</span></label>
+              <input type="range" id="wn-slider" min="0.5" max="20" step="0.5" value="5" aria-label="Natural frequency omega_n">
+            </div>
+            <button class="btn btn-sm" id="so-reset">Reset</button>
+            <button class="btn btn-sm" id="so-export">Export CSV</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:12px;" id="specs-display">
+            <div class="card" style="padding:12px;text-align:center;margin:0;">
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Peak Time tₚ</div>
+              <div style="font-family:var(--font-mono);font-size:1.1rem;color:var(--accent-cyan);" id="spec-tp">—</div>
+            </div>
+            <div class="card" style="padding:12px;text-align:center;margin:0;">
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Overshoot Mₚ</div>
+              <div style="font-family:var(--font-mono);font-size:1.1rem;color:var(--accent-amber);" id="spec-mp">—</div>
+            </div>
+            <div class="card" style="padding:12px;text-align:center;margin:0;">
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Settling tₛ (2%)</div>
+              <div style="font-family:var(--font-mono);font-size:1.1rem;color:var(--accent-violet);" id="spec-ts">—</div>
+            </div>
+            <div class="card" style="padding:12px;text-align:center;margin:0;">
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Rise Time tᵣ</div>
+              <div style="font-family:var(--font-mono);font-size:1.1rem;color:var(--accent-green);" id="spec-tr">—</div>
+            </div>
+            <div class="card" style="padding:12px;text-align:center;margin:0;">
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;">Damped ωd</div>
+              <div style="font-family:var(--font-mono);font-size:1.1rem;color:var(--text-primary);" id="spec-wd">—</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Quick Reference ====== -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 1</h3>
+          <table class="formula-table">
+            <tr><td>Laplace Transform</td><td>$F(s) = \int_0^\infty f(t)e^{-st}dt$</td></tr>
+            <tr><td>Step Transform</td><td>$\mathcal{L}\{u(t)\} = 1/s$</td></tr>
+            <tr><td>Exponential</td><td>$\mathcal{L}\{e^{-at}\} = 1/(s+a)$</td></tr>
+            <tr><td>Differentiation</td><td>$\mathcal{L}\{f'(t)\} = sF(s) - f(0^-)$</td></tr>
+            <tr><td>Transfer Function</td><td>$H(s) = Y(s)/U(s) = N(s)/D(s)$</td></tr>
+            <tr><td>First-Order Step</td><td>$y(t) = K(1-e^{-t/\tau})$</td></tr>
+            <tr><td>Second-Order Form</td><td>$H(s) = \omega_n^2/(s^2+2\zeta\omega_n s+\omega_n^2)$</td></tr>
+            <tr><td>Peak Time</td><td>$t_p = \pi/\omega_d$</td></tr>
+            <tr><td>% Overshoot</td><td>$M_p = e^{-\pi\zeta/\sqrt{1-\zeta^2}}$</td></tr>
+            <tr><td>Settling Time</td><td>$t_s \approx 4/(\zeta\omega_n)$</td></tr>
+            <tr><td>Final Value Theorem</td><td>$\lim_{t\to\infty}f(t) = \lim_{s\to 0}sF(s)$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- Chapter Navigation -->
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../../index.html">
+          <span class="label">← Home</span>
+          <span class="title">Table of Contents</span>
+        </a>
+        <a href="../02-block-diagram-reduction/index.html" class="next">
+          <span class="label">Next Chapter →</span>
+          <span class="title">Block Diagram Reduction</span>
+        </a>
+      </nav>
+
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- 3D Hero Scene -->
+  <script>
+  (function() {
+    const container = document.getElementById('hero-3d');
+    if (!container || !window.THREE) return;
+    const w = container.clientWidth, h = container.clientHeight;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
+    camera.position.set(3, 3, 6);
+    camera.lookAt(0, 0, 0);
+
+    // Grid plane (s-plane)
+    const gridHelper = new THREE.GridHelper(10, 20, 0x00e5ff, 0x00e5ff);
+    gridHelper.material.opacity = 0.08;
+    gridHelper.material.transparent = true;
+    gridHelper.rotation.x = Math.PI / 2;
+    scene.add(gridHelper);
+
+    // Poles as violet spikes
+    const polePositions = [[-1, 0.5], [-1, -0.5], [-2, 0], [-0.5, 1.5], [-0.5, -1.5]];
+    const poleGeom = new THREE.ConeGeometry(0.08, 0.6, 8);
+    polePositions.forEach(([re, im]) => {
+      const mat = new THREE.MeshStandardMaterial({ color: 0x7c4dff, emissive: 0x7c4dff, emissiveIntensity: 0.6 });
+      const pole = new THREE.Mesh(poleGeom, mat);
+      pole.position.set(re, im, 0.3);
+      scene.add(pole);
+    });
+
+    // Zeros as cyan rings
+    const zeroPositions = [[-3, 0], [0.5, 0]];
+    const ringGeom = new THREE.TorusGeometry(0.12, 0.03, 8, 24);
+    zeroPositions.forEach(([re, im]) => {
+      const mat = new THREE.MeshStandardMaterial({ color: 0x00e5ff, emissive: 0x00e5ff, emissiveIntensity: 0.6 });
+      const ring = new THREE.Mesh(ringGeom, mat);
+      ring.position.set(re, im, 0);
+      scene.add(ring);
+    });
+
+    // jω axis (imaginary)
+    const axisGeom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-5,0), new THREE.Vector3(0,5,0)]);
+    scene.add(new THREE.Line(axisGeom, new THREE.LineBasicMaterial({ color: 0xffab40, opacity: 0.4, transparent: true })));
+    // σ axis (real)
+    const rAxisGeom = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-5,0,0), new THREE.Vector3(5,0,0)]);
+    scene.add(new THREE.Line(rAxisGeom, new THREE.LineBasicMaterial({ color: 0x8a9bb5, opacity: 0.3, transparent: true })));
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(3, 5, 5);
+    scene.add(dirLight);
+
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', e => {
+      mouseX = (e.clientX / window.innerWidth - 0.5);
+      mouseY = (e.clientY / window.innerHeight - 0.5);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = Date.now() * 0.001;
+      camera.position.x = 3 + mouseX * 2;
+      camera.position.y = 3 - mouseY * 2;
+      camera.lookAt(0, 0, 0);
+      scene.children.forEach(child => {
+        if (child.geometry && child.geometry.type === 'ConeGeometry') {
+          child.position.z = 0.3 + 0.1 * Math.sin(time * 2 + child.position.x);
+        }
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const nw = container.clientWidth, nh = container.clientHeight;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  })();
+  </script>
+
+  <!-- Simulation: Laplace Explorer -->
+  <script type="module">
+  import { Complex, polyEval, linspace, exportCSV } from '../../assets/js/utils.js';
+
+  const timeCanvas = document.getElementById('laplace-time-canvas');
+  const splaneCanvas = document.getElementById('laplace-splane-canvas');
+  const signalSelect = document.getElementById('laplace-signal');
+  const aSlider = document.getElementById('laplace-a');
+  const wSlider = document.getElementById('laplace-w');
+  const aVal = document.getElementById('laplace-a-val');
+  const wVal = document.getElementById('laplace-w-val');
+  const formulaDiv = document.getElementById('laplace-formula');
+
+  if (timeCanvas && splaneCanvas) {
+    const tCtx = timeCanvas.getContext('2d');
+    const sCtx = splaneCanvas.getContext('2d');
+
+    function getParams() {
+      return {
+        type: signalSelect.value,
+        a: parseFloat(aSlider.value),
+        w: parseFloat(wSlider.value)
+      };
+    }
+
+    function computeSignal(params, tArr) {
+      switch (params.type) {
+        case 'step': return tArr.map(t => t >= 0 ? 1 : 0);
+        case 'ramp': return tArr.map(t => t >= 0 ? t : 0);
+        case 'exp': return tArr.map(t => t >= 0 ? Math.exp(-params.a * t) : 0);
+        case 'sin': return tArr.map(t => t >= 0 ? Math.sin(params.w * t) : 0);
+        case 'damped-sin': return tArr.map(t => t >= 0 ? Math.exp(-params.a * t) * Math.sin(params.w * t) : 0);
+        default: return tArr.map(() => 0);
+      }
+    }
+
+    function getPoleZero(params) {
+      switch (params.type) {
+        case 'step': return { poles: [{re:0,im:0}], zeros: [], expr: 'F(s) = 1/s' };
+        case 'ramp': return { poles: [{re:0,im:0},{re:0,im:0}], zeros: [], expr: 'F(s) = 1/s²' };
+        case 'exp': return { poles: [{re:-params.a,im:0}], zeros: [], expr: `F(s) = 1/(s+${params.a.toFixed(1)})` };
+        case 'sin': return { poles: [{re:0,im:params.w},{re:0,im:-params.w}], zeros: [], expr: `F(s) = ${params.w.toFixed(1)}/(s²+${(params.w*params.w).toFixed(1)})` };
+        case 'damped-sin': return { poles: [{re:-params.a,im:params.w},{re:-params.a,im:-params.w}], zeros: [], expr: `F(s) = ${params.w.toFixed(1)}/((s+${params.a.toFixed(1)})²+${(params.w*params.w).toFixed(1)})` };
+        default: return { poles: [], zeros: [], expr: '' };
+      }
+    }
+
+    function drawTimePlot(tArr, yArr) {
+      const W = timeCanvas.width, H = timeCanvas.height;
+      const dpr = window.devicePixelRatio || 1;
+      timeCanvas.width = timeCanvas.clientWidth * dpr;
+      timeCanvas.height = timeCanvas.clientHeight * dpr;
+      const cw = timeCanvas.width, ch = timeCanvas.height;
+      tCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const w = timeCanvas.clientWidth, h = timeCanvas.clientHeight;
+
+      tCtx.clearRect(0, 0, w, h);
+      tCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+      tCtx.fillRect(0, 0, w, h);
+
+      const pad = { top: 20, right: 20, bottom: 30, left: 50 };
+      const pw = w - pad.left - pad.right;
+      const ph = h - pad.top - pad.bottom;
+
+      const tMin = tArr[0], tMax = tArr[tArr.length - 1];
+      let yMin = Math.min(0, ...yArr);
+      let yMax = Math.max(1, ...yArr);
+      const yPad = (yMax - yMin) * 0.1 || 0.1;
+      yMin -= yPad; yMax += yPad;
+
+      function tx(t) { return pad.left + (t - tMin) / (tMax - tMin) * pw; }
+      function ty(y) { return pad.top + (1 - (y - yMin) / (yMax - yMin)) * ph; }
+
+      // Grid
+      tCtx.strokeStyle = 'rgba(0,229,255,0.06)';
+      tCtx.lineWidth = 0.5;
+      for (let i = 0; i <= 5; i++) {
+        const gx = pad.left + pw * i / 5;
+        tCtx.beginPath(); tCtx.moveTo(gx, pad.top); tCtx.lineTo(gx, pad.top + ph); tCtx.stroke();
+        const gy = pad.top + ph * i / 5;
+        tCtx.beginPath(); tCtx.moveTo(pad.left, gy); tCtx.lineTo(pad.left + pw, gy); tCtx.stroke();
+      }
+
+      // Axis at y=0
+      tCtx.strokeStyle = 'rgba(138,155,181,0.3)';
+      tCtx.lineWidth = 1;
+      tCtx.beginPath(); tCtx.moveTo(pad.left, ty(0)); tCtx.lineTo(pad.left + pw, ty(0)); tCtx.stroke();
+
+      // Plot
+      tCtx.strokeStyle = '#00e5ff';
+      tCtx.lineWidth = 2;
+      tCtx.shadowColor = 'rgba(0,229,255,0.4)';
+      tCtx.shadowBlur = 6;
+      tCtx.beginPath();
+      for (let i = 0; i < tArr.length; i++) {
+        const x = tx(tArr[i]), y = ty(yArr[i]);
+        if (i === 0) tCtx.moveTo(x, y); else tCtx.lineTo(x, y);
+      }
+      tCtx.stroke();
+      tCtx.shadowBlur = 0;
+
+      // Labels
+      tCtx.fillStyle = '#8a9bb5';
+      tCtx.font = '11px Inter';
+      tCtx.textAlign = 'center';
+      for (let i = 0; i <= 5; i++) {
+        const t = tMin + (tMax - tMin) * i / 5;
+        tCtx.fillText(t.toFixed(1), tx(t), pad.top + ph + 18);
+      }
+      tCtx.textAlign = 'right';
+      for (let i = 0; i <= 5; i++) {
+        const y = yMin + (yMax - yMin) * i / 5;
+        tCtx.fillText(y.toFixed(2), pad.left - 5, ty(y) + 4);
+      }
+      tCtx.fillStyle = '#e8edf8';
+      tCtx.font = '12px Inter';
+      tCtx.textAlign = 'center';
+      tCtx.fillText('t (seconds)', w / 2, h - 2);
+      tCtx.save();
+      tCtx.translate(12, h / 2);
+      tCtx.rotate(-Math.PI / 2);
+      tCtx.fillText('f(t)', 0, 0);
+      tCtx.restore();
+    }
+
+    function drawSPlane(pz) {
+      const dpr = window.devicePixelRatio || 1;
+      splaneCanvas.width = splaneCanvas.clientWidth * dpr;
+      splaneCanvas.height = splaneCanvas.clientHeight * dpr;
+      sCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const w = splaneCanvas.clientWidth, h = splaneCanvas.clientHeight;
+
+      sCtx.clearRect(0, 0, w, h);
+      sCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+      sCtx.fillRect(0, 0, w, h);
+
+      const pad = 40;
+      const pw = w - 2 * pad;
+      const ph = h - 2 * pad;
+      const range = 6;
+
+      function sx(re) { return pad + (re + range) / (2 * range) * pw; }
+      function sy(im) { return pad + (range - im) / (2 * range) * ph; }
+
+      // Stable region shading
+      sCtx.fillStyle = 'rgba(105,255,71,0.03)';
+      sCtx.fillRect(pad, pad, pw / 2, ph);
+
+      // Grid
+      sCtx.strokeStyle = 'rgba(0,229,255,0.06)';
+      sCtx.lineWidth = 0.5;
+      for (let v = -range; v <= range; v++) {
+        sCtx.beginPath(); sCtx.moveTo(sx(v), pad); sCtx.lineTo(sx(v), pad+ph); sCtx.stroke();
+        sCtx.beginPath(); sCtx.moveTo(pad, sy(v)); sCtx.lineTo(pad+pw, sy(v)); sCtx.stroke();
+      }
+
+      // Axes
+      sCtx.strokeStyle = 'rgba(138,155,181,0.4)';
+      sCtx.lineWidth = 1;
+      sCtx.beginPath(); sCtx.moveTo(sx(-range), sy(0)); sCtx.lineTo(sx(range), sy(0)); sCtx.stroke();
+      sCtx.beginPath(); sCtx.moveTo(sx(0), sy(-range)); sCtx.lineTo(sx(0), sy(range)); sCtx.stroke();
+
+      // jω axis label
+      sCtx.fillStyle = '#ffab40';
+      sCtx.font = '11px Inter';
+      sCtx.textAlign = 'left';
+      sCtx.fillText('jω', sx(0) + 5, pad + 12);
+      sCtx.fillStyle = '#8a9bb5';
+      sCtx.fillText('σ', sx(range) - 15, sy(0) - 5);
+
+      // Draw poles
+      pz.poles.forEach(p => {
+        const x = sx(p.re), y = sy(p.im);
+        sCtx.strokeStyle = '#7c4dff';
+        sCtx.lineWidth = 2.5;
+        sCtx.shadowColor = 'rgba(124,77,255,0.5)';
+        sCtx.shadowBlur = 8;
+        const sz = 8;
+        sCtx.beginPath(); sCtx.moveTo(x-sz, y-sz); sCtx.lineTo(x+sz, y+sz); sCtx.stroke();
+        sCtx.beginPath(); sCtx.moveTo(x+sz, y-sz); sCtx.lineTo(x-sz, y+sz); sCtx.stroke();
+        sCtx.shadowBlur = 0;
+      });
+
+      // Draw zeros
+      pz.zeros.forEach(z => {
+        const x = sx(z.re), y = sy(z.im);
+        sCtx.strokeStyle = '#00e5ff';
+        sCtx.lineWidth = 2.5;
+        sCtx.shadowColor = 'rgba(0,229,255,0.5)';
+        sCtx.shadowBlur = 8;
+        sCtx.beginPath(); sCtx.arc(x, y, 8, 0, Math.PI * 2); sCtx.stroke();
+        sCtx.shadowBlur = 0;
+      });
+
+      // Labels
+      sCtx.fillStyle = '#8a9bb5';
+      sCtx.font = '10px JetBrains Mono';
+      sCtx.textAlign = 'center';
+      for (let v = -range; v <= range; v += 2) {
+        if (v !== 0) {
+          sCtx.fillText(v.toString(), sx(v), sy(0) + 14);
+          sCtx.fillText(v + 'j', sx(0) + 18, sy(v) + 3);
+        }
+      }
+    }
+
+    function update() {
+      const params = getParams();
+      aVal.textContent = params.a.toFixed(2);
+      wVal.textContent = params.w.toFixed(2);
+
+      const tArr = linspace(0, 8, 500);
+      const yArr = computeSignal(params, tArr);
+      const pz = getPoleZero(params);
+
+      drawTimePlot(tArr, yArr);
+      drawSPlane(pz);
+      formulaDiv.textContent = pz.expr;
+    }
+
+    signalSelect.addEventListener('change', update);
+    aSlider.addEventListener('input', update);
+    wSlider.addEventListener('input', update);
+    document.getElementById('laplace-reset').addEventListener('click', () => {
+      aSlider.value = 1; wSlider.value = 2; signalSelect.value = 'step'; update();
+    });
+
+    update();
+  }
+  </script>
+
+  <!-- Simulation: Pole-Zero Designer -->
+  <script type="module">
+  import { Complex, polyFromRoots, polyRoots, secondOrderStep, linspace, exportCSV, rk4Step } from '../../assets/js/utils.js';
+
+  const sCanvas = document.getElementById('pz-splane');
+  const rCanvas = document.getElementById('pz-response');
+  if (!sCanvas || !rCanvas) throw new Error('Canvas not found');
+
+  const sCtx = sCanvas.getContext('2d');
+  const rCtx = rCanvas.getContext('2d');
+  const info = document.getElementById('pz-info');
+
+  let poles = [{ re: -1, im: 1 }, { re: -1, im: -1 }];
+  let zeros = [];
+  let placingMode = 'pole';
+  let dragging = null;
+  const range = 5;
+
+  function sx(re) { const pad = 30; return pad + (re + range) / (2 * range) * (sCanvas.clientWidth - 2 * pad); }
+  function sy(im) { const pad = 30; return pad + (range - im) / (2 * range) * (sCanvas.clientHeight - 2 * pad); }
+  function invSx(x) { const pad = 30; return (x - pad) / (sCanvas.clientWidth - 2 * pad) * 2 * range - range; }
+  function invSy(y) { const pad = 30; return range - (y - pad) / (sCanvas.clientHeight - 2 * pad) * 2 * range; }
+
+  function computeStepResponse() {
+    if (poles.length === 0) return { t: [0,10], y: [1,1] };
+    const allPoles = poles.map(p => new Complex(p.re, p.im));
+    const allZeros = zeros.map(z => new Complex(z.re, z.im));
+    const den = polyFromRoots(allPoles);
+    const num = allZeros.length > 0 ? polyFromRoots(allZeros) : [1];
+    // Scale so DC gain = 1 (H(0) = num(0)/den(0) = 1)
+    const numAt0 = num.reduce((s, c) => s, num[num.length - 1]);
+    const denAt0 = den[den.length - 1];
+    const dcScale = denAt0 / (numAt0 || 1);
+    const scaledNum = num.map(c => c * dcScale);
+
+    // Simulate: convert to state space companion form (or direct ODE)
+    const n = den.length - 1;
+    const tArr = linspace(0, 10, 500);
+    const dt = tArr[1] - tArr[0];
+    const yArr = [];
+
+    // Direct numerical simulation using differential equation
+    // y^(n) + a_{n-1}y^(n-1) + ... + a_0 y = b_m u^(m) + ... + b_0 u
+    // For step input, u(t) = 1 for t >= 0
+    const state = new Array(n).fill(0); // [y, y', y'', ...]
+    const mNum = scaledNum.length - 1;
+
+    for (let k = 0; k < tArr.length; k++) {
+      // Output = state[0]
+      yArr.push(state[0]);
+      // Derivatives
+      const deriv = (t, s) => {
+        const ds = new Array(n);
+        for (let i = 0; i < n - 1; i++) ds[i] = s[i + 1];
+        // Highest derivative: -a_{n-1}*y^(n-1) - ... - a_0*y + input terms
+        let d = 0;
+        for (let i = 1; i <= n; i++) d -= (den[i] / den[0]) * s[n - i];
+        // Input: step u=1, derivatives of u = 0
+        d += scaledNum[scaledNum.length - 1] / den[0]; // b_0 * u
+        ds[n - 1] = d;
+        return ds;
+      };
+      const newState = rk4Step(deriv, tArr[k], state, dt);
+      for (let i = 0; i < n; i++) state[i] = newState[i];
+    }
+    return { t: tArr, y: yArr };
+  }
+
+  function drawSPlane() {
+    const dpr = window.devicePixelRatio || 1;
+    sCanvas.width = sCanvas.clientWidth * dpr;
+    sCanvas.height = sCanvas.clientHeight * dpr;
+    sCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = sCanvas.clientWidth, h = sCanvas.clientHeight;
+    sCtx.clearRect(0, 0, w, h);
+    const style = getComputedStyle(document.documentElement);
+    sCtx.fillStyle = style.getPropertyValue('--bg-primary').trim();
+    sCtx.fillRect(0, 0, w, h);
+
+    // Stable region
+    sCtx.fillStyle = 'rgba(105,255,71,0.03)';
+    const pad = 30;
+    sCtx.fillRect(pad, pad, (w - 2 * pad) / 2, h - 2 * pad);
+
+    // Grid
+    sCtx.strokeStyle = 'rgba(0,229,255,0.06)';
+    sCtx.lineWidth = 0.5;
+    for (let v = -range; v <= range; v++) {
+      sCtx.beginPath(); sCtx.moveTo(sx(v), pad); sCtx.lineTo(sx(v), h - pad); sCtx.stroke();
+      sCtx.beginPath(); sCtx.moveTo(pad, sy(v)); sCtx.lineTo(w - pad, sy(v)); sCtx.stroke();
+    }
+
+    // Axes
+    sCtx.strokeStyle = 'rgba(138,155,181,0.4)';
+    sCtx.lineWidth = 1;
+    sCtx.beginPath(); sCtx.moveTo(pad, sy(0)); sCtx.lineTo(w - pad, sy(0)); sCtx.stroke();
+    sCtx.beginPath(); sCtx.moveTo(sx(0), pad); sCtx.lineTo(sx(0), h - pad); sCtx.stroke();
+
+    // Poles
+    poles.forEach(p => {
+      const x = sx(p.re), y = sy(p.im);
+      sCtx.strokeStyle = '#7c4dff';
+      sCtx.lineWidth = 2.5;
+      sCtx.shadowColor = 'rgba(124,77,255,0.5)';
+      sCtx.shadowBlur = 8;
+      sCtx.beginPath(); sCtx.moveTo(x - 7, y - 7); sCtx.lineTo(x + 7, y + 7); sCtx.stroke();
+      sCtx.beginPath(); sCtx.moveTo(x + 7, y - 7); sCtx.lineTo(x - 7, y + 7); sCtx.stroke();
+      sCtx.shadowBlur = 0;
+    });
+
+    // Zeros
+    zeros.forEach(z => {
+      const x = sx(z.re), y = sy(z.im);
+      sCtx.strokeStyle = '#00e5ff';
+      sCtx.lineWidth = 2.5;
+      sCtx.shadowColor = 'rgba(0,229,255,0.5)';
+      sCtx.shadowBlur = 8;
+      sCtx.beginPath(); sCtx.arc(x, y, 7, 0, Math.PI * 2); sCtx.stroke();
+      sCtx.shadowBlur = 0;
+    });
+
+    // Axis labels
+    sCtx.fillStyle = '#8a9bb5';
+    sCtx.font = '10px JetBrains Mono';
+    sCtx.textAlign = 'center';
+    for (let v = -range; v <= range; v++) {
+      if (v !== 0) {
+        sCtx.fillText(v.toString(), sx(v), sy(0) + 14);
+      }
+    }
+  }
+
+  function drawResponse() {
+    const { t, y } = computeStepResponse();
+    const dpr = window.devicePixelRatio || 1;
+    rCanvas.width = rCanvas.clientWidth * dpr;
+    rCanvas.height = rCanvas.clientHeight * dpr;
+    rCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = rCanvas.clientWidth, h = rCanvas.clientHeight;
+    rCtx.clearRect(0, 0, w, h);
+    const style = getComputedStyle(document.documentElement);
+    rCtx.fillStyle = style.getPropertyValue('--bg-primary').trim();
+    rCtx.fillRect(0, 0, w, h);
+
+    const pad = { top: 20, right: 20, bottom: 30, left: 50 };
+    const pw = w - pad.left - pad.right;
+    const ph = h - pad.top - pad.bottom;
+
+    let yMin = Math.min(0, ...y.filter(v => isFinite(v)));
+    let yMax = Math.max(1.5, ...y.filter(v => isFinite(v)));
+    yMin = Math.max(yMin, -5); yMax = Math.min(yMax, 5);
+    const yPadding = (yMax - yMin) * 0.1 || 0.1;
+    yMin -= yPadding; yMax += yPadding;
+
+    function tx(tv) { return pad.left + (tv - t[0]) / (t[t.length - 1] - t[0]) * pw; }
+    function ty(yv) { return pad.top + (1 - (yv - yMin) / (yMax - yMin)) * ph; }
+
+    // Grid
+    rCtx.strokeStyle = 'rgba(0,229,255,0.06)';
+    rCtx.lineWidth = 0.5;
+    for (let i = 0; i <= 5; i++) {
+      const gx = pad.left + pw * i / 5;
+      rCtx.beginPath(); rCtx.moveTo(gx, pad.top); rCtx.lineTo(gx, pad.top + ph); rCtx.stroke();
+    }
+
+    // y=1 line
+    rCtx.strokeStyle = 'rgba(255,171,64,0.2)';
+    rCtx.setLineDash([4, 4]);
+    rCtx.beginPath(); rCtx.moveTo(pad.left, ty(1)); rCtx.lineTo(pad.left + pw, ty(1)); rCtx.stroke();
+    rCtx.setLineDash([]);
+
+    // Plot
+    rCtx.strokeStyle = '#00e5ff';
+    rCtx.lineWidth = 2;
+    rCtx.shadowColor = 'rgba(0,229,255,0.4)';
+    rCtx.shadowBlur = 6;
+    rCtx.beginPath();
+    for (let i = 0; i < t.length; i++) {
+      const vi = isFinite(y[i]) ? Math.max(yMin, Math.min(yMax, y[i])) : yMin;
+      if (i === 0) rCtx.moveTo(tx(t[i]), ty(vi)); else rCtx.lineTo(tx(t[i]), ty(vi));
+    }
+    rCtx.stroke();
+    rCtx.shadowBlur = 0;
+
+    rCtx.fillStyle = '#8a9bb5';
+    rCtx.font = '11px Inter';
+    rCtx.textAlign = 'center';
+    rCtx.fillText('t (s)', w / 2, h - 2);
+    rCtx.fillText('Step Response', w / 2, pad.top - 4);
+  }
+
+  function updateInfo() {
+    const pStr = poles.map(p => `${p.re.toFixed(1)}${p.im >= 0 ? '+' : ''}${p.im.toFixed(1)}j`).join(', ');
+    info.textContent = `Poles: ${poles.length} | Zeros: ${zeros.length}`;
+  }
+
+  function draw() {
+    drawSPlane();
+    drawResponse();
+    updateInfo();
+  }
+
+  // Mode buttons
+  document.getElementById('pz-mode-pole').addEventListener('click', function() {
+    placingMode = 'pole';
+    this.style.background = 'var(--accent-violet)';
+    this.style.color = 'white';
+    document.getElementById('pz-mode-zero').style.background = '';
+    document.getElementById('pz-mode-zero').style.color = '';
+  });
+  document.getElementById('pz-mode-zero').addEventListener('click', function() {
+    placingMode = 'zero';
+    this.style.background = 'var(--accent-cyan)';
+    this.style.color = 'var(--bg-primary)';
+    document.getElementById('pz-mode-pole').style.background = '';
+    document.getElementById('pz-mode-pole').style.color = '';
+  });
+  document.getElementById('pz-clear').addEventListener('click', () => { poles = []; zeros = []; draw(); });
+  document.getElementById('pz-export').addEventListener('click', () => {
+    const { t, y } = computeStepResponse();
+    const data = t.map((ti, i) => [ti, y[i]]);
+    exportCSV(['time', 'y'], data, 'pz-step-response.csv');
+  });
+
+  // Mouse interaction
+  sCanvas.addEventListener('mousedown', e => {
+    const rect = sCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const re = invSx(mx), im = invSy(my);
+
+    // Check if clicking near existing pole/zero
+    const allItems = [...poles.map((p, i) => ({ ...p, type: 'pole', idx: i })), ...zeros.map((z, i) => ({ ...z, type: 'zero', idx: i }))];
+    for (const item of allItems) {
+      const dx = sx(item.re) - mx;
+      const dy = sy(item.im) - my;
+      if (Math.sqrt(dx * dx + dy * dy) < 15) {
+        dragging = item;
+        return;
+      }
+    }
+
+    // Place new pole/zero
+    if (placingMode === 'pole') {
+      poles.push({ re, im });
+      // Add conjugate if not on real axis
+      if (Math.abs(im) > 0.2) poles.push({ re, im: -im });
+    } else {
+      zeros.push({ re, im });
+      if (Math.abs(im) > 0.2) zeros.push({ re, im: -im });
+    }
+    draw();
+  });
+
+  sCanvas.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const rect = sCanvas.getBoundingClientRect();
+    const re = invSx(e.clientX - rect.left);
+    const im = invSy(e.clientY - rect.top);
+    const list = dragging.type === 'pole' ? poles : zeros;
+    const item = list[dragging.idx];
+    // Find conjugate
+    const conjIdx = list.findIndex((p, i) => i !== dragging.idx && Math.abs(p.re - item.re) < 0.01 && Math.abs(p.im + item.im) < 0.01);
+    item.re = re;
+    item.im = im;
+    if (conjIdx >= 0) {
+      list[conjIdx].re = re;
+      list[conjIdx].im = -im;
+    }
+    draw();
+  });
+
+  sCanvas.addEventListener('mouseup', () => { dragging = null; });
+  sCanvas.addEventListener('mouseleave', () => { dragging = null; });
+
+  // Right-click to delete
+  sCanvas.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const rect = sCanvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    // Check poles then zeros
+    for (let i = poles.length - 1; i >= 0; i--) {
+      const dx = sx(poles[i].re) - mx, dy = sy(poles[i].im) - my;
+      if (Math.sqrt(dx*dx+dy*dy) < 15) { poles.splice(i, 1); draw(); return; }
+    }
+    for (let i = zeros.length - 1; i >= 0; i--) {
+      const dx = sx(zeros[i].re) - mx, dy = sy(zeros[i].im) - my;
+      if (Math.sqrt(dx*dx+dy*dy) < 15) { zeros.splice(i, 1); draw(); return; }
+    }
+  });
+
+  draw();
+  </script>
+
+  <!-- Simulation: Second-Order Response Analyzer -->
+  <script type="module">
+  import { secondOrderStep, secondOrderImpulse, transientSpecs, linspace, exportCSV } from '../../assets/js/utils.js';
+
+  const stepCanvas = document.getElementById('step-canvas');
+  const impulseCanvas = document.getElementById('impulse-canvas');
+  const zetaSlider = document.getElementById('zeta-slider');
+  const wnSlider = document.getElementById('wn-slider');
+
+  if (stepCanvas && impulseCanvas) {
+    const sCtx = stepCanvas.getContext('2d');
+    const iCtx = impulseCanvas.getContext('2d');
+
+    function drawPlot(canvas, ctx, tArr, yArr, title, annotations) {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      const style = getComputedStyle(document.documentElement);
+      ctx.fillStyle = style.getPropertyValue('--bg-primary').trim();
+      ctx.fillRect(0, 0, w, h);
+
+      const pad = { top: 25, right: 20, bottom: 30, left: 50 };
+      const pw = w - pad.left - pad.right;
+      const ph = h - pad.top - pad.bottom;
+      const tMin = tArr[0], tMax = tArr[tArr.length - 1];
+      let yMin = Math.min(0, ...yArr);
+      let yMax = Math.max(0.1, ...yArr);
+      const yPad = (yMax - yMin) * 0.15 || 0.1;
+      yMin -= yPad; yMax += yPad;
+
+      function tx(t) { return pad.left + (t - tMin) / (tMax - tMin) * pw; }
+      function ty(y) { return pad.top + (1 - (y - yMin) / (yMax - yMin)) * ph; }
+
+      // Grid
+      ctx.strokeStyle = 'rgba(0,229,255,0.06)';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 5; i++) {
+        ctx.beginPath(); ctx.moveTo(pad.left + pw * i / 5, pad.top); ctx.lineTo(pad.left + pw * i / 5, pad.top + ph); ctx.stroke();
+      }
+
+      // y=1 line for step
+      if (title.includes('Step')) {
+        ctx.strokeStyle = 'rgba(255,171,64,0.2)';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(pad.left, ty(1)); ctx.lineTo(pad.left + pw, ty(1)); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Plot
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba(0,229,255,0.4)';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      for (let i = 0; i < tArr.length; i++) {
+        if (i === 0) ctx.moveTo(tx(tArr[i]), ty(yArr[i])); else ctx.lineTo(tx(tArr[i]), ty(yArr[i]));
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Annotations
+      if (annotations) {
+        // Peak time marker
+        if (annotations.tp && isFinite(annotations.tp) && annotations.tp < tMax) {
+          const peakY = annotations.peakVal || 0;
+          ctx.strokeStyle = '#ff3d71';
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath(); ctx.moveTo(tx(annotations.tp), ty(0)); ctx.lineTo(tx(annotations.tp), ty(peakY)); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#ff3d71';
+          ctx.font = '10px JetBrains Mono';
+          ctx.fillText(`tp=${annotations.tp.toFixed(2)}s`, tx(annotations.tp) + 3, ty(peakY) - 5);
+        }
+        // Settling time
+        if (annotations.ts && isFinite(annotations.ts) && annotations.ts < tMax) {
+          ctx.strokeStyle = '#7c4dff';
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath(); ctx.moveTo(tx(annotations.ts), pad.top); ctx.lineTo(tx(annotations.ts), pad.top + ph); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#7c4dff';
+          ctx.font = '10px JetBrains Mono';
+          ctx.fillText(`ts=${annotations.ts.toFixed(2)}s`, tx(annotations.ts) + 3, pad.top + 15);
+        }
+      }
+
+      // Title
+      ctx.fillStyle = '#e8edf8';
+      ctx.font = '12px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, w / 2, pad.top - 8);
+
+      // Axis labels
+      ctx.fillStyle = '#8a9bb5';
+      ctx.font = '10px Inter';
+      for (let i = 0; i <= 5; i++) {
+        const t = tMin + (tMax - tMin) * i / 5;
+        ctx.fillText(t.toFixed(1), tx(t), pad.top + ph + 15);
+      }
+    }
+
+    function update() {
+      const zeta = parseFloat(zetaSlider.value);
+      const wn = parseFloat(wnSlider.value);
+      document.getElementById('zeta-val').textContent = zeta.toFixed(2);
+      document.getElementById('wn-val').textContent = wn.toFixed(2);
+
+      const tMax = Math.max(2, Math.min(20, 8 / (zeta * wn + 0.1)));
+      const tArr = linspace(0, tMax, 500);
+      const stepResp = secondOrderStep(zeta, wn, tArr);
+      const impResp = secondOrderImpulse(zeta, wn, tArr);
+      const specs = transientSpecs(zeta, wn);
+
+      const peakVal = 1 + specs.Mp;
+      drawPlot(stepCanvas, sCtx, tArr, stepResp, 'Step Response y(t)', { tp: specs.tp, ts: specs.ts2, peakVal });
+      drawPlot(impulseCanvas, iCtx, tArr, impResp, 'Impulse Response h(t)', null);
+
+      // Update spec displays
+      document.getElementById('spec-tp').textContent = isFinite(specs.tp) ? specs.tp.toFixed(3) + 's' : '—';
+      document.getElementById('spec-mp').textContent = isFinite(specs.Mp) ? (specs.Mp * 100).toFixed(1) + '%' : '0%';
+      document.getElementById('spec-ts').textContent = isFinite(specs.ts2) ? specs.ts2.toFixed(3) + 's' : '—';
+      document.getElementById('spec-tr').textContent = isFinite(specs.tr) ? specs.tr.toFixed(3) + 's' : '—';
+      document.getElementById('spec-wd').textContent = isFinite(specs.wd) ? specs.wd.toFixed(2) + ' rad/s' : '—';
+    }
+
+    zetaSlider.addEventListener('input', update);
+    wnSlider.addEventListener('input', update);
+    document.getElementById('so-reset').addEventListener('click', () => {
+      zetaSlider.value = 0.3; wnSlider.value = 5; update();
+    });
+    document.getElementById('so-export').addEventListener('click', () => {
+      const zeta = parseFloat(zetaSlider.value), wn = parseFloat(wnSlider.value);
+      const tArr = linspace(0, 10, 500);
+      const y = secondOrderStep(zeta, wn, tArr);
+      exportCSV(['time', 'step_response'], tArr.map((t, i) => [t, y[i]]), 'second-order-step.csv');
+    });
+
+    update();
+  }
+  </script>
+</body>
+</html>

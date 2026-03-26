@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 8 — PID Controllers | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html" class="active"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 08</span>
+        <h1>PID Controllers</h1>
+        <p class="subtitle">Proportional, Integral, Derivative — the most widely used controller</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>The PID controller is the workhorse of industrial control, used in over 90% of all control loops. This chapter covers its structure, each term's effect, tuning methods, and practical design considerations.</p>
+      </div>
+
+      <!-- 8.1 PID Structure -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 8.1 — PID Transfer Function</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Ideal PID Controller</span>
+          $$G_c(s) = K_p + \frac{K_i}{s} + K_d s = K_p\!\left(1 + \frac{1}{T_i s} + T_d s\right)$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">where $T_i = K_p/K_i$ and $T_d = K_d/K_p$.</p>
+        </div>
+
+        <h3>Effect of Each Term</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">P, I, D Actions</span>
+          <table class="formula-table">
+            <tr><td><strong>P</strong> (Proportional)</td><td>Reduces error proportionally. Increases speed but cannot eliminate SSE. Higher $K_p$ → less SSE but more overshoot.</td></tr>
+            <tr><td><strong>I</strong> (Integral)</td><td>Eliminates steady-state error by accumulating past error. Adds a pole at origin → increases system type. Can cause overshoot and oscillation.</td></tr>
+            <tr><td><strong>D</strong> (Derivative)</td><td>Predicts future error trend. Adds damping, reduces overshoot. Sensitive to noise (high-frequency amplification).</td></tr>
+          </table>
+        </div>
+
+        <div class="eq-definition">
+          <span class="eq-label">Practical PID (with Derivative Filter)</span>
+          $$G_c(s) = K_p\!\left(1 + \frac{1}{T_i s} + \frac{T_d s}{1 + T_d s / N}\right)$$
+          <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:6px;">The derivative term is filtered with $N$ (typically 8–20) to limit high-frequency gain.</p>
+        </div>
+      </section>
+
+      <!-- 8.2 Tuning Methods -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 8.2 — Ziegler-Nichols Tuning</h2>
+
+        <h3>Method 1: Step Response (Process Reaction Curve)</h3>
+        <p>Apply a step to the open-loop plant. Measure delay $L$ and time constant $T$ from the S-shaped response:</p>
+        <div class="eq-key-result">
+          <span class="eq-label">Z-N Step Response Rules</span>
+          <table class="formula-table">
+            <tr><td></td><td>$K_p$</td><td>$T_i$</td><td>$T_d$</td></tr>
+            <tr><td>P</td><td>$T/L$</td><td>∞</td><td>0</td></tr>
+            <tr><td>PI</td><td>$0.9\,T/L$</td><td>$L/0.3$</td><td>0</td></tr>
+            <tr><td>PID</td><td>$1.2\,T/L$</td><td>$2L$</td><td>$0.5L$</td></tr>
+          </table>
+        </div>
+
+        <h3>Method 2: Ultimate Gain (Oscillation Method)</h3>
+        <p>Increase $K_p$ (with $K_i=K_d=0$) until sustained oscillation. Record ultimate gain $K_u$ and period $T_u$:</p>
+        <div class="eq-key-result">
+          <span class="eq-label">Z-N Ultimate Gain Rules</span>
+          <table class="formula-table">
+            <tr><td></td><td>$K_p$</td><td>$T_i$</td><td>$T_d$</td></tr>
+            <tr><td>P</td><td>$0.5\,K_u$</td><td>∞</td><td>0</td></tr>
+            <tr><td>PI</td><td>$0.45\,K_u$</td><td>$T_u/1.2$</td><td>0</td></tr>
+            <tr><td>PID</td><td>$0.6\,K_u$</td><td>$T_u/2$</td><td>$T_u/8$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 8.3 Anti-Windup -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 8.3 — Integrator Wind-Up</h2>
+        <p>When the actuator saturates, the integral term continues accumulating error, causing large overshoot on recovery. <strong>Anti-windup</strong> strategies:</p>
+        <ul style="color:var(--text-secondary);padding-left:24px;margin:12px 0;">
+          <li><strong>Clamping</strong>: Stop integrating when output is saturated</li>
+          <li><strong>Back-calculation</strong>: Feed back the difference between saturated and unsaturated output to discharge the integrator</li>
+        </ul>
+      </section>
+
+      <!-- ====== Sim 1: PID Tuner ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: PID Tuner</h2>
+        <div class="sim-container" id="sim-pid">
+          <div class="sim-title">① Tune Kp, Ki, Kd Live</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Plant: $G(s)=\frac{1}{s^2+2s+1}$. Adjust PID gains and watch the step response change.</p>
+          <div class="sim-canvas-wrapper"><canvas id="pid-canvas" width="700" height="350" aria-label="PID step response"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>K<sub>p</sub>: <span class="value" id="pid-kp-val">5.0</span></label>
+              <input type="range" id="pid-kp" min="0" max="50" step="0.1" value="5">
+            </div>
+            <div class="slider-group">
+              <label>K<sub>i</sub>: <span class="value" id="pid-ki-val">1.0</span></label>
+              <input type="range" id="pid-ki" min="0" max="20" step="0.1" value="1">
+            </div>
+            <div class="slider-group">
+              <label>K<sub>d</sub>: <span class="value" id="pid-kd-val">2.0</span></label>
+              <input type="range" id="pid-kd" min="0" max="20" step="0.1" value="2">
+            </div>
+          </div>
+          <div id="pid-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: P vs PI vs PID ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: P vs PI vs PID Comparison</h2>
+        <div class="sim-container" id="sim-compare">
+          <div class="sim-title">② Compare Controller Types</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">See how adding integral and derivative actions changes the response.</p>
+          <div class="sim-canvas-wrapper"><canvas id="cmp-canvas" width="700" height="350" aria-label="P vs PI vs PID"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>K<sub>p</sub>: <span class="value" id="cmp-kp-val">5.0</span></label>
+              <input type="range" id="cmp-kp" min="0.5" max="30" step="0.1" value="5">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: Ziegler-Nichols Auto-Tune ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Ziegler-Nichols Calculator</h2>
+        <div class="sim-container" id="sim-zn">
+          <div class="sim-title">③ Enter Ku and Tu for Auto-Tuning</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Input ultimate gain and period from your oscillation test — get tuned PID gains.</p>
+          <div class="sim-controls" style="margin-bottom:16px;">
+            <div class="slider-group">
+              <label>K<sub>u</sub>: <span class="value" id="zn-ku-val">10</span></label>
+              <input type="range" id="zn-ku" min="0.5" max="50" step="0.1" value="10">
+            </div>
+            <div class="slider-group">
+              <label>T<sub>u</sub>: <span class="value" id="zn-tu-val">2.0</span></label>
+              <input type="range" id="zn-tu" min="0.1" max="10" step="0.1" value="2">
+            </div>
+          </div>
+          <div id="zn-output" style="font-family:var(--font-mono);font-size:0.9rem;color:var(--text-primary);padding:16px;background:rgba(0,229,255,0.03);border-radius:8px;border:1px solid rgba(0,229,255,0.1);"></div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 8</h3>
+          <table class="formula-table">
+            <tr><td>PID TF</td><td>$G_c=K_p+K_i/s+K_d s$</td></tr>
+            <tr><td>P effect</td><td>↓SSE, ↑speed, ↑overshoot</td></tr>
+            <tr><td>I effect</td><td>Eliminates SSE, may ↑oscillation</td></tr>
+            <tr><td>D effect</td><td>↑damping, ↓overshoot, noise sensitive</td></tr>
+            <tr><td>Z-N PID (Ku)</td><td>$K_p=0.6K_u$, $T_i=T_u/2$, $T_d=T_u/8$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../07-stability/index.html"><span class="label">← Previous</span><span class="title">Stability</span></a>
+        <a href="../09-digital-control/index.html" class="next"><span class="label">Next Chapter →</span><span class="title">Digital Control</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(0,2,6);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));scene.add(new THREE.DirectionalLight(0xffffff,0.7));
+    // PID text as 3 colored boxes
+    const colors=[0x00e5ff,0xffab40,0x69ff47];
+    const labels=['P','I','D'];
+    labels.forEach((l,i)=>{
+      const geo=new THREE.BoxGeometry(1,1.5,0.3);
+      const mat=new THREE.MeshStandardMaterial({color:colors[i],transparent:true,opacity:0.3,emissive:colors[i],emissiveIntensity:0.2});
+      const m=new THREE.Mesh(geo,mat);m.position.x=(i-1)*1.8;m.position.y=Math.sin(i)*0.5;scene.add(m);
+    });
+    let t=0;
+    function animate(){requestAnimationFrame(animate);t+=0.01;
+      scene.children.forEach((c,i)=>{if(c.isMesh)c.position.y=Math.sin(t+i*1.5)*0.3;});
+      r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: PID Tuner -->
+  <script type="module">
+  import { linspace, rk4Step } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('pid-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+
+  function simPID(Kp,Ki,Kd){
+    // Plant: 1/(s²+2s+1), state: [y, y', integral_e]
+    const dt=0.01,tMax=10;const N=Math.ceil(tMax/dt);
+    let state=[0,0,0]; // y, ydot, integralE
+    const t=[],y=[];
+    for(let i=0;i<N;i++){
+      const ti=i*dt;
+      t.push(ti);y.push(state[0]);
+      const e=1-state[0]; // step ref=1
+      const u=Kp*e+Ki*state[2]+Kd*(-state[1]); // derivative on measurement
+      const ns=rk4Step((_t,s)=>{
+        const err=1-s[0];
+        return [s[1], u-2*s[1]-s[0], err];
+      },ti,state,dt);
+      state=ns.map(v=>isFinite(v)?v:0);
+    }
+    return{t,y};
+  }
+
+  function draw(){
+    const Kp=parseFloat(document.getElementById('pid-kp').value);
+    const Ki=parseFloat(document.getElementById('pid-ki').value);
+    const Kd=parseFloat(document.getElementById('pid-kd').value);
+    document.getElementById('pid-kp-val').textContent=Kp.toFixed(1);
+    document.getElementById('pid-ki-val').textContent=Ki.toFixed(1);
+    document.getElementById('pid-kd-val').textContent=Kd.toFixed(1);
+    const {t,y}=simPID(Kp,Ki,Kd);
+
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+    const pad={top:20,right:20,bottom:25,left:45};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const tMax=10;
+    let yMax=Math.max(1.8,...y.filter(v=>Math.abs(v)<10));
+    let yMin=Math.min(-0.2,...y.filter(v=>Math.abs(v)<10));
+    const yr=yMax-yMin||1;
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(v){return pad.top+(1-(v-yMin)/yr)*ph;}
+    // ref line
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.left,ty(1));ctx.lineTo(pad.left+pw,ty(1));ctx.stroke();ctx.setLineDash([]);
+    // response
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<t.length;i++){
+      const v=Math.max(yMin,Math.min(yMax,y[i]));
+      i===0?ctx.moveTo(tx(t[i]),ty(v)):ctx.lineTo(tx(t[i]),ty(v));
+    }
+    ctx.stroke();
+    // Specs
+    const peak=Math.max(...y);const mp=(peak-1)*100;
+    let ts=-1;for(let i=y.length-1;i>0;i--){if(Math.abs(y[i]-1)>0.02){ts=t[i];break;}}
+    const ess=Math.abs(1-y[y.length-1]);
+    document.getElementById('pid-info').textContent=`Overshoot: ${mp.toFixed(1)}% | Settling: ${ts>0?ts.toFixed(2)+'s':'<0.01s'} | SSE: ${ess.toFixed(4)}`;
+  }
+  ['pid-kp','pid-ki','pid-kd'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+  draw();
+  </script>
+
+  <!-- Sim 2: P vs PI vs PID -->
+  <script type="module">
+  import { rk4Step } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('cmp-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+
+  function sim(Kp,Ki,Kd){
+    const dt=0.01,tMax=10,N=Math.ceil(tMax/dt);
+    let state=[0,0,0];const t=[],y=[];
+    for(let i=0;i<N;i++){
+      const ti=i*dt;t.push(ti);y.push(state[0]);
+      const e=1-state[0];
+      const u=Kp*e+Ki*state[2]+Kd*(-state[1]);
+      const ns=rk4Step((_t,s)=>[s[1],u-2*s[1]-s[0],1-s[0]],ti,state,dt);
+      state=ns.map(v=>isFinite(v)?v:0);
+    }
+    return{t,y};
+  }
+
+  function draw(){
+    const Kp=parseFloat(document.getElementById('cmp-kp').value);
+    document.getElementById('cmp-kp-val').textContent=Kp.toFixed(1);
+    const pRes=sim(Kp,0,0);
+    const piRes=sim(Kp,Kp/3,0);
+    const pidRes=sim(Kp,Kp/3,Kp*0.4);
+
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+    const pad={top:20,right:20,bottom:25,left:45},pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const tMax=10;
+    const all=[...pRes.y,...piRes.y,...pidRes.y].filter(v=>Math.abs(v)<10);
+    let yMax=Math.max(1.8,...all),yMin=Math.min(-0.2,...all);const yr=yMax-yMin||1;
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(v){return pad.top+(1-(v-yMin)/yr)*ph;}
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.left,ty(1));ctx.lineTo(pad.left+pw,ty(1));ctx.stroke();ctx.setLineDash([]);
+
+    const traces=[{data:pRes,color:'#ff3d71',label:'P'},{data:piRes,color:'#ffab40',label:'PI'},{data:pidRes,color:'#00e5ff',label:'PID'}];
+    traces.forEach(tr=>{
+      ctx.strokeStyle=tr.color;ctx.lineWidth=2;ctx.beginPath();
+      for(let i=0;i<tr.data.t.length;i++){
+        const v=Math.max(yMin,Math.min(yMax,tr.data.y[i]));
+        i===0?ctx.moveTo(tx(tr.data.t[i]),ty(v)):ctx.lineTo(tx(tr.data.t[i]),ty(v));
+      }
+      ctx.stroke();
+    });
+    ctx.font='11px Inter';
+    traces.forEach((tr,i)=>{ctx.fillStyle=tr.color;ctx.fillText(`— ${tr.label}`,w-70,pad.top+15+i*17);});
+  }
+  document.getElementById('cmp-kp').addEventListener('input',draw);
+  draw();
+  </script>
+
+  <!-- Sim 3: Z-N Calculator -->
+  <script type="module">
+  function calc(){
+    const Ku=parseFloat(document.getElementById('zn-ku').value);
+    const Tu=parseFloat(document.getElementById('zn-tu').value);
+    document.getElementById('zn-ku-val').textContent=Ku.toFixed(1);
+    document.getElementById('zn-tu-val').textContent=Tu.toFixed(1);
+    const rules=[
+      {name:'P',   Kp:0.5*Ku, Ti:Infinity, Td:0},
+      {name:'PI',  Kp:0.45*Ku,Ti:Tu/1.2,   Td:0},
+      {name:'PID', Kp:0.6*Ku, Ti:Tu/2,     Td:Tu/8}
+    ];
+    let html='<table style="width:100%;border-collapse:collapse;"><tr style="border-bottom:1px solid rgba(0,229,255,0.2);"><th style="text-align:left;padding:4px 8px;">Type</th><th>Kp</th><th>Ki</th><th>Kd</th><th>Ti</th><th>Td</th></tr>';
+    rules.forEach(r=>{
+      const Ki=r.Ti===Infinity?0:r.Kp/r.Ti;
+      const Kd=r.Kp*r.Td;
+      html+=`<tr style="border-bottom:1px solid rgba(0,229,255,0.05);"><td style="padding:4px 8px;color:var(--accent-cyan);">${r.name}</td><td style="text-align:center;">${r.Kp.toFixed(2)}</td><td style="text-align:center;">${Ki.toFixed(2)}</td><td style="text-align:center;">${Kd.toFixed(2)}</td><td style="text-align:center;">${r.Ti===Infinity?'∞':r.Ti.toFixed(2)}</td><td style="text-align:center;">${r.Td.toFixed(3)}</td></tr>`;
+    });
+    html+='</table>';
+    document.getElementById('zn-output').innerHTML=html;
+  }
+  document.getElementById('zn-ku').addEventListener('input',calc);
+  document.getElementById('zn-tu').addEventListener('input',calc);
+  calc();
+  </script>
+</body>
+</html>

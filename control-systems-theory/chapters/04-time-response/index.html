@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 4 — Time Response Analysis | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html" class="active"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 04</span>
+        <h1>Time Response Analysis</h1>
+        <p class="subtitle">Transient and steady-state behavior of control systems</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>This chapter provides a deep dive into how control systems respond to standard test inputs over time. We analyze transient performance specifications and steady-state accuracy, connecting pole locations to measurable time-domain metrics.</p>
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Decompose system response into transient and steady-state components</li>
+          <li>Quantify performance: rise time, peak time, overshoot, settling time</li>
+          <li>Analyze dominant pole approximation for higher-order systems</li>
+          <li>Compute steady-state error for different system types and inputs</li>
+          <li>Design specifications in the s-plane using ζ-ωₙ regions</li>
+        </ul>
+      </div>
+
+      <!-- 4.1 Test Signals -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 4.1 — Standard Test Signals</h2>
+        <p>Control systems are characterized by their response to standardized inputs:</p>
+        <div class="eq-key-result">
+          <span class="eq-label">Standard Test Inputs</span>
+          <table class="formula-table">
+            <tr><td>Impulse</td><td>$\delta(t)$</td><td>$1$</td></tr>
+            <tr><td>Step</td><td>$u(t)$</td><td>$1/s$</td></tr>
+            <tr><td>Ramp</td><td>$tu(t)$</td><td>$1/s^2$</td></tr>
+            <tr><td>Parabolic</td><td>$\frac{1}{2}t^2u(t)$</td><td>$1/s^3$</td></tr>
+          </table>
+        </div>
+        <div class="why-matters">The step input is the most commonly used test signal because it represents a sudden change in the setpoint — the most basic disturbance a controller must handle. All transient specifications are defined with respect to the step response.</div>
+      </section>
+
+      <!-- 4.2 First-Order Time Response -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 4.2 — First-Order System Response</h2>
+        <p>For $H(s) = \frac{K}{\tau s + 1}$ with unit step input:</p>
+        <div class="eq-definition">
+          <span class="eq-label">First-Order Step Response</span>
+          $$y(t) = K\left(1 - e^{-t/\tau}\right)$$
+          <table class="formula-table" style="margin-top:12px;">
+            <tr><td>Time constant $\tau$</td><td>Time to reach $63.2\%$ of final value</td></tr>
+            <tr><td>Rise time $t_r$ (10→90%)</td><td>$t_r = 2.2\tau$</td></tr>
+            <tr><td>Settling time $t_s$ (2%)</td><td>$t_s = 4\tau$</td></tr>
+            <tr><td>Settling time $t_s$ (5%)</td><td>$t_s = 3\tau$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4.3 Second-Order -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 4.3 — Second-Order System Response</h2>
+        <p>The second-order system $H(s) = \frac{\omega_n^2}{s^2+2\zeta\omega_n s+\omega_n^2}$ exhibits dramatically different behavior depending on $\zeta$:</p>
+
+        <h3>Response Categories</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">Damping Classification</span>
+          <table class="formula-table">
+            <tr><td>$\zeta = 0$</td><td>Undamped — perpetual oscillation at $\omega_n$</td></tr>
+            <tr><td>$0 < \zeta < 1$</td><td>Underdamped — oscillation with exponential decay</td></tr>
+            <tr><td>$\zeta = 1$</td><td>Critically damped — fastest non-oscillatory response</td></tr>
+            <tr><td>$\zeta > 1$</td><td>Overdamped — sluggish exponential approach</td></tr>
+          </table>
+        </div>
+
+        <div class="eq-critical">
+          <span class="eq-label">Transient Specifications (Underdamped)</span>
+          <table class="formula-table">
+            <tr><td>Peak time</td><td>$t_p = \dfrac{\pi}{\omega_d} = \dfrac{\pi}{\omega_n\sqrt{1-\zeta^2}}$</td></tr>
+            <tr><td>% Overshoot</td><td>$M_p = 100 \cdot e^{-\pi\zeta/\sqrt{1-\zeta^2}}$</td></tr>
+            <tr><td>Settling time (2%)</td><td>$t_s \approx \dfrac{4}{\zeta\omega_n} = \dfrac{4}{\sigma}$</td></tr>
+            <tr><td>Rise time</td><td>$t_r \approx \dfrac{1.8}{\omega_n}$ (approximate)</td></tr>
+          </table>
+        </div>
+
+        <h3>S-Plane Regions</h3>
+        <p>Specifications translate to regions in the s-plane:</p>
+        <ul style="color:var(--text-secondary);padding-left:24px;margin:16px 0;">
+          <li>Settling time $t_s < T$ requires $\sigma = \zeta\omega_n > 4/T$ — poles left of vertical line $s = -4/T$</li>
+          <li>Overshoot $M_p < X\%$ requires $\zeta > \zeta_{min}$ — poles inside a cone from the origin</li>
+          <li>Peak time $t_p < T$ requires $\omega_d > \pi/T$ — poles above a horizontal line</li>
+        </ul>
+      </section>
+
+      <!-- 4.4 Dominant Poles -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 4.4 — Dominant Pole Approximation</h2>
+        <p>For higher-order systems, the poles closest to the $j\omega$-axis dominate the transient response because their exponential terms decay slowest. The <strong>dominant poles</strong> are typically the complex conjugate pair with the smallest $|\sigma|$.</p>
+
+        <div class="eq-definition">
+          <span class="eq-label">Dominance Condition</span>
+          <p>A pole is considered dominant if all other poles are at least 5× further from the $j\omega$-axis. In that case, the system's step response is well-approximated by a second-order model with parameters matching the dominant poles.</p>
+        </div>
+      </section>
+
+      <!-- 4.5 Steady-State Error -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 4.5 — Steady-State Error Analysis</h2>
+        <p>For unity feedback: $E(s) = \frac{R(s)}{1+G(s)}$. By the Final Value Theorem:</p>
+        $$e_{ss} = \lim_{s\to 0} sE(s) = \lim_{s\to 0} \frac{sR(s)}{1 + G(s)}$$
+
+        <div class="eq-critical">
+          <span class="eq-label">Error Constants and Steady-State Error</span>
+          <table>
+            <thead>
+              <tr><th>Input → / Type ↓</th><th>Step $e_{ss}$</th><th>Ramp $e_{ss}$</th><th>Parabola $e_{ss}$</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Type 0 ($N=0$)</td><td>$\frac{1}{1+K_p}$</td><td>$\infty$</td><td>$\infty$</td></tr>
+              <tr><td>Type 1 ($N=1$)</td><td>$0$</td><td>$\frac{1}{K_v}$</td><td>$\infty$</td></tr>
+              <tr><td>Type 2 ($N=2$)</td><td>$0$</td><td>$0$</td><td>$\frac{1}{K_a}$</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====== Sim 1: Time Response Comparison ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Time Response Comparison</h2>
+        <div class="sim-container" id="sim-time-compare">
+          <div class="sim-title">① Compare Damping Ratios</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">See step responses for different ζ values simultaneously. Toggle individual traces.</p>
+          <div class="sim-canvas-wrapper"><canvas id="compare-canvas" width="700" height="350" aria-label="Step response comparison"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>ωₙ: <span class="value" id="cmp-wn-val">5</span> rad/s</label>
+              <input type="range" id="cmp-wn" min="1" max="20" step="0.5" value="5" aria-label="Natural frequency">
+            </div>
+            <label style="color:var(--text-secondary);font-size:0.85rem;">
+              <input type="checkbox" id="cmp-z1" checked> ζ=0.1
+            </label>
+            <label style="color:var(--text-secondary);font-size:0.85rem;">
+              <input type="checkbox" id="cmp-z2" checked> ζ=0.3
+            </label>
+            <label style="color:var(--text-secondary);font-size:0.85rem;">
+              <input type="checkbox" id="cmp-z3" checked> ζ=0.7
+            </label>
+            <label style="color:var(--text-secondary);font-size:0.85rem;">
+              <input type="checkbox" id="cmp-z4" checked> ζ=1.0
+            </label>
+            <label style="color:var(--text-secondary);font-size:0.85rem;">
+              <input type="checkbox" id="cmp-z5" checked> ζ=2.0
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: S-Plane Spec Region ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: S-Plane Specification Region</h2>
+        <div class="sim-container" id="sim-splane-spec">
+          <div class="sim-title">② S-Plane Design Specifications</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Set your desired ζ, tₛ, and tₚ and see the valid pole region highlighted in the s-plane.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="spec-splane" width="400" height="400" aria-label="S-plane specification region"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="spec-step" width="400" height="300" aria-label="Resulting step response"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>ζ_min: <span class="value" id="spec-zeta-val">0.40</span></label>
+              <input type="range" id="spec-zeta" min="0.05" max="1" step="0.01" value="0.4" aria-label="Minimum damping ratio">
+            </div>
+            <div class="slider-group">
+              <label>tₛ_max (s): <span class="value" id="spec-ts-val">2.0</span></label>
+              <input type="range" id="spec-ts" min="0.5" max="10" step="0.1" value="2" aria-label="Maximum settling time">
+            </div>
+            <div class="slider-group">
+              <label>ωₙ: <span class="value" id="spec-wn-val">5.0</span></label>
+              <input type="range" id="spec-wn" min="1" max="20" step="0.5" value="5" aria-label="Natural frequency">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: Steady-State Error ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Steady-State Error Calculator</h2>
+        <div class="sim-container" id="sim-sse">
+          <div class="sim-title">③ Steady-State Error Visualization</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Choose system type and input, visualize the error between reference and output.</p>
+          <div class="sim-canvas-wrapper"><canvas id="sse-canvas" width="700" height="300" aria-label="Steady state error visualization"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>System Type</label>
+              <select id="sse-type" class="input-field" aria-label="System type">
+                <option value="0">Type 0 (no integrator)</option>
+                <option value="1">Type 1 (one integrator)</option>
+                <option value="2">Type 2 (two integrators)</option>
+              </select>
+            </div>
+            <div class="slider-group">
+              <label>Input</label>
+              <select id="sse-input" class="input-field" aria-label="Input signal">
+                <option value="step">Step</option>
+                <option value="ramp">Ramp</option>
+                <option value="parabola">Parabola</option>
+              </select>
+            </div>
+            <div class="slider-group">
+              <label>Gain K: <span class="value" id="sse-k-val">10</span></label>
+              <input type="range" id="sse-k" min="1" max="100" step="1" value="10" aria-label="System gain K">
+            </div>
+          </div>
+          <div id="sse-info" style="text-align:center;font-family:var(--font-mono);color:var(--accent-cyan);font-size:0.95rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 4</h3>
+          <table class="formula-table">
+            <tr><td>Peak Time</td><td>$t_p = \pi/\omega_d$</td></tr>
+            <tr><td>Overshoot</td><td>$M_p = e^{-\pi\zeta/\sqrt{1-\zeta^2}}$</td></tr>
+            <tr><td>Settling (2%)</td><td>$t_s \approx 4/(\zeta\omega_n)$</td></tr>
+            <tr><td>Rise Time</td><td>$t_r \approx 1.8/\omega_n$</td></tr>
+            <tr><td>Position Constant</td><td>$K_p = \lim_{s\to0}G(s)$</td></tr>
+            <tr><td>Velocity Constant</td><td>$K_v = \lim_{s\to0}sG(s)$</td></tr>
+            <tr><td>Acceleration Constant</td><td>$K_a = \lim_{s\to0}s^2G(s)$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../03-state-space/index.html"><span class="label">← Previous</span><span class="title">State Space Analysis</span></a>
+        <a href="../05-root-locus/index.html" class="next"><span class="label">Next Chapter →</span><span class="title">Root Locus</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(0,2,6);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(3,5,5);scene.add(dl);
+
+    // Step response surface: y(t,ζ)
+    const resX=50,resZ=30;const geom=new THREE.PlaneGeometry(6,4,resX-1,resZ-1);
+    const pos=geom.attributes.position;
+    for(let i=0;i<pos.count;i++){
+      const u=pos.getX(i)/6+0.5;const v=pos.getZ(i)/4+0.5;
+      const t=u*8;const zeta=0.05+v*1.95;
+      const wn=5;const wd=wn*Math.sqrt(Math.max(0,1-zeta*zeta));
+      let y;
+      if(zeta<1){y=1-Math.exp(-zeta*wn*t)/Math.sqrt(1-zeta*zeta)*Math.sin(wd*t+Math.acos(zeta));}
+      else{y=1-Math.exp(-zeta*wn*t)*(1+zeta*wn*t);}
+      pos.setY(i,y*1.5);
+    }
+    geom.computeVertexNormals();
+    const mat=new THREE.MeshStandardMaterial({color:0x00e5ff,wireframe:true,transparent:true,opacity:0.4});
+    scene.add(new THREE.Mesh(geom,mat));
+
+    let mx=0,my=0;document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-0.5);my=(e.clientY/innerHeight-0.5);});
+    function animate(){requestAnimationFrame(animate);cam.position.x=mx*4;cam.position.y=2-my*2;cam.lookAt(0,0.5,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: Damping Comparison -->
+  <script type="module">
+  import { secondOrderStep, linspace } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('compare-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+  const zetaVals=[0.1,0.3,0.7,1.0,2.0];
+  const colors=['#ff3d71','#ffab40','#00e5ff','#7c4dff','#69ff47'];
+  const checkIds=['cmp-z1','cmp-z2','cmp-z3','cmp-z4','cmp-z5'];
+
+  function draw(){
+    const wn=parseFloat(document.getElementById('cmp-wn').value);
+    document.getElementById('cmp-wn-val').textContent=wn;
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+
+    const tMax=Math.max(3,10/wn);
+    const pad={top:25,right:120,bottom:30,left:50};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const tArr=linspace(0,tMax,500);
+
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(y){return pad.top+(1-y/2)*ph;}
+
+    // Grid
+    ctx.strokeStyle='rgba(0,229,255,0.06)';ctx.lineWidth=0.5;
+    for(let i=0;i<=5;i++){const gx=pad.left+pw*i/5;ctx.beginPath();ctx.moveTo(gx,pad.top);ctx.lineTo(gx,pad.top+ph);ctx.stroke();}
+
+    // y=1 reference
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.left,ty(1));ctx.lineTo(pad.left+pw,ty(1));ctx.stroke();ctx.setLineDash([]);
+
+    // Plot each
+    zetaVals.forEach((z,i)=>{
+      if(!document.getElementById(checkIds[i]).checked)return;
+      const y=secondOrderStep(z,wn,tArr);
+      ctx.strokeStyle=colors[i];ctx.lineWidth=2;ctx.beginPath();
+      for(let j=0;j<tArr.length;j++){
+        const v=Math.max(0,Math.min(2,y[j]));
+        j===0?ctx.moveTo(tx(tArr[j]),ty(v)):ctx.lineTo(tx(tArr[j]),ty(v));
+      }
+      ctx.stroke();
+      // Legend
+      ctx.fillStyle=colors[i];ctx.font='12px Inter';ctx.fillText(`ζ=${z}`,w-pad.right+10,pad.top+20+i*22);
+    });
+
+    ctx.fillStyle='#8a9bb5';ctx.font='11px Inter';ctx.textAlign='center';
+    ctx.fillText('t (s)',pad.left+pw/2,h-3);
+  }
+
+  document.getElementById('cmp-wn').addEventListener('input',draw);
+  checkIds.forEach(id=>document.getElementById(id).addEventListener('change',draw));
+  draw();
+  </script>
+
+  <!-- Sim 2: S-Plane Spec Region -->
+  <script type="module">
+  import { secondOrderStep, linspace } from '../../assets/js/utils.js';
+  const sCanvas=document.getElementById('spec-splane');
+  const rCanvas=document.getElementById('spec-step');
+  if(!sCanvas||!rCanvas)throw new Error();
+  const sCtx=sCanvas.getContext('2d'),rCtx=rCanvas.getContext('2d');
+
+  function draw(){
+    const zetaMin=parseFloat(document.getElementById('spec-zeta').value);
+    const tsMax=parseFloat(document.getElementById('spec-ts').value);
+    const wn=parseFloat(document.getElementById('spec-wn').value);
+    document.getElementById('spec-zeta-val').textContent=zetaMin.toFixed(2);
+    document.getElementById('spec-ts-val').textContent=tsMax.toFixed(1);
+    document.getElementById('spec-wn-val').textContent=wn.toFixed(1);
+
+    const sigmaMin=4/tsMax;
+    const dpr=devicePixelRatio||1;
+
+    // S-plane
+    sCanvas.width=sCanvas.clientWidth*dpr;sCanvas.height=sCanvas.clientHeight*dpr;
+    sCtx.setTransform(dpr,0,0,dpr,0,0);
+    const sw=sCanvas.clientWidth,sh=sCanvas.clientHeight;
+    sCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    sCtx.fillRect(0,0,sw,sh);
+
+    const range=10;const pad=30;
+    function sx(re){return pad+(re+range)/(2*range)*(sw-2*pad);}
+    function sy(im){return pad+(range-im)/(2*range)*(sh-2*pad);}
+
+    // Stable region
+    sCtx.fillStyle='rgba(105,255,71,0.03)';
+    sCtx.fillRect(pad,pad,(sw-2*pad)/2,sh-2*pad);
+
+    // Settling time line
+    sCtx.strokeStyle='rgba(124,77,255,0.4)';sCtx.lineWidth=2;sCtx.setLineDash([6,4]);
+    sCtx.beginPath();sCtx.moveTo(sx(-sigmaMin),pad);sCtx.lineTo(sx(-sigmaMin),sh-pad);sCtx.stroke();sCtx.setLineDash([]);
+    sCtx.fillStyle='#7c4dff';sCtx.font='10px JetBrains Mono';sCtx.fillText(`σ=-${sigmaMin.toFixed(1)}`,sx(-sigmaMin)+3,pad+14);
+
+    // ζ cone
+    const coneAngle=Math.acos(zetaMin);
+    sCtx.strokeStyle='rgba(255,171,64,0.4)';sCtx.lineWidth=2;sCtx.setLineDash([6,4]);
+    const lineLen=(sw-2*pad)*0.4;
+    sCtx.beginPath();sCtx.moveTo(sx(0),sy(0));sCtx.lineTo(sx(0)-lineLen*Math.cos(coneAngle),sy(0)-lineLen*Math.sin(coneAngle));sCtx.stroke();
+    sCtx.beginPath();sCtx.moveTo(sx(0),sy(0));sCtx.lineTo(sx(0)-lineLen*Math.cos(coneAngle),sy(0)+lineLen*Math.sin(coneAngle));sCtx.stroke();
+    sCtx.setLineDash([]);
+    sCtx.fillStyle='#ffab40';sCtx.font='10px JetBrains Mono';sCtx.fillText(`ζ=${zetaMin}`,sx(0)-lineLen*Math.cos(coneAngle)-5,sy(0)-lineLen*Math.sin(coneAngle)-5);
+
+    // Valid region shading
+    sCtx.fillStyle='rgba(0,229,255,0.06)';
+    sCtx.beginPath();
+    sCtx.moveTo(sx(-sigmaMin),sy(0));
+    sCtx.lineTo(sx(-range),sy(0));
+    sCtx.lineTo(sx(-range),pad);
+    sCtx.lineTo(sx(-sigmaMin),pad);
+    sCtx.closePath();sCtx.fill();
+    sCtx.beginPath();
+    sCtx.moveTo(sx(-sigmaMin),sy(0));
+    sCtx.lineTo(sx(-range),sy(0));
+    sCtx.lineTo(sx(-range),sh-pad);
+    sCtx.lineTo(sx(-sigmaMin),sh-pad);
+    sCtx.closePath();sCtx.fill();
+
+    // Axes
+    sCtx.strokeStyle='rgba(138,155,181,0.3)';sCtx.lineWidth=1;
+    sCtx.beginPath();sCtx.moveTo(pad,sy(0));sCtx.lineTo(sw-pad,sy(0));sCtx.stroke();
+    sCtx.beginPath();sCtx.moveTo(sx(0),pad);sCtx.lineTo(sx(0),sh-pad);sCtx.stroke();
+
+    // Current pole
+    const sigma=zetaMin*wn;const wd=wn*Math.sqrt(Math.max(0,1-zetaMin*zetaMin));
+    sCtx.fillStyle='#ff3d71';
+    sCtx.beginPath();sCtx.arc(sx(-sigma),sy(wd),6,0,Math.PI*2);sCtx.fill();
+    sCtx.beginPath();sCtx.arc(sx(-sigma),sy(-wd),6,0,Math.PI*2);sCtx.fill();
+
+    // Step response
+    rCanvas.width=rCanvas.clientWidth*dpr;rCanvas.height=rCanvas.clientHeight*dpr;
+    rCtx.setTransform(dpr,0,0,dpr,0,0);
+    const rw=rCanvas.clientWidth,rh=rCanvas.clientHeight;
+    rCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    rCtx.fillRect(0,0,rw,rh);
+
+    const tMax=Math.max(2,tsMax*1.5);const tArr=linspace(0,tMax,500);
+    const yArr=secondOrderStep(zetaMin,wn,tArr);
+    const rPad={top:20,right:20,bottom:28,left:45};
+    const rpw=rw-rPad.left-rPad.right,rph=rh-rPad.top-rPad.bottom;
+    let yMax=Math.max(1.5,...yArr);
+
+    function rtx(t){return rPad.left+t/tMax*rpw;}
+    function rty(y){return rPad.top+(1-y/yMax)*rph;}
+
+    rCtx.strokeStyle='rgba(255,255,255,0.1)';rCtx.setLineDash([4,4]);
+    rCtx.beginPath();rCtx.moveTo(rPad.left,rty(1));rCtx.lineTo(rPad.left+rpw,rty(1));rCtx.stroke();rCtx.setLineDash([]);
+
+    rCtx.strokeStyle='#00e5ff';rCtx.lineWidth=2;rCtx.beginPath();
+    for(let i=0;i<tArr.length;i++){const v=Math.max(0,Math.min(yMax,yArr[i]));i===0?rCtx.moveTo(rtx(tArr[i]),rty(v)):rCtx.lineTo(rtx(tArr[i]),rty(v));}
+    rCtx.stroke();
+
+    rCtx.fillStyle='#e8edf8';rCtx.font='11px Inter';rCtx.textAlign='center';rCtx.fillText('Step Response',rw/2,rPad.top-4);
+  }
+
+  ['spec-zeta','spec-ts','spec-wn'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+  draw();
+  </script>
+
+  <!-- Sim 3: SSE -->
+  <script type="module">
+  import { linspace, rk4Step } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('sse-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+
+  function draw(){
+    const sysType=parseInt(document.getElementById('sse-type').value);
+    const inputType=document.getElementById('sse-input').value;
+    const K=parseFloat(document.getElementById('sse-k').value);
+    document.getElementById('sse-k-val').textContent=K;
+
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+
+    const tMax=10;const tArr=linspace(0,tMax,500);const dt=tArr[1]-tArr[0];
+
+    // Reference signal
+    let ref;
+    if(inputType==='step') ref=tArr.map(t=>t>=0?1:0);
+    else if(inputType==='ramp') ref=tArr.map(t=>t>=0?t:0);
+    else ref=tArr.map(t=>t>=0?0.5*t*t:0);
+
+    // Simulate closed-loop: G(s) = K/((s+1)(s+2)·s^N)
+    // For Type N, we have N integrators
+    const order=2+sysType;
+    let state=new Array(order).fill(0);
+    const yArr=[];
+
+    for(let k=0;k<tArr.length;k++){
+      const r=ref[k];
+      const y=state[0];yArr.push(y);
+      const e=r-y; // error
+
+      // ODE for the system
+      const deriv=(t,s)=>{
+        const err=ref[Math.min(k,tArr.length-1)]-s[0];
+        // Companion form for G(s)=K/(s^N(s+1)(s+2))
+        const ds=new Array(order);
+        for(let i=0;i<order-1;i++) ds[i]=s[i+1];
+        // Closed-loop: characteristic polynomial coefficients
+        // Example: for Type 0, G(s)=K/((s+1)(s+2))=K/(s²+3s+2), CL: s²+3s+2+K
+        // For Type 1: G(s)=K/(s(s+1)(s+2))=K/(s³+3s²+2s), CL: s³+3s²+2s+K
+        // Generic: feed error through
+        if(sysType===0){
+          ds[1]=-3*s[1]-((2+K))*s[0]+K*ref[Math.min(k,tArr.length-1)];
+        } else if(sysType===1){
+          ds[2]=-3*s[2]-2*s[1]-K*s[0]+K*ref[Math.min(k,tArr.length-1)];
+        } else {
+          ds[3]=-(3)*s[3]-2*s[2]-0*s[1]-K*s[0]+K*ref[Math.min(k,tArr.length-1)];
+        }
+        return ds;
+      };
+      state=rk4Step(deriv,tArr[k],state,dt);
+      for(let i=0;i<order;i++) if(!isFinite(state[i]))state[i]=0;
+    }
+
+    // Compute SSE
+    let Kp,Kv,Ka,ess;
+    if(sysType===0){Kp=K/2;Kv=0;Ka=0;}
+    else if(sysType===1){Kp=Infinity;Kv=K/2;Ka=0;}
+    else{Kp=Infinity;Kv=Infinity;Ka=K/2;}
+
+    if(inputType==='step') ess=isFinite(Kp)?1/(1+Kp):0;
+    else if(inputType==='ramp') ess=Kv>0?1/Kv:Infinity;
+    else ess=Ka>0?1/Ka:Infinity;
+
+    // Plot
+    const pad={top:20,right:20,bottom:28,left:50};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    let yMax=Math.max(1,...ref,...yArr.filter(v=>isFinite(v)&&Math.abs(v)<100))*1.1;
+    if(!isFinite(yMax)||yMax<1)yMax=2;
+
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(y){return pad.top+(1-y/yMax)*ph;}
+
+    // Reference (dashed)
+    ctx.strokeStyle='rgba(255,171,64,0.5)';ctx.setLineDash([6,4]);ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<tArr.length;i++){i===0?ctx.moveTo(tx(tArr[i]),ty(ref[i])):ctx.lineTo(tx(tArr[i]),ty(ref[i]));}
+    ctx.stroke();ctx.setLineDash([]);
+
+    // Response
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<tArr.length;i++){
+      const v=Math.max(-yMax,Math.min(yMax*2,yArr[i]));
+      i===0?ctx.moveTo(tx(tArr[i]),ty(v)):ctx.lineTo(tx(tArr[i]),ty(v));
+    }
+    ctx.stroke();
+
+    // Error fill
+    ctx.fillStyle='rgba(255,61,113,0.15)';ctx.beginPath();
+    for(let i=0;i<tArr.length;i++){
+      const v=Math.max(-yMax,Math.min(yMax*2,yArr[i]));
+      i===0?ctx.moveTo(tx(tArr[i]),ty(ref[i])):ctx.lineTo(tx(tArr[i]),ty(ref[i]));
+    }
+    for(let i=tArr.length-1;i>=0;i--){
+      const v=Math.max(-yMax,Math.min(yMax*2,yArr[i]));
+      ctx.lineTo(tx(tArr[i]),ty(v));
+    }
+    ctx.closePath();ctx.fill();
+
+    ctx.fillStyle='#8a9bb5';ctx.font='10px Inter';ctx.textAlign='center';ctx.fillText('t (s)',w/2,h-3);
+
+    // Legend
+    ctx.fillStyle='#ffab40';ctx.font='11px Inter';ctx.textAlign='left';ctx.fillText('— Reference',w-130,pad.top+15);
+    ctx.fillStyle='#00e5ff';ctx.fillText('— Output',w-130,pad.top+32);
+
+    document.getElementById('sse-info').textContent=isFinite(ess)?
+      `Type ${sysType} | ${inputType} input | e_ss = ${ess.toFixed(4)}`:
+      `Type ${sysType} | ${inputType} input | e_ss = ∞ (unbounded error)`;
+  }
+
+  ['sse-type','sse-input','sse-k'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+  document.getElementById('sse-type').addEventListener('change',draw);
+  document.getElementById('sse-input').addEventListener('change',draw);
+  draw();
+  </script>
+</body>
+</html>

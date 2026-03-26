@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 10 — Modern Control | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html" class="active"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 10</span>
+        <h1>Modern Control</h1>
+        <p class="subtitle">State feedback, observer design, pole placement &amp; LQR</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>Modern control moves beyond classical single-loop design to exploit the full state-space model. This chapter covers state feedback, pole placement, full-order observers, the separation principle, and optimal LQR control.</p>
+      </div>
+
+      <!-- 10.1 State Feedback -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 10.1 — State Feedback Control</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">State Feedback Law</span>
+          $$u = -\mathbf{K}\mathbf{x} + r$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">
+            where $\mathbf{K}$ is the $1\times n$ gain vector. The closed-loop dynamics become:
+          </p>
+          $$\dot{\mathbf{x}} = (\mathbf{A} - \mathbf{B}\mathbf{K})\mathbf{x} + \mathbf{B}r$$
+        </div>
+
+        <p>By choosing $\mathbf{K}$, we can place the eigenvalues of $(\mathbf{A}-\mathbf{BK})$ at arbitrary locations, <em>provided the system is controllable</em>.</p>
+      </section>
+
+      <!-- 10.2 Pole Placement -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 10.2 — Pole Placement (Ackermann's Formula)</h2>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Ackermann's Formula</span>
+          $$\mathbf{K} = \begin{bmatrix}0 & 0 & \cdots & 1\end{bmatrix} \mathcal{C}^{-1}\, \phi(\mathbf{A})$$
+          <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:6px;">
+            where $\mathcal{C} = [\mathbf{B}\ \ \mathbf{AB}\ \ \cdots\ \ \mathbf{A}^{n-1}\mathbf{B}]$ is the controllability matrix and $\phi(s) = \prod(s - p_i^*)$ is the desired characteristic polynomial evaluated at $\mathbf{A}$.
+          </p>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Why Controllability is Required <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>If rank$(\mathcal{C}) < n$, then some state directions are unreachable from the input. These modes cannot be moved by any feedback gain. The system is only "stabilizable" if the uncontrollable modes are already stable.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10.3 Observer Design -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 10.3 — State Observers</h2>
+
+        <p>In practice, not all states are measured. A <strong>full-order observer</strong> (Luenberger observer) estimates the state:</p>
+
+        <div class="eq-critical">
+          <span class="eq-label">Luenberger Observer</span>
+          $$\dot{\hat{\mathbf{x}}} = \mathbf{A}\hat{\mathbf{x}} + \mathbf{B}u + \mathbf{L}(y - \mathbf{C}\hat{\mathbf{x}})$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">
+            The estimation error $\mathbf{e}=\mathbf{x}-\hat{\mathbf{x}}$ satisfies $\dot{\mathbf{e}} = (\mathbf{A}-\mathbf{LC})\mathbf{e}$.
+          </p>
+        </div>
+
+        <p>By choosing $\mathbf{L}$, we place the eigenvalues of $(\mathbf{A}-\mathbf{LC})$ — requiring <em>observability</em>.</p>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Separation Principle</span>
+          <p style="color:var(--text-secondary);">The controller gain $\mathbf{K}$ and observer gain $\mathbf{L}$ can be designed <strong>independently</strong>. The combined (observer + state feedback) system has eigenvalues equal to the union of eig$(A-BK)$ and eig$(A-LC)$.</p>
+        </div>
+      </section>
+
+      <!-- 10.4 LQR -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 10.4 — Linear Quadratic Regulator (LQR)</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">LQR Cost Function</span>
+          $$J = \int_0^\infty \!\big(\mathbf{x}^T\mathbf{Q}\mathbf{x} + u^T\mathbf{R}\,u\big)\,dt$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">
+            The optimal gain $\mathbf{K}^* = \mathbf{R}^{-1}\mathbf{B}^T\mathbf{P}$ where $\mathbf{P}$ solves the algebraic Riccati equation:
+          </p>
+          $$\mathbf{A}^T\mathbf{P} + \mathbf{P}\mathbf{A} - \mathbf{P}\mathbf{B}\mathbf{R}^{-1}\mathbf{B}^T\mathbf{P} + \mathbf{Q} = \mathbf{0}$$
+        </div>
+
+        <p>LQR provides an automatic, optimal gain that guarantees infinite gain margin and $\geq$ 60° phase margin when $\mathbf{R}$ is scalar.</p>
+      </section>
+
+      <!-- ====== Sim 1: Pole Placement ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Pole Placement Designer</h2>
+        <div class="sim-container" id="sim-pole-place">
+          <div class="sim-title">① Choose Desired CL Pole Locations</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">2×2 system: adjust desired pole locations and see the feedback gain K and step response.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="pp-splane" width="400" height="400" aria-label="Pole placement s-plane"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="pp-step" width="400" height="300" aria-label="Closed-loop response"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>p₁ real: <span class="value" id="pp-p1-val">-2</span></label>
+              <input type="range" id="pp-p1" min="-10" max="-0.1" step="0.1" value="-2">
+            </div>
+            <div class="slider-group">
+              <label>p₂ real: <span class="value" id="pp-p2-val">-3</span></label>
+              <input type="range" id="pp-p2" min="-10" max="-0.1" step="0.1" value="-3">
+            </div>
+          </div>
+          <div id="pp-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: Observer Convergence ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Observer Convergence</h2>
+        <div class="sim-container" id="sim-observer">
+          <div class="sim-title">② Watch the Observer Track the True State</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Set observer pole speed (L gain factor). Fast observer = fast convergence but more noise sensitivity.</p>
+          <div class="sim-canvas-wrapper"><canvas id="obs-canvas" width="700" height="350" aria-label="Observer convergence"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>Observer speed: <span class="value" id="obs-sp-val">3.0</span>×</label>
+              <input type="range" id="obs-sp" min="1" max="10" step="0.1" value="3">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: LQR Q/R Tuning ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: LQR Q/R Trade-off</h2>
+        <div class="sim-container" id="sim-lqr">
+          <div class="sim-title">③ Adjust Q/R Ratio — Balancing State Error vs Control Effort</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Higher Q/R penalizes state error → faster response but larger control. A 2nd-order plant.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="lqr-state" width="400" height="300" aria-label="LQR state response"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="lqr-control" width="400" height="300" aria-label="LQR control signal"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>Q/R ratio: <span class="value" id="lqr-qr-val">10</span></label>
+              <input type="range" id="lqr-qr" min="0.1" max="100" step="0.1" value="10">
+            </div>
+          </div>
+          <div id="lqr-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 10</h3>
+          <table class="formula-table">
+            <tr><td>State Feedback</td><td>$u=-\mathbf{K}\mathbf{x}+r$</td></tr>
+            <tr><td>CL Dynamics</td><td>$\dot{x}=(A-BK)x+Br$</td></tr>
+            <tr><td>Observer</td><td>$\dot{\hat{x}}=A\hat{x}+Bu+L(y-C\hat{x})$</td></tr>
+            <tr><td>Error Dynamics</td><td>$\dot{e}=(A-LC)e$</td></tr>
+            <tr><td>LQR Gain</td><td>$K^*=R^{-1}B^TP$ (Riccati)</td></tr>
+            <tr><td>Separation</td><td>Design K and L independently</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../09-digital-control/index.html"><span class="label">← Previous</span><span class="title">Digital Control</span></a>
+        <a href="../../index.html" class="next"><span class="label">🏠 Home</span><span class="title">Back to Landing Page</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D: matrix/kalman filter inspired -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(4,3,6);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));scene.add(new THREE.DirectionalLight(0xffffff,0.7));
+    // Grid matrix
+    for(let i=0;i<4;i++)for(let j=0;j<4;j++){
+      const geo=new THREE.BoxGeometry(0.6,0.6,0.1);
+      const c2=(i+j)%2===0?0x00e5ff:0x7c4dff;
+      const mat=new THREE.MeshStandardMaterial({color:c2,transparent:true,opacity:0.3,emissive:c2,emissiveIntensity:0.2});
+      const m=new THREE.Mesh(geo,mat);m.position.set((i-1.5)*0.8,(j-1.5)*0.8,0);scene.add(m);
+    }
+    let t=0;
+    function animate(){requestAnimationFrame(animate);t+=0.008;
+      cam.position.x=5*Math.cos(t);cam.position.z=5*Math.sin(t);cam.lookAt(0,0,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: Pole Placement -->
+  <script type="module">
+  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  const sC=document.getElementById('pp-splane'),rC=document.getElementById('pp-step');
+  if(!sC||!rC)throw new Error();
+  const sCtx=sC.getContext('2d'),rCtx=rC.getContext('2d');
+
+  // Plant: A=[[0,1],[-1,-1]], B=[[0],[1]] → controllable
+  const A=[[0,1],[-1,-1]],B=[0,1],C=[1,0];
+
+  function polePlaceK(p1,p2){
+    // For 2×2, desired char poly: s² - (p1+p2)s + p1*p2
+    // CL char poly of (A-BK): det(sI-A+BK) = s² + (1+k2)s + (1+k1)
+    // Match: 1+k2 = -(p1+p2) → k2=-(p1+p2)-1
+    // 1+k1 = p1*p2 → k1=p1*p2-1
+    return [p1*p2-1, -(p1+p2)-1];
+  }
+
+  function draw(){
+    const p1=parseFloat(document.getElementById('pp-p1').value);
+    const p2=parseFloat(document.getElementById('pp-p2').value);
+    document.getElementById('pp-p1-val').textContent=p1.toFixed(1);
+    document.getElementById('pp-p2-val').textContent=p2.toFixed(1);
+    const K=polePlaceK(p1,p2);
+
+    // S-plane
+    const dpr=devicePixelRatio||1;sC.width=sC.clientWidth*dpr;sC.height=sC.clientHeight*dpr;
+    sCtx.setTransform(dpr,0,0,dpr,0,0);
+    const w=sC.clientWidth,h=sC.clientHeight,range=6,pad=30;
+    sCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    sCtx.fillRect(0,0,w,h);
+    function sx(re){return pad+(re+range)/(2*range)*(w-2*pad);}
+    function sy(im){return pad+(range-im)/(2*range)*(h-2*pad);}
+    sCtx.fillStyle='rgba(105,255,71,0.03)';sCtx.fillRect(pad,pad,(w-2*pad)/2,h-2*pad);
+    sCtx.strokeStyle='rgba(138,155,181,0.2)';sCtx.lineWidth=1;
+    sCtx.beginPath();sCtx.moveTo(pad,sy(0));sCtx.lineTo(w-pad,sy(0));sCtx.stroke();
+    sCtx.beginPath();sCtx.moveTo(sx(0),pad);sCtx.lineTo(sx(0),h-pad);sCtx.stroke();
+    // OL poles (eig of A): s²+s+1=0 → -0.5±j√3/2
+    [{re:-0.5,im:0.866},{re:-0.5,im:-0.866}].forEach(p=>{
+      sCtx.strokeStyle='rgba(124,77,255,0.4)';sCtx.lineWidth=2;
+      const x=sx(p.re),y=sy(p.im);
+      sCtx.beginPath();sCtx.moveTo(x-5,y-5);sCtx.lineTo(x+5,y+5);sCtx.stroke();
+      sCtx.beginPath();sCtx.moveTo(x+5,y-5);sCtx.lineTo(x-5,y+5);sCtx.stroke();
+    });
+    // CL poles
+    [{re:p1,im:0},{re:p2,im:0}].forEach(p=>{
+      sCtx.fillStyle='#69ff47';sCtx.shadowColor='#69ff47';sCtx.shadowBlur=10;
+      sCtx.beginPath();sCtx.arc(sx(p.re),sy(p.im),6,0,Math.PI*2);sCtx.fill();sCtx.shadowBlur=0;
+    });
+    sCtx.fillStyle='#8a9bb5';sCtx.font='10px Inter';sCtx.fillText('× OL poles  ● CL poles',w/2-40,h-8);
+
+    // Step response
+    rC.width=rC.clientWidth*dpr;rC.height=rC.clientHeight*dpr;
+    rCtx.setTransform(dpr,0,0,dpr,0,0);
+    const rw=rC.clientWidth,rh=rC.clientHeight;
+    rCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    rCtx.fillRect(0,0,rw,rh);
+    const dt=0.02,tMax=6,N=Math.ceil(tMax/dt);
+    let state=[0,0];const tA=[],yA=[];
+    for(let i=0;i<N;i++){
+      const t=i*dt;tA.push(t);yA.push(state[0]);
+      const ref=1;
+      const u=ref-K[0]*state[0]-K[1]*state[1];
+      const ns=rk4Step((_t,s)=>[A[0][0]*s[0]+A[0][1]*s[1]+B[0]*u,A[1][0]*s[0]+A[1][1]*s[1]+B[1]*u],t,state,dt);
+      state=ns.map(v=>isFinite(v)?v:0);
+    }
+    const rpad={top:15,right:15,bottom:25,left:45};
+    const pw2=rw-rpad.left-rpad.right,ph2=rh-rpad.top-rpad.bottom;
+    let yMax=Math.max(1.5,...yA);let yMin=Math.min(-0.2,...yA);const yr=yMax-yMin||1;
+    function tx(t){return rpad.left+t/tMax*pw2;}
+    function ty(v){return rpad.top+(1-(v-yMin)/yr)*ph2;}
+    rCtx.strokeStyle='rgba(255,255,255,0.08)';rCtx.setLineDash([4,4]);rCtx.beginPath();rCtx.moveTo(rpad.left,ty(1));rCtx.lineTo(rpad.left+pw2,ty(1));rCtx.stroke();rCtx.setLineDash([]);
+    rCtx.strokeStyle='#00e5ff';rCtx.lineWidth=2;rCtx.beginPath();
+    for(let i=0;i<N;i++){const v=Math.max(yMin,Math.min(yMax,yA[i]));i===0?rCtx.moveTo(tx(tA[i]),ty(v)):rCtx.lineTo(tx(tA[i]),ty(v));}
+    rCtx.stroke();
+    rCtx.fillStyle='#e8edf8';rCtx.font='11px Inter';rCtx.textAlign='center';rCtx.fillText('CL Step Response',rw/2,rpad.top-2);
+    document.getElementById('pp-info').textContent=`K = [${K[0].toFixed(2)}, ${K[1].toFixed(2)}] | CL poles: ${p1.toFixed(1)}, ${p2.toFixed(1)}`;
+  }
+  document.getElementById('pp-p1').addEventListener('input',draw);
+  document.getElementById('pp-p2').addEventListener('input',draw);
+  draw();
+  </script>
+
+  <!-- Sim 2: Observer -->
+  <script type="module">
+  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('obs-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+  const A=[[0,1],[-2,-3]],B=[0,1],C=[1,0];
+
+  function draw(){
+    const speed=parseFloat(document.getElementById('obs-sp').value);
+    document.getElementById('obs-sp-val').textContent=speed.toFixed(1);
+    // Observer gains: place observer poles at speed*(-2,-3) of true poles
+    // True poles: s²+3s+2=0 → -1,-2. Observer poles: -speed,-2*speed
+    // A-LC: eig should be at -speed, -2*speed
+    // det(sI - A + LC) = s² + (3+L1)s + (2+L2) -- for C=[1,0]
+    // Actually: (A-LC)_11 = 0-L1, (A-LC)_12=1, (A-LC)_21=-2-L2, (A-LC)_22=-3
+    // char poly: s² + (3+L1)s + (L1*3 + 2 + L2) -- let me compute properly
+    // A-LC = [[0,1],[-2,-3]] - [[L1],[L2]]*[1,0] = [[-L1, 1],[-2-L2, -3]]
+    // char poly: s²+(L1+3)s+(3*L1+2+L2) w/ desired (s+a)(s+b) = s²+(a+b)s+ab
+    const a=speed,b=2*speed;
+    const L1=a+b-3;
+    const L2=a*b-3*L1-2;
+
+    const dt=0.01,tMax=5,N=Math.ceil(tMax/dt);
+    let xTrue=[1,0]; // true initial state
+    let xHat=[0,0]; // observer starts at 0
+    const tA=[],x1T=[],x1H=[],x2T=[],x2H=[];
+    for(let i=0;i<N;i++){
+      const t=i*dt;tA.push(t);
+      x1T.push(xTrue[0]);x2T.push(xTrue[1]);
+      x1H.push(xHat[0]);x2H.push(xHat[1]);
+      const u=0; // free response
+      const y=C[0]*xTrue[0]+C[1]*xTrue[1]; // measured
+      const yHat=C[0]*xHat[0]+C[1]*xHat[1];
+      const innov=y-yHat;
+      const nsT=rk4Step((_t,s)=>[A[0][0]*s[0]+A[0][1]*s[1]+B[0]*u,A[1][0]*s[0]+A[1][1]*s[1]+B[1]*u],t,xTrue,dt);
+      const nsH=rk4Step((_t,s)=>{
+        const yh=C[0]*s[0];
+        const e=y-yh;
+        return [A[0][0]*s[0]+A[0][1]*s[1]+B[0]*u+L1*e, A[1][0]*s[0]+A[1][1]*s[1]+B[1]*u+L2*e];
+      },t,xHat,dt);
+      xTrue=nsT.map(v=>isFinite(v)?v:0);
+      xHat=nsH.map(v=>isFinite(v)?v:0);
+    }
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const cw=canvas.clientWidth,ch=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,cw,ch);
+    const pad={top:20,right:20,bottom:25,left:45};
+    const pw=cw-pad.left-pad.right,ph=ch-pad.top-pad.bottom;
+    const all=[...x1T,...x1H,...x2T,...x2H];
+    const yMax=Math.max(1.5,...all.map(Math.abs));
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(v){return pad.top+ph/2-v/yMax*ph/2*0.85;}
+    ctx.strokeStyle='rgba(138,155,181,0.1)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.left,ty(0));ctx.lineTo(pad.left+pw,ty(0));ctx.stroke();ctx.setLineDash([]);
+
+    // True x1 (cyan solid)
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();
+    tA.forEach((t,i)=>{i===0?ctx.moveTo(tx(t),ty(x1T[i])):ctx.lineTo(tx(t),ty(x1T[i]));});ctx.stroke();
+    // Observed x1 (cyan dashed)
+    ctx.strokeStyle='#00e5ff';ctx.setLineDash([6,4]);ctx.beginPath();
+    tA.forEach((t,i)=>{i===0?ctx.moveTo(tx(t),ty(x1H[i])):ctx.lineTo(tx(t),ty(x1H[i]));});ctx.stroke();ctx.setLineDash([]);
+    // True x2 (amber)
+    ctx.strokeStyle='#ffab40';ctx.lineWidth=2;ctx.beginPath();
+    tA.forEach((t,i)=>{i===0?ctx.moveTo(tx(t),ty(x2T[i])):ctx.lineTo(tx(t),ty(x2T[i]));});ctx.stroke();
+    // Observed x2 (amber dashed)
+    ctx.strokeStyle='#ffab40';ctx.setLineDash([6,4]);ctx.beginPath();
+    tA.forEach((t,i)=>{i===0?ctx.moveTo(tx(t),ty(x2H[i])):ctx.lineTo(tx(t),ty(x2H[i]));});ctx.stroke();ctx.setLineDash([]);
+
+    ctx.font='11px Inter';
+    ctx.fillStyle='#00e5ff';ctx.fillText('— x₁ true  --- x̂₁ est.',cw-180,pad.top+15);
+    ctx.fillStyle='#ffab40';ctx.fillText('— x₂ true  --- x̂₂ est.',cw-180,pad.top+32);
+  }
+  document.getElementById('obs-sp').addEventListener('input',draw);
+  draw();
+  </script>
+
+  <!-- Sim 3: LQR Q/R Tuning -->
+  <script type="module">
+  import { rk4Step, linspace } from '../../assets/js/utils.js';
+  const sC=document.getElementById('lqr-state'),uC=document.getElementById('lqr-control');
+  if(!sC||!uC)throw new Error();
+  const sCtx=sC.getContext('2d'),uCtx=uC.getContext('2d');
+  const A=[[0,1],[0,-1]],B=[0,1];
+
+  function lqrGain(qr){
+    // For 2nd order: A=[[0,1],[0,-1]], B=[[0],[1]], Q=qr*I, R=1
+    // Solve Riccati analytically for this simple case through iteration
+    // Use numerical iterative approach
+    let P=[[qr,0],[0,qr]];
+    for(let iter=0;iter<200;iter++){
+      // P_new = Q + A'P + PA - PBR^-1B'P
+      // We compute element-by-element for 2x2
+      const AtP=[[A[0][0]*P[0][0]+A[1][0]*P[1][0], A[0][0]*P[0][1]+A[1][0]*P[1][1]],
+                  [A[0][1]*P[0][0]+A[1][1]*P[1][0], A[0][1]*P[0][1]+A[1][1]*P[1][1]]];
+      const PA=[[P[0][0]*A[0][0]+P[0][1]*A[1][0], P[0][0]*A[0][1]+P[0][1]*A[1][1]],
+                 [P[1][0]*A[0][0]+P[1][1]*A[1][0], P[1][0]*A[0][1]+P[1][1]*A[1][1]]];
+      const PB=[P[0][0]*B[0]+P[0][1]*B[1], P[1][0]*B[0]+P[1][1]*B[1]];
+      const BtP=[B[0]*P[0][0]+B[1]*P[1][0], B[0]*P[0][1]+B[1]*P[1][1]];
+      const PBRBtP=[[PB[0]*BtP[0],PB[0]*BtP[1]],[PB[1]*BtP[0],PB[1]*BtP[1]]];
+      // Simple iterative: P = Q + 0.01*(A'P + PA - PBR^-1B'P)
+      const dt2=0.05;
+      for(let i=0;i<2;i++)for(let j=0;j<2;j++){
+        const dP=AtP[i][j]+PA[i][j]-PBRBtP[i][j]+(i===j?qr:0)-P[i][j];
+        P[i][j]+=dP*dt2;
+      }
+    }
+    // K = R^-1 B' P = B'P (since R=1)
+    return [B[0]*P[0][0]+B[1]*P[1][0], B[0]*P[0][1]+B[1]*P[1][1]];
+  }
+
+  function draw(){
+    const qr=parseFloat(document.getElementById('lqr-qr').value);
+    document.getElementById('lqr-qr-val').textContent=qr.toFixed(1);
+    const K=lqrGain(qr);
+
+    const dt=0.02,tMax=6,N=Math.ceil(tMax/dt);
+    let state=[1,0];const tA=[],xA=[],uA=[];
+    for(let i=0;i<N;i++){
+      const t=i*dt;tA.push(t);xA.push(state[0]);
+      const u=-K[0]*state[0]-K[1]*state[1];
+      uA.push(u);
+      const ns=rk4Step((_t,s)=>[A[0][0]*s[0]+A[0][1]*s[1]+B[0]*u,A[1][0]*s[0]+A[1][1]*s[1]+B[1]*u],t,state,dt);
+      state=ns.map(v=>isFinite(v)?v:0);
+    }
+    // State plot
+    drawTimePlot(sCtx,sC,tA,xA,'State x₁(t)','#00e5ff',tMax);
+    drawTimePlot(uCtx,uC,tA,uA,'Control u(t)','#ffab40',tMax);
+    document.getElementById('lqr-info').textContent=`K = [${K[0].toFixed(2)}, ${K[1].toFixed(2)}] | Q/R = ${qr.toFixed(1)}`;
+  }
+
+  function drawTimePlot(ctx,canvas,tArr,yArr,label,color,tMax){
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+    const pad={top:20,right:15,bottom:25,left:45};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const yMax=Math.max(1,...yArr.map(Math.abs));
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(v){return pad.top+ph/2-v/yMax*ph/2*0.85;}
+    ctx.strokeStyle='rgba(138,155,181,0.1)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.left,ty(0));ctx.lineTo(pad.left+pw,ty(0));ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();
+    tArr.forEach((t,i)=>{i===0?ctx.moveTo(tx(t),ty(yArr[i])):ctx.lineTo(tx(t),ty(yArr[i]));});
+    ctx.stroke();
+    ctx.fillStyle='#e8edf8';ctx.font='11px Inter';ctx.textAlign='center';ctx.fillText(label,w/2,pad.top-4);
+  }
+
+  document.getElementById('lqr-qr').addEventListener('input',draw);
+  draw();
+  </script>
+</body>
+</html>

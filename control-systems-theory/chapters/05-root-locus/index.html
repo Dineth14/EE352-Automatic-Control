@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 5 — Root Locus | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html" class="active"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 05</span>
+        <h1>Root Locus</h1>
+        <p class="subtitle">Tracing closed-loop poles as gain varies from 0 to ∞</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>The root locus is one of the most powerful graphical techniques in classical control. It shows how the closed-loop poles migrate through the s-plane as a single parameter (typically gain K) varies, revealing stability boundaries, performance trade-offs, and design opportunities at a glance.</p>
+        <h4>Learning Objectives</h4>
+        <ul>
+          <li>Sketch root locus plots using Evans' construction rules</li>
+          <li>Determine breakaway/break-in points and angles of departure/arrival</li>
+          <li>Find the gain at any point on the locus using the magnitude criterion</li>
+          <li>Design controllers by adding poles/zeros to reshape the locus</li>
+        </ul>
+      </div>
+
+      <!-- 5.1 Fundamentals -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 5.1 — Root Locus Fundamentals</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Characteristic Equation</span>
+          $$1 + KG(s)H(s) = 0 \implies G(s)H(s) = -\frac{1}{K}$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">The root locus is the set of all points $s$ in the complex plane satisfying this equation as $K$ varies from $0$ to $\infty$.</p>
+        </div>
+
+        <h3>Angle and Magnitude Conditions</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">Conditions for a Point to Lie on the Root Locus</span>
+          <table class="formula-table">
+            <tr><td>Angle Condition</td><td>$\angle G(s)H(s) = (2q+1)\cdot 180°, \quad q = 0, \pm 1, \pm 2, \ldots$</td></tr>
+            <tr><td>Magnitude Condition</td><td>$K = \dfrac{1}{|G(s)H(s)|}$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5.2 Construction Rules -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 5.2 — Evans' Construction Rules</h2>
+
+        <div class="eq-key-result">
+          <span class="eq-label">The 8 Rules of Root Locus Construction</span>
+          <table class="formula-table">
+            <tr><td>1. Number of branches</td><td>Equal to $n$ = order of characteristic equation (number of poles of $GH$)</td></tr>
+            <tr><td>2. Starting & ending points</td><td>Branches start ($K=0$) at open-loop poles and end ($K→∞$) at open-loop zeros or infinity</td></tr>
+            <tr><td>3. Real-axis segments</td><td>A point on the real axis is on the locus if the number of <em>real</em> poles + zeros to its right is <em>odd</em></td></tr>
+            <tr><td>4. Symmetry</td><td>The locus is symmetric about the real axis (complex poles come in conjugate pairs)</td></tr>
+            <tr><td>5. Asymptotes</td><td>$n - m$ branches go to infinity along asymptotes at angles $\theta_a = \frac{(2q+1)\cdot 180°}{n-m}$</td></tr>
+            <tr><td>6. Centroid</td><td>$\sigma_a = \frac{\sum p_i - \sum z_j}{n - m}$ (intersection of asymptotes on real axis)</td></tr>
+            <tr><td>7. Breakaway points</td><td>Solve $\frac{dK}{ds} = 0$ on the real axis (where branches depart or arrive)</td></tr>
+            <tr><td>8. jω-axis crossings</td><td>Use Routh criterion with $K$ as parameter to find the gain at which poles cross the $j\omega$ axis</td></tr>
+          </table>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Derivation: Asymptote Angles and Centroid <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>For large $|s|$, $G(s)H(s) \approx \frac{K'}{s^{n-m}}$ where $K'$ is the ratio of leading coefficients.</p>
+              </div>
+              <div class="deriv-step">
+                <p>The angle condition becomes $\angle(1/s^{n-m}) = (2q+1)\cdot 180°$, so $(n-m)\theta = (2q+1)\cdot 180°$:</p>
+                $$\theta_a = \frac{(2q+1)\cdot 180°}{n-m}, \quad q = 0, 1, \ldots, n-m-1$$
+              </div>
+              <div class="deriv-step">
+                <p>The centroid is where asymptotes intersect the real axis. From the Laurent expansion of $G(s)H(s)$ about $s = \infty$:</p>
+                $$\sigma_a = \frac{\sum_{i=1}^n(-p_i) - \sum_{j=1}^m(-z_j)}{n-m}$$
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Angles of Departure and Arrival <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p><strong>Angle of departure</strong> from a complex pole $p_i$: apply the angle condition at a point infinitesimally close to $p_i$:</p>
+                $$\theta_{dep} = 180° - \sum_{k \neq i}\angle(p_i - p_k) + \sum_j \angle(p_i - z_j)$$
+              </div>
+              <div class="deriv-step">
+                <p><strong>Angle of arrival</strong> at a complex zero $z_j$:</p>
+                $$\theta_{arr} = 180° - \sum_k \angle(z_j - p_k) + \sum_{i \neq j}\angle(z_j - z_i)$$
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5.3 Design with Root Locus -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 5.3 — Controller Design via Root Locus</h2>
+        <p>The root locus can be reshaped by adding poles and zeros to the controller:</p>
+        <ul style="color:var(--text-secondary);padding-left:24px;margin:16px 0;">
+          <li><strong>Adding a zero</strong> (lead compensation): pulls the locus toward the left — improves transient response</li>
+          <li><strong>Adding a pole</strong> (lag compensation): can improve steady-state accuracy without significantly affecting transient</li>
+          <li><strong>Lead-lag compensator</strong>: adds both a pole and zero for combined benefits</li>
+        </ul>
+
+        <div class="eq-definition">
+          <span class="eq-label">Lead Compensator</span>
+          $$G_c(s) = K_c \frac{s + z_c}{s + p_c}, \quad |z_c| < |p_c|$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;">The zero is closer to the origin than the pole, providing phase lead at crossover.</p>
+        </div>
+      </section>
+
+      <!-- ====== Sim 1: Interactive Root Locus ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Root Locus Explorer</h2>
+        <div class="sim-container" id="sim-rl-explorer">
+          <div class="sim-title">① Root Locus — Adjust Gain K</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Drag the K slider to animate the closed-loop poles along the root locus. The step response updates live.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="sim-canvas-wrapper"><canvas id="rl-splane" width="400" height="400" aria-label="Root locus s-plane"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="rl-step" width="400" height="300" aria-label="Step response for current K"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>K: <span class="value" id="rl-k-val">1.0</span></label>
+              <input type="range" id="rl-k" min="0" max="50" step="0.1" value="1" aria-label="Gain K">
+            </div>
+            <div class="slider-group">
+              <label>Open-loop Poles</label>
+              <select id="rl-system" class="input-field" aria-label="Select system">
+                <option value="0">K/((s+1)(s+2))</option>
+                <option value="1">K/(s(s+1)(s+2))</option>
+                <option value="2">K/(s(s+2)(s+4))</option>
+                <option value="3">K(s+3)/(s(s+1)(s+2)(s+4))</option>
+              </select>
+            </div>
+          </div>
+          <div id="rl-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: Root Locus Designer ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Root Locus Designer</h2>
+        <div class="sim-container" id="sim-rl-design">
+          <div class="sim-title">② Place Your Own Poles &amp; Zeros</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Left-click to place open-loop poles (×), right-click for zeros (○). Root locus is computed in real-time.</p>
+          <div class="sim-canvas-wrapper"><canvas id="rl-design-canvas" width="700" height="450" aria-label="Custom root locus designer"></canvas></div>
+          <div class="sim-controls">
+            <button class="btn btn-sm" id="rld-mode-pole" style="background:var(--accent-violet);color:white;">Poles ×</button>
+            <button class="btn btn-sm" id="rld-mode-zero">Zeros ○</button>
+            <button class="btn btn-sm" id="rld-clear">Clear All</button>
+            <div style="margin-left:auto;font-family:var(--font-mono);font-size:0.8rem;color:var(--text-secondary);" id="rld-info">Click to place</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: Gain-Performance Map ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Gain vs Performance</h2>
+        <div class="sim-container" id="sim-gain-perf">
+          <div class="sim-title">③ How K Affects Transient Specs</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Visualize how overshoot, settling time, and steady-state error change as gain K sweeps.</p>
+          <div class="sim-canvas-wrapper"><canvas id="perf-canvas" width="700" height="350" aria-label="Gain vs performance metrics"></canvas></div>
+          <div id="perf-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;">Drag the gain slider above or hover over the chart.</div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 5</h3>
+          <table class="formula-table">
+            <tr><td>Characteristic Equation</td><td>$1+KG(s)H(s)=0$</td></tr>
+            <tr><td>Angle Condition</td><td>$\angle GH = (2q+1)\cdot 180°$</td></tr>
+            <tr><td>Magnitude Condition</td><td>$K = 1/|GH|$</td></tr>
+            <tr><td>Asymptote Angles</td><td>$\theta_a = (2q+1)\cdot 180°/(n-m)$</td></tr>
+            <tr><td>Centroid</td><td>$\sigma_a = (\sum p_i - \sum z_j)/(n-m)$</td></tr>
+            <tr><td>Breakaway</td><td>$dK/ds = 0$ on real axis</td></tr>
+            <tr><td>jω Crossing</td><td>Routh criterion with K parameter</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../04-time-response/index.html"><span class="label">← Previous</span><span class="title">Time Response Analysis</span></a>
+        <a href="../06-frequency-response/index.html" class="next"><span class="label">Next Chapter →</span><span class="title">Frequency Response</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero: 3D root locus -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(0,3,8);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(3,5,5);scene.add(dl);
+
+    // Root locus branches as tubes
+    const pts1=[],pts2=[];
+    for(let k=0;k<200;k++){
+      const K=k*0.2;
+      // 1+K/(s(s+2)) = s²+2s+K poles: -1±√(1-K)
+      const disc=1-K;
+      if(disc>=0){pts1.push(new THREE.Vector3(-1+Math.sqrt(disc),K*0.03,0));pts2.push(new THREE.Vector3(-1-Math.sqrt(disc),K*0.03,0));}
+      else{pts1.push(new THREE.Vector3(-1,K*0.03,Math.sqrt(-disc)));pts2.push(new THREE.Vector3(-1,K*0.03,-Math.sqrt(-disc)));}
+    }
+    [pts1,pts2].forEach(pts=>{
+      const g=new THREE.BufferGeometry().setFromPoints(pts);
+      scene.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0x00e5ff})));
+    });
+
+    // Poles
+    [[0,0,0],[-2,0,0]].forEach(p=>{
+      const m=new THREE.Mesh(new THREE.SphereGeometry(0.1,16,16),new THREE.MeshStandardMaterial({color:0x7c4dff,emissive:0x7c4dff,emissiveIntensity:0.4}));
+      m.position.set(...p);scene.add(m);
+    });
+
+    let mx=0,my=0;document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-0.5);my=(e.clientY/innerHeight-0.5);});
+    function animate(){requestAnimationFrame(animate);cam.position.x=mx*4;cam.position.y=3-my*2;cam.lookAt(-1,2,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: Root Locus Explorer -->
+  <script type="module">
+  import { linspace, rk4Step } from '../../assets/js/utils.js';
+
+  const sCanvas=document.getElementById('rl-splane');
+  const rCanvas=document.getElementById('rl-step');
+  if(!sCanvas||!rCanvas)throw new Error();
+  const sCtx=sCanvas.getContext('2d'),rCtx=rCanvas.getContext('2d');
+
+  const systems=[
+    {poles:[-1,-2],zeros:[],label:'K/((s+1)(s+2))'},
+    {poles:[0,-1,-2],zeros:[],label:'K/(s(s+1)(s+2))'},
+    {poles:[0,-2,-4],zeros:[],label:'K/(s(s+2)(s+4))'},
+    {poles:[0,-1,-2,-4],zeros:[-3],label:'K(s+3)/(s(s+1)(s+2)(s+4))'}
+  ];
+
+  function getClosedLoopPoles(sys,K){
+    // Build characteristic polynomial 1+K*N(s)/D(s)=0 => D(s)+K*N(s)=0
+    const n=sys.poles.length;
+    // Compute D(s) from poles
+    let den=[1];
+    sys.poles.forEach(p=>{
+      const newDen=new Array(den.length+1).fill(0);
+      for(let i=0;i<den.length;i++){newDen[i]+=den[i];newDen[i+1]+=-p*den[i];}
+      den=newDen;
+    });
+    let num=[1];
+    sys.zeros.forEach(z=>{
+      const newNum=new Array(num.length+1).fill(0);
+      for(let i=0;i<num.length;i++){newNum[i]+=num[i];newNum[i+1]+=-z*num[i];}
+      num=newNum;
+    });
+    // Pad num to same length as den
+    while(num.length<den.length)num.unshift(0);
+    // char poly = den + K*num
+    const cp=den.map((d,i)=>d+K*num[i]);
+    // Find roots numerically using companion matrix eigenvalues (simplified for low order)
+    return findRoots(cp);
+  }
+
+  function findRoots(coeffs){
+    // Durand-Kerner method
+    const n=coeffs.length-1;if(n<=0)return[];
+    // Normalize
+    const a=coeffs.map(c=>c/coeffs[0]);
+    // Initial guesses
+    let roots=[];
+    for(let i=0;i<n;i++){
+      const angle=2*Math.PI*i/n+0.4;
+      const r=1+Math.random()*0.1;
+      roots.push({re:r*Math.cos(angle),im:r*Math.sin(angle)});
+    }
+    for(let iter=0;iter<100;iter++){
+      for(let i=0;i<n;i++){
+        // Evaluate polynomial at roots[i]
+        let pr=1,pi=0;
+        for(let k=0;k<=n;k++){
+          const pow=n-k;
+          // (re+j*im)^pow * a[k] — use Horner's
+        }
+        // Horner evaluation
+        let valR=a[0],valI=0;
+        for(let k=1;k<=n;k++){
+          const newR=valR*roots[i].re-valI*roots[i].im+a[k];
+          const newI=valR*roots[i].im+valI*roots[i].re;
+          valR=newR;valI=newI;
+        }
+        // Product of (roots[i]-roots[j])
+        let prodR=1,prodI=0;
+        for(let j=0;j<n;j++){
+          if(j===i)continue;
+          const dr=roots[i].re-roots[j].re,di=roots[i].im-roots[j].im;
+          const newPR=prodR*dr-prodI*di;
+          const newPI=prodR*di+prodI*dr;
+          prodR=newPR;prodI=newPI;
+        }
+        const denom=prodR*prodR+prodI*prodI;
+        if(denom<1e-20)continue;
+        const corrR=(valR*prodR+valI*prodI)/denom;
+        const corrI=(valI*prodR-valR*prodI)/denom;
+        roots[i].re-=corrR;roots[i].im-=corrI;
+      }
+    }
+    return roots;
+  }
+
+  function computeRootLocus(sys){
+    const locus=[];
+    const kValues=linspace(0,50,500);
+    for(const K of kValues){
+      const rts=getClosedLoopPoles(sys,K);
+      locus.push({K,roots:rts});
+    }
+    return locus;
+  }
+
+  function drawSPlane(sys,K,locus){
+    const dpr=devicePixelRatio||1;sCanvas.width=sCanvas.clientWidth*dpr;sCanvas.height=sCanvas.clientHeight*dpr;
+    sCtx.setTransform(dpr,0,0,dpr,0,0);
+    const w=sCanvas.clientWidth,h=sCanvas.clientHeight;
+    sCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    sCtx.fillRect(0,0,w,h);
+
+    const range=6,pad=30;
+    function sx(re){return pad+(re+range)/(2*range)*(w-2*pad);}
+    function sy(im){return pad+(range-im)/(2*range)*(h-2*pad);}
+
+    // Stable region
+    sCtx.fillStyle='rgba(105,255,71,0.03)';sCtx.fillRect(pad,pad,(w-2*pad)/2,h-2*pad);
+
+    // Grid
+    sCtx.strokeStyle='rgba(0,229,255,0.05)';sCtx.lineWidth=0.5;
+    for(let v=-range;v<=range;v++){
+      sCtx.beginPath();sCtx.moveTo(sx(v),pad);sCtx.lineTo(sx(v),h-pad);sCtx.stroke();
+      sCtx.beginPath();sCtx.moveTo(pad,sy(v));sCtx.lineTo(w-pad,sy(v));sCtx.stroke();
+    }
+    sCtx.strokeStyle='rgba(138,155,181,0.3)';sCtx.lineWidth=1;
+    sCtx.beginPath();sCtx.moveTo(pad,sy(0));sCtx.lineTo(w-pad,sy(0));sCtx.stroke();
+    sCtx.beginPath();sCtx.moveTo(sx(0),pad);sCtx.lineTo(sx(0),h-pad);sCtx.stroke();
+
+    // Root locus traces
+    if(locus){
+      sCtx.fillStyle='rgba(0,229,255,0.15)';
+      for(const pt of locus){
+        for(const r of pt.roots){
+          if(Math.abs(r.re)<range&&Math.abs(r.im)<range){
+            sCtx.fillRect(sx(r.re)-1,sy(r.im)-1,2,2);
+          }
+        }
+      }
+    }
+
+    // Current closed-loop poles
+    const clPoles=getClosedLoopPoles(sys,K);
+    clPoles.forEach(p=>{
+      sCtx.fillStyle='#ff3d71';sCtx.shadowColor='rgba(255,61,113,0.6)';sCtx.shadowBlur=10;
+      sCtx.beginPath();sCtx.arc(sx(p.re),sy(p.im),5,0,Math.PI*2);sCtx.fill();sCtx.shadowBlur=0;
+    });
+
+    // Open loop poles
+    sys.poles.forEach(p=>{
+      const x=sx(p),y=sy(0);
+      sCtx.strokeStyle='#7c4dff';sCtx.lineWidth=2;
+      sCtx.beginPath();sCtx.moveTo(x-6,y-6);sCtx.lineTo(x+6,y+6);sCtx.stroke();
+      sCtx.beginPath();sCtx.moveTo(x+6,y-6);sCtx.lineTo(x-6,y+6);sCtx.stroke();
+    });
+    sys.zeros.forEach(z=>{
+      sCtx.strokeStyle='#00e5ff';sCtx.lineWidth=2;
+      sCtx.beginPath();sCtx.arc(sx(z),sy(0),6,0,Math.PI*2);sCtx.stroke();
+    });
+
+    // Info
+    const poleStr=clPoles.map(p=>`${p.re.toFixed(2)}${p.im>=0?'+':''}${p.im.toFixed(2)}j`).join(', ');
+    document.getElementById('rl-info').textContent=`K=${K.toFixed(1)} | CL poles: ${poleStr}`;
+  }
+
+  function drawStep(sys,K){
+    const dpr=devicePixelRatio||1;rCanvas.width=rCanvas.clientWidth*dpr;rCanvas.height=rCanvas.clientHeight*dpr;
+    rCtx.setTransform(dpr,0,0,dpr,0,0);
+    const w=rCanvas.clientWidth,h=rCanvas.clientHeight;
+    rCtx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    rCtx.fillRect(0,0,w,h);
+
+    // Simulate step response numerically
+    const n=sys.poles.length;
+    const tMax=10;const tArr=linspace(0,tMax,500);const dt=tArr[1]-tArr[0];
+
+    // Build den polynomial from poles
+    let den=[1];
+    sys.poles.forEach(p=>{const nd=new Array(den.length+1).fill(0);for(let i=0;i<den.length;i++){nd[i]+=den[i];nd[i+1]+=-p*den[i];}den=nd;});
+    let num=[1];
+    sys.zeros.forEach(z=>{const nn=new Array(num.length+1).fill(0);for(let i=0;i<num.length;i++){nn[i]+=num[i];nn[i+1]+=-z*num[i];}num=nn;});
+    while(num.length<den.length)num.unshift(0);
+    // Closed-loop: T(s) = K*num / (den + K*num)
+    const clDen=den.map((d,i)=>d+K*num[i]);
+
+    // Simulate using companion form
+    const state=new Array(n).fill(0);
+    const yArr=[];
+    // DC gain = K*num(0)/clDen(0)
+    const numAt0=num[num.length-1];
+    const clDenAt0=clDen[clDen.length-1];
+    const dcGain=(K*numAt0)/clDenAt0;
+
+    for(let k=0;k<tArr.length;k++){
+      yArr.push(state[0]);
+      const sDeriv=(t,s)=>{
+        const ds=new Array(n);
+        for(let i=0;i<n-1;i++)ds[i]=s[i+1];
+        let d=0;
+        for(let i=1;i<=n;i++)d-=(clDen[i]/clDen[0])*s[n-i];
+        // Step input contribution
+        d+=(K*num[num.length-1])/clDen[0];
+        ds[n-1]=d;return ds;
+      };
+      const ns=rk4Step(sDeriv,tArr[k],state,dt);
+      for(let i=0;i<n;i++)state[i]=isFinite(ns[i])?ns[i]:0;
+    }
+
+    const pad={top:20,right:20,bottom:28,left:45};const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    let yMax=Math.max(1.5,...yArr.filter(v=>isFinite(v)&&Math.abs(v)<20));
+    let yMin=Math.min(0,...yArr.filter(v=>isFinite(v)&&Math.abs(v)<20));
+    yMax=Math.min(yMax,5);yMin=Math.max(yMin,-2);
+    const yr=yMax-yMin||1;
+
+    function tx(t){return pad.left+t/tMax*pw;}
+    function ty(y){return pad.top+(1-(y-yMin)/yr)*ph;}
+
+    rCtx.strokeStyle='rgba(255,255,255,0.1)';rCtx.setLineDash([4,4]);
+    if(isFinite(dcGain)&&Math.abs(dcGain)<20){rCtx.beginPath();rCtx.moveTo(pad.left,ty(dcGain));rCtx.lineTo(pad.left+pw,ty(dcGain));rCtx.stroke();}
+    rCtx.setLineDash([]);
+
+    rCtx.strokeStyle='#00e5ff';rCtx.lineWidth=2;rCtx.beginPath();
+    for(let i=0;i<tArr.length;i++){
+      const v=Math.max(yMin,Math.min(yMax,isFinite(yArr[i])?yArr[i]:0));
+      i===0?rCtx.moveTo(tx(tArr[i]),ty(v)):rCtx.lineTo(tx(tArr[i]),ty(v));
+    }
+    rCtx.stroke();
+    rCtx.fillStyle='#e8edf8';rCtx.font='11px Inter';rCtx.textAlign='center';rCtx.fillText('Step Response',w/2,pad.top-4);
+  }
+
+  let currentLocus=null;
+  function update(){
+    const sysIdx=parseInt(document.getElementById('rl-system').value);
+    const K=parseFloat(document.getElementById('rl-k').value);
+    document.getElementById('rl-k-val').textContent=K.toFixed(1);
+    const sys=systems[sysIdx];
+    if(!currentLocus||currentLocus.sysIdx!==sysIdx){
+      currentLocus={sysIdx,data:computeRootLocus(sys)};
+    }
+    drawSPlane(sys,K,currentLocus.data);
+    drawStep(sys,K);
+  }
+
+  document.getElementById('rl-k').addEventListener('input',update);
+  document.getElementById('rl-system').addEventListener('change',()=>{currentLocus=null;update();});
+  update();
+  </script>
+
+  <!-- Sim 2: Custom Root Locus Designer -->
+  <script type="module">
+  import { linspace } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('rl-design-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+  let poles=[],zeros=[],mode='pole';
+  const range=6;
+
+  function sx(re){const p=30;return p+(re+range)/(2*range)*(canvas.clientWidth-2*p);}
+  function sy(im){const p=30;return p+(range-im)/(2*range)*(canvas.clientHeight-2*p);}
+  function invSx(x){const p=30;return(x-p)/(canvas.clientWidth-2*p)*2*range-range;}
+  function invSy(y){const p=30;return range-(y-p)/(canvas.clientHeight-2*p)*2*range;}
+
+  function computeLocus(){
+    if(poles.length===0)return[];
+    const pts=[];
+    for(let K=0;K<=100;K+=0.2){
+      // Build char poly: product(s-pi) + K*product(s-zi) = 0
+      // Find roots using Durand-Kerner
+      let den=[1];
+      poles.forEach(p=>{const nd=new Array(den.length+1).fill(0);for(let i=0;i<den.length;i++){nd[i]+=den[i];nd[i+1]+=-(p.re)*den[i];}den=nd;});
+      let num=zeros.length?[1]:[1];
+      zeros.forEach(z=>{const nn=new Array(num.length+1).fill(0);for(let i=0;i<num.length;i++){nn[i]+=num[i];nn[i+1]+=-(z.re)*num[i];}num=nn;});
+      // Only handles real poles/zeros for simplicity in the designer
+      while(num.length<den.length)num.unshift(0);
+      const cp=den.map((d,i)=>d+K*num[i]);
+      // Quick Durand-Kerner
+      const n=cp.length-1;if(n<=0)continue;
+      const a=cp.map(c=>c/cp[0]);
+      let roots=[];
+      for(let i=0;i<n;i++){const ang=2*Math.PI*i/n+0.4;roots.push({re:Math.cos(ang)*2,im:Math.sin(ang)*2});}
+      for(let iter=0;iter<60;iter++){
+        for(let i=0;i<n;i++){
+          let vR=a[0],vI=0;
+          for(let k=1;k<=n;k++){const nR=vR*roots[i].re-vI*roots[i].im+a[k];vI=vR*roots[i].im+vI*roots[i].re;vR=nR;}
+          let pR=1,pI=0;
+          for(let j=0;j<n;j++){if(j===i)continue;const dr=roots[i].re-roots[j].re,di=roots[i].im-roots[j].im;const npR=pR*dr-pI*di;pI=pR*di+pI*dr;pR=npR;}
+          const d2=pR*pR+pI*pI;if(d2<1e-20)continue;
+          roots[i].re-=(vR*pR+vI*pI)/d2;roots[i].im-=(vI*pR-vR*pI)/d2;
+        }
+      }
+      pts.push(...roots.filter(r=>Math.abs(r.re)<range&&Math.abs(r.im)<range));
+    }
+    return pts;
+  }
+
+  function draw(){
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+
+    const pad=30;
+    ctx.fillStyle='rgba(105,255,71,0.03)';ctx.fillRect(pad,pad,(w-2*pad)/2,h-2*pad);
+    ctx.strokeStyle='rgba(0,229,255,0.05)';ctx.lineWidth=0.5;
+    for(let v=-range;v<=range;v++){ctx.beginPath();ctx.moveTo(sx(v),pad);ctx.lineTo(sx(v),h-pad);ctx.stroke();ctx.beginPath();ctx.moveTo(pad,sy(v));ctx.lineTo(w-pad,sy(v));ctx.stroke();}
+    ctx.strokeStyle='rgba(138,155,181,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad,sy(0));ctx.lineTo(w-pad,sy(0));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(sx(0),pad);ctx.lineTo(sx(0),h-pad);ctx.stroke();
+
+    // Root locus
+    const locus=computeLocus();
+    ctx.fillStyle='rgba(0,229,255,0.2)';
+    locus.forEach(r=>{ctx.fillRect(sx(r.re)-1,sy(r.im)-1,2,2);});
+
+    // Poles
+    poles.forEach(p=>{
+      const x=sx(p.re),y=sy(p.im);
+      ctx.strokeStyle='#7c4dff';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(x-7,y-7);ctx.lineTo(x+7,y+7);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+7,y-7);ctx.lineTo(x-7,y+7);ctx.stroke();
+    });
+    zeros.forEach(z=>{
+      const x=sx(z.re),y=sy(z.im);
+      ctx.strokeStyle='#00e5ff';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.stroke();
+    });
+
+    document.getElementById('rld-info').textContent=`Poles: ${poles.length} | Zeros: ${zeros.length}`;
+  }
+
+  document.getElementById('rld-mode-pole').addEventListener('click',function(){
+    mode='pole';this.style.background='var(--accent-violet)';this.style.color='white';
+    document.getElementById('rld-mode-zero').style.background='';document.getElementById('rld-mode-zero').style.color='';
+  });
+  document.getElementById('rld-mode-zero').addEventListener('click',function(){
+    mode='zero';this.style.background='var(--accent-cyan)';this.style.color='var(--bg-primary)';
+    document.getElementById('rld-mode-pole').style.background='';document.getElementById('rld-mode-pole').style.color='';
+  });
+  document.getElementById('rld-clear').addEventListener('click',()=>{poles=[];zeros=[];draw();});
+
+  canvas.addEventListener('click',e=>{
+    const rect=canvas.getBoundingClientRect();
+    const re=invSx(e.clientX-rect.left),im=invSy(e.clientY-rect.top);
+    if(mode==='pole')poles.push({re,im:0}); // snap to real axis for simplicity
+    else zeros.push({re,im:0});
+    draw();
+  });
+  canvas.addEventListener('contextmenu',e=>{
+    e.preventDefault();
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    for(let i=poles.length-1;i>=0;i--){
+      if(Math.hypot(sx(poles[i].re)-mx,sy(poles[i].im)-my)<12){poles.splice(i,1);draw();return;}
+    }
+    for(let i=zeros.length-1;i>=0;i--){
+      if(Math.hypot(sx(zeros[i].re)-mx,sy(zeros[i].im)-my)<12){zeros.splice(i,1);draw();return;}
+    }
+  });
+
+  // Default
+  poles=[{re:0,im:0},{re:-1,im:0},{re:-2,im:0}];
+  draw();
+  </script>
+
+  <!-- Sim 3: Gain vs Performance -->
+  <script type="module">
+  import { secondOrderStep, transientSpecs, linspace } from '../../assets/js/utils.js';
+  const canvas=document.getElementById('perf-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+
+  // For G(s)=K/((s+1)(s+2)), CL poles = -1.5 ± sqrt(2.25-K)
+  // At K<2.25: overdamped. At K=2.25: critically damped. At K>2.25: underdamped.
+  // wn=sqrt(K+2), ζ=3/(2*wn)=3/(2*sqrt(K+2))
+  function draw(){
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+
+    const kArr=linspace(0.1,50,300);
+    const overArr=[],tsArr=[],esArr=[];
+
+    for(const K of kArr){
+      const wn=Math.sqrt(K+2);
+      const zeta=3/(2*wn);
+      if(zeta>0&&zeta<1){
+        const Mp=Math.exp(-Math.PI*zeta/Math.sqrt(1-zeta*zeta))*100;
+        overArr.push(Mp);
+        tsArr.push(4/(zeta*wn));
+      } else if(zeta>=1){
+        overArr.push(0);
+        tsArr.push(4/(zeta*wn));
+      } else {
+        overArr.push(NaN);tsArr.push(NaN);
+      }
+      // SSE for step: e_ss=1/(1+Kp), Kp=K/2
+      esArr.push(1/(1+K/2)*100);
+    }
+
+    const pad={top:25,right:20,bottom:30,left:50};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const kMax=50;
+
+    function tx(k){return pad.left+k/kMax*pw;}
+    function ty(v,vMax){return pad.top+(1-v/vMax)*ph;}
+
+    // Grid
+    ctx.strokeStyle='rgba(0,229,255,0.05)';ctx.lineWidth=0.5;
+    for(let i=0;i<=5;i++){const gx=pad.left+pw*i/5;ctx.beginPath();ctx.moveTo(gx,pad.top);ctx.lineTo(gx,pad.top+ph);ctx.stroke();}
+
+    const vMax=100;
+
+    // Overshoot (red)
+    ctx.strokeStyle='#ff3d71';ctx.lineWidth=2;ctx.beginPath();
+    let first=true;
+    kArr.forEach((k,i)=>{if(!isNaN(overArr[i])){const x=tx(k),y=ty(Math.min(overArr[i],vMax),vMax);first?ctx.moveTo(x,y):ctx.lineTo(x,y);first=false;}});
+    ctx.stroke();
+
+    // SSE (amber)
+    ctx.strokeStyle='#ffab40';ctx.lineWidth=2;ctx.beginPath();
+    kArr.forEach((k,i)=>{const x=tx(k),y=ty(Math.min(esArr[i],vMax),vMax);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
+
+    // Settling time scaled (cyan) — scale to fit
+    const tsMax=Math.max(...tsArr.filter(v=>isFinite(v)));
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.setLineDash([6,3]);ctx.beginPath();first=true;
+    kArr.forEach((k,i)=>{if(isFinite(tsArr[i])){const x=tx(k),y=ty(tsArr[i]/tsMax*vMax,vMax);first?ctx.moveTo(x,y):ctx.lineTo(x,y);first=false;}});
+    ctx.stroke();ctx.setLineDash([]);
+
+    // Legend
+    ctx.font='11px Inter';
+    ctx.fillStyle='#ff3d71';ctx.fillText('— Overshoot (%)',w-140,pad.top+15);
+    ctx.fillStyle='#ffab40';ctx.fillText('— SSE (%)',w-140,pad.top+32);
+    ctx.fillStyle='#00e5ff';ctx.fillText('--- Settling (scaled)',w-140,pad.top+49);
+
+    ctx.fillStyle='#8a9bb5';ctx.textAlign='center';ctx.fillText('K',w/2,h-3);
+  }
+  draw();
+  </script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 6 — Frequency Response | Control Systems Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/math.css">
+  <link rel="stylesheet" href="../../assets/css/animations.css">
+  <script src="../../assets/js/theme.js"></script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="scroll-progress"><div class="scroll-progress-bar"></div></div>
+  <button class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header"><a href="../../index.html" class="sidebar-logo">Control Systems Theory</a></div>
+    <div class="sidebar-nav">
+      <a href="../01-laplace-transfer-functions/index.html"><span class="chapter-num">01</span> Laplace &amp; Transfer Functions</a>
+      <a href="../02-block-diagram-reduction/index.html"><span class="chapter-num">02</span> Block Diagrams</a>
+      <a href="../03-state-space/index.html"><span class="chapter-num">03</span> State Space</a>
+      <a href="../04-time-response/index.html"><span class="chapter-num">04</span> Time Response</a>
+      <a href="../05-root-locus/index.html"><span class="chapter-num">05</span> Root Locus</a>
+      <a href="../06-frequency-response/index.html" class="active"><span class="chapter-num">06</span> Frequency Response</a>
+      <a href="../07-stability/index.html"><span class="chapter-num">07</span> Stability</a>
+      <a href="../08-pid-controllers/index.html"><span class="chapter-num">08</span> PID Controllers</a>
+      <a href="../09-digital-control/index.html"><span class="chapter-num">09</span> Digital Control</a>
+      <a href="../10-modern-control/index.html"><span class="chapter-num">10</span> Modern Control</a>
+    </div>
+    <div class="sidebar-footer"><button class="theme-toggle" aria-label="Toggle theme">Toggle Theme</button></div>
+  </nav>
+
+  <div class="main-content">
+    <section class="chapter-hero">
+      <div id="hero-3d" style="position:absolute;inset:0;"></div>
+      <div class="hero-gradient"></div>
+      <div class="chapter-hero-content fade-in-up">
+        <span class="chapter-badge">Chapter 06</span>
+        <h1>Frequency Response</h1>
+        <p class="subtitle">Bode plots, Nyquist diagrams, and gain/phase margins</p>
+      </div>
+    </section>
+
+    <div class="content-wrapper" id="main">
+      <div class="card overview-card fade-in-up stagger-1">
+        <h3>Chapter Overview</h3>
+        <p>Frequency response analysis studies how a system responds to sinusoidal inputs of varying frequency. This chapter covers Bode plots, Nyquist diagrams, and the critical stability margins that connect frequency-domain measurements to time-domain performance.</p>
+      </div>
+
+      <!-- 6.1 Frequency Response Fundamentals -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 6.1 — Sinusoidal Steady-State</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Frequency Response Theorem</span>
+          <p style="color:var(--text-secondary);margin-bottom:12px;">For a stable LTI system with transfer function $G(s)$, the steady-state output to $r(t)=A\sin(\omega t)$ is:</p>
+          $$y_{ss}(t) = A\,|G(j\omega)|\sin\!\big(\omega t + \angle G(j\omega)\big)$$
+        </div>
+
+        <p>Therefore the entire frequency behaviour is captured by the <em>complex function</em> $G(j\omega)$, obtained by substituting $s = j\omega$:</p>
+        <div class="eq-definition">
+          <span class="eq-label">Frequency Response Function</span>
+          $$G(j\omega) = |G(j\omega)|\,e^{j\angle G(j\omega)}$$
+        </div>
+      </section>
+
+      <!-- 6.2 Bode Plots -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 6.2 — Bode Plots</h2>
+        <p>A Bode plot consists of two graphs plotted against $\log_{10}\omega$:</p>
+        <ul style="color:var(--text-secondary);padding-left:24px;margin:12px 0;">
+          <li><strong>Magnitude plot</strong>: $20\log_{10}|G(j\omega)|$ in dB</li>
+          <li><strong>Phase plot</strong>: $\angle G(j\omega)$ in degrees</li>
+        </ul>
+
+        <h3>Standard Building Blocks</h3>
+        <div class="eq-key-result">
+          <span class="eq-label">Bode Plot Shapes</span>
+          <table class="formula-table">
+            <tr><td>Gain $K$</td><td>$20\log K$ dB flat, 0° phase</td></tr>
+            <tr><td>Integrator $1/s$</td><td>−20 dB/dec, −90° constant</td></tr>
+            <tr><td>Differentiator $s$</td><td>+20 dB/dec, +90° constant</td></tr>
+            <tr><td>Real pole $\frac{1}{1+s/p}$</td><td>0 dB → −20 dB/dec at $\omega=p$; 0°→−90°</td></tr>
+            <tr><td>Real zero $1+s/z$</td><td>0 dB → +20 dB/dec at $\omega=z$; 0°→+90°</td></tr>
+            <tr><td>Complex poles $\frac{\omega_n^2}{s^2+2\zeta\omega_n s+\omega_n^2}$</td><td>0 dB → −40 dB/dec; resonant peak at $\omega\approx\omega_n$ if $\zeta<0.707$</td></tr>
+          </table>
+        </div>
+
+        <div class="collapsible">
+          <div class="collapsible-header">Derivation: First-Order Bode Approximation <span class="arrow">▸</span></div>
+          <div class="collapsible-body">
+            <div class="derivation">
+              <div class="deriv-step">
+                <p>Consider $G(s) = \frac{1}{1 + s/\omega_c}$. At $s=j\omega$:</p>
+                $$G(j\omega) = \frac{1}{1 + j\omega/\omega_c}$$
+              </div>
+              <div class="deriv-step">
+                <p>Magnitude: $|G| = \frac{1}{\sqrt{1+(\omega/\omega_c)^2}}$</p>
+                <p>For $\omega \ll \omega_c$: $|G|\approx 1$ → 0 dB</p>
+                <p>For $\omega \gg \omega_c$: $|G|\approx \omega_c/\omega$ → $-20\log_{10}(\omega/\omega_c)$ dB (slope = −20 dB/dec)</p>
+              </div>
+              <div class="deriv-step">
+                <p>Phase: $\angle G = -\arctan(\omega/\omega_c)$</p>
+                <p>At $\omega=\omega_c$: $\angle G=-45°$. Transitions from 0° to −90° over roughly one decade each side.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6.3 Nyquist Diagram -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 6.3 — Nyquist Diagram &amp; Criterion</h2>
+
+        <div class="eq-critical">
+          <span class="eq-label">Nyquist Stability Criterion</span>
+          $$Z = N + P$$
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">
+            $Z$ = number of closed-loop RHP poles, $N$ = number of CW encirclements of $-1+j0$, $P$ = number of open-loop RHP poles.
+            For stability: $Z = 0$, i.e., $N = -P$.
+          </p>
+        </div>
+
+        <p>The Nyquist plot is the image of $G(j\omega)H(j\omega)$ traced as $\omega$ goes from $-\infty$ to $+\infty$ (equivalently, from $0$ to $\infty$ with reflection about the real axis).</p>
+      </section>
+
+      <!-- 6.4 Gain & Phase Margins -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">◈</span> 6.4 — Stability Margins</h2>
+
+        <div class="eq-key-result">
+          <span class="eq-label">Gain and Phase Margins</span>
+          <table class="formula-table">
+            <tr><td>Gain Crossover $\omega_{gc}$</td><td>$|GH(j\omega_{gc})| = 1$ (0 dB)</td></tr>
+            <tr><td>Phase Margin $\phi_m$</td><td>$\phi_m = 180° + \angle GH(j\omega_{gc})$</td></tr>
+            <tr><td>Phase Crossover $\omega_{pc}$</td><td>$\angle GH(j\omega_{pc}) = -180°$</td></tr>
+            <tr><td>Gain Margin $G_m$</td><td>$G_m = -20\log_{10}|GH(j\omega_{pc})|$ dB</td></tr>
+          </table>
+        </div>
+        <p>For good robustness: $\phi_m \geq 45°$ and $G_m \geq 6$ dB is a common design guideline.</p>
+      </section>
+
+      <!-- ====== Sim 1: Bode Plot Explorer ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Bode Plot Explorer</h2>
+        <div class="sim-container" id="sim-bode">
+          <div class="sim-title">① Build a Bode Plot</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Select a system and observe how gain K, pole, and zero locations affect the Bode magnitude and phase plots.</p>
+          <div style="display:grid;grid-template-columns:1fr;gap:8px;">
+            <div class="sim-canvas-wrapper"><canvas id="bode-mag" width="700" height="220" aria-label="Bode magnitude"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="bode-phase" width="700" height="220" aria-label="Bode phase"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>K: <span class="value" id="bode-k-val">1.0</span></label>
+              <input type="range" id="bode-k" min="0.1" max="100" step="0.1" value="1" aria-label="Gain K">
+            </div>
+            <div class="slider-group">
+              <label>System</label>
+              <select id="bode-sys" class="input-field" aria-label="System">
+                <option value="0">K/(s+1)</option>
+                <option value="1">K/((s+1)(s+5))</option>
+                <option value="2">K/(s(s+1)(s+10))</option>
+                <option value="3" selected>K(s+2)/(s(s+1)(s+5))</option>
+              </select>
+            </div>
+          </div>
+          <div id="bode-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 2: Nyquist Plot ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Nyquist Plot</h2>
+        <div class="sim-container" id="sim-nyquist">
+          <div class="sim-title">② Nyquist Diagram & Encirclements</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Watch the Nyquist contour as K varies. Count encirclements of the critical point $-1+j0$.</p>
+          <div class="sim-canvas-wrapper"><canvas id="nyquist-canvas" width="500" height="500" aria-label="Nyquist diagram"></canvas></div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>K: <span class="value" id="ny-k-val">1.0</span></label>
+              <input type="range" id="ny-k" min="0.1" max="30" step="0.1" value="1" aria-label="Gain K">
+            </div>
+            <div class="slider-group">
+              <label>System</label>
+              <select id="ny-sys" class="input-field" aria-label="System">
+                <option value="0">K/(s+1)</option>
+                <option value="1" selected>K/(s(s+1)(s+2))</option>
+                <option value="2">K/((s+1)(s+2)(s+5))</option>
+              </select>
+            </div>
+          </div>
+          <div id="ny-info" style="text-align:center;font-family:var(--font-mono);color:var(--text-secondary);font-size:0.85rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- ====== Sim 3: Margin Calculator ====== -->
+      <section class="section appear">
+        <h2 class="section-title"><span class="icon">⚡</span> Interactive: Margin Calculator</h2>
+        <div class="sim-container" id="sim-margins">
+          <div class="sim-title">③ Gain & Phase Margin Visualizer</div>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Live Bode plot with annotated gain and phase margins as you drag K.</p>
+          <div style="display:grid;grid-template-columns:1fr;gap:8px;">
+            <div class="sim-canvas-wrapper"><canvas id="margin-mag" width="700" height="200" aria-label="Margin magnitude"></canvas></div>
+            <div class="sim-canvas-wrapper"><canvas id="margin-phase" width="700" height="200" aria-label="Margin phase"></canvas></div>
+          </div>
+          <div class="sim-controls">
+            <div class="slider-group">
+              <label>K: <span class="value" id="mg-k-val">1.0</span></label>
+              <input type="range" id="mg-k" min="0.1" max="50" step="0.1" value="1" aria-label="K">
+            </div>
+          </div>
+          <div id="mg-info" style="text-align:center;font-family:var(--font-mono);font-size:0.9rem;padding:8px;"></div>
+        </div>
+      </section>
+
+      <!-- Quick Reference -->
+      <section class="section appear">
+        <div class="quick-ref">
+          <h3>Quick Reference — Chapter 6</h3>
+          <table class="formula-table">
+            <tr><td>Sinusoidal SS Output</td><td>$y_{ss}=A|G(j\omega)|\sin(\omega t+\angle G)$</td></tr>
+            <tr><td>Real pole Bode</td><td>−20 dB/dec above corner $\omega_c$</td></tr>
+            <tr><td>Phase Margin</td><td>$\phi_m=180°+\angle GH(j\omega_{gc})$</td></tr>
+            <tr><td>Gain Margin</td><td>$G_m=-20\log|GH(j\omega_{pc})|$</td></tr>
+            <tr><td>Nyquist Criterion</td><td>$Z=N+P$; stable when $Z=0$</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <nav class="chapter-nav" aria-label="Chapter navigation">
+        <a href="../05-root-locus/index.html"><span class="label">← Previous</span><span class="title">Root Locus</span></a>
+        <a href="../07-stability/index.html" class="next"><span class="label">Next Chapter →</span><span class="title">Stability</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <script src="../../assets/js/nav.js"></script>
+  <script src="../../assets/js/katex-init.js"></script>
+
+  <!-- Hero 3D: spiral frequency surface -->
+  <script>
+  (function(){
+    const c=document.getElementById('hero-3d');if(!c||!window.THREE)return;
+    const w=c.clientWidth,h=c.clientHeight;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(w,h);r.setPixelRatio(Math.min(devicePixelRatio,2));c.appendChild(r.domElement);
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,w/h,0.1,100);cam.position.set(4,3,6);cam.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,0.5));const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(3,5,5);scene.add(dl);
+    // Bode-like spiral
+    const pts=[];
+    for(let i=0;i<300;i++){
+      const w2=0.01+i*0.05;
+      const re=1/(1+w2*w2);
+      const im=-w2/(1+w2*w2);
+      pts.push(new THREE.Vector3(re*4,im*4,Math.log10(w2+0.01)*2));
+    }
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x00e5ff})));
+    let t=0;
+    function animate(){requestAnimationFrame(animate);t+=0.005;cam.position.x=5*Math.cos(t);cam.position.z=5*Math.sin(t);cam.lookAt(0,-1,0);r.render(scene,cam);}
+    animate();
+    window.addEventListener('resize',()=>{const nw=c.clientWidth,nh=c.clientHeight;cam.aspect=nw/nh;cam.updateProjectionMatrix();r.setSize(nw,nh);});
+  })();
+  </script>
+
+  <!-- Sim 1: Bode Plot Explorer -->
+  <script type="module">
+  import { logspace, bodeData } from '../../assets/js/utils.js';
+
+  const magC=document.getElementById('bode-mag'),phC=document.getElementById('bode-phase');
+  if(!magC||!phC)throw new Error();
+  const mCtx=magC.getContext('2d'),pCtx=phC.getContext('2d');
+
+  const systems=[
+    {num:[1],den:[1,1]},
+    {num:[1],den:[1,6,5]},
+    {num:[1],den:[1,11,10,0]},
+    {num:[1,2],den:[1,6,5,0]}
+  ];
+
+  function draw(){
+    const idx=parseInt(document.getElementById('bode-sys').value);
+    const K=parseFloat(document.getElementById('bode-k').value);
+    document.getElementById('bode-k-val').textContent=K.toFixed(1);
+    const sys=systems[idx];
+    const num=sys.num.map(n=>n*K);
+    const omega=logspace(-2,3,500);
+    const data=bodeData(num,sys.den,omega);
+
+    drawBodePlot(mCtx,magC,omega,data.mag,'Magnitude (dB)','#00e5ff',[-60,60]);
+    drawBodePlot(pCtx,phC,omega,data.phase,'Phase (°)','#ffab40',[-270,90]);
+
+    // Margins info
+    let gmIdx=-1,pmIdx=-1;
+    for(let i=1;i<data.phase.length;i++){
+      if(data.phase[i-1]>-180&&data.phase[i]<=-180){gmIdx=i;break;}
+    }
+    for(let i=1;i<data.mag.length;i++){
+      if(data.mag[i-1]>0&&data.mag[i]<=0){pmIdx=i;break;}
+    }
+    let info='';
+    if(pmIdx>0)info+=`PM = ${(180+data.phase[pmIdx]).toFixed(1)}° at ω=${omega[pmIdx].toFixed(2)} `;
+    if(gmIdx>0)info+=`| GM = ${(-data.mag[gmIdx]).toFixed(1)} dB at ω=${omega[gmIdx].toFixed(2)}`;
+    document.getElementById('bode-info').textContent=info||'No crossover detected in range';
+  }
+
+  function drawBodePlot(ctx,canvas,omega,vals,label,color,yRange){
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+    const pad={top:20,right:20,bottom:24,left:55};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const logMin=-2,logMax=3;
+    function tx(om){return pad.left+(Math.log10(om)-logMin)/(logMax-logMin)*pw;}
+    function ty(v){return pad.top+(1-(v-yRange[0])/(yRange[1]-yRange[0]))*ph;}
+    // grid
+    ctx.strokeStyle='rgba(0,229,255,0.05)';ctx.lineWidth=0.5;
+    for(let d=-2;d<=3;d++){const gx=tx(Math.pow(10,d));ctx.beginPath();ctx.moveTo(gx,pad.top);ctx.lineTo(gx,pad.top+ph);ctx.stroke();}
+    // 0-line
+    if(yRange[0]<=0&&yRange[1]>=0){ctx.strokeStyle='rgba(138,155,181,0.3)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.left,ty(0));ctx.lineTo(pad.left+pw,ty(0));ctx.stroke();ctx.setLineDash([]);}
+    // data
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<omega.length;i++){
+      const v=Math.max(yRange[0],Math.min(yRange[1],vals[i]));
+      i===0?ctx.moveTo(tx(omega[i]),ty(v)):ctx.lineTo(tx(omega[i]),ty(v));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#e8edf8';ctx.font='11px Inter';ctx.textAlign='center';ctx.fillText(label,w/2,pad.top-4);
+    ctx.textAlign='left';ctx.font='10px JetBrains Mono';ctx.fillStyle='#8a9bb5';
+    for(let d=-2;d<=3;d++){ctx.fillText(`10^${d}`,tx(Math.pow(10,d))-12,h-3);}
+  }
+
+  document.getElementById('bode-k').addEventListener('input',draw);
+  document.getElementById('bode-sys').addEventListener('change',draw);
+  draw();
+  </script>
+
+  <!-- Sim 2: Nyquist Plot -->
+  <script type="module">
+  import { logspace } from '../../assets/js/utils.js';
+
+  const canvas=document.getElementById('nyquist-canvas');if(!canvas)throw new Error();
+  const ctx=canvas.getContext('2d');
+
+  const nySystems=[
+    {num:[1],den:[1,1],p:0},
+    {num:[1],den:[1,3,2,0],p:0},
+    {num:[1],den:[1,8,17,10],p:0}
+  ];
+
+  function evalTF(num,den,omega){
+    let numR=0,numI=0;
+    for(let k=0;k<num.length;k++){
+      const pow=num.length-1-k;
+      const wP=Math.pow(omega,pow);
+      const angle=pow*Math.PI/2;
+      numR+=num[k]*wP*Math.cos(angle);numI+=num[k]*wP*Math.sin(angle);
+    }
+    let denR=0,denI=0;
+    for(let k=0;k<den.length;k++){
+      const pow=den.length-1-k;
+      const wP=Math.pow(omega,pow);
+      const angle=pow*Math.PI/2;
+      denR+=den[k]*wP*Math.cos(angle);denI+=den[k]*wP*Math.sin(angle);
+    }
+    const d2=denR*denR+denI*denI;
+    if(d2<1e-30)return{re:0,im:0};
+    return{re:(numR*denR+numI*denI)/d2,im:(numI*denR-numR*denI)/d2};
+  }
+
+  function draw(){
+    const idx=parseInt(document.getElementById('ny-sys').value);
+    const K=parseFloat(document.getElementById('ny-k').value);
+    document.getElementById('ny-k-val').textContent=K.toFixed(1);
+    const sys=nySystems[idx];
+    const num=sys.num.map(n=>n*K);
+
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+
+    const scale=Math.min(w,h)/2*0.35;
+    const cx=w/2,cy=h/2;
+    function sx(re){return cx+re*scale;}
+    function sy(im){return cy-im*scale;}
+
+    // Grid circles
+    ctx.strokeStyle='rgba(0,229,255,0.05)';ctx.lineWidth=0.5;
+    [0.5,1,1.5,2].forEach(r=>{ctx.beginPath();ctx.arc(cx,cy,r*scale,0,Math.PI*2);ctx.stroke();});
+    ctx.strokeStyle='rgba(138,155,181,0.2)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,h);ctx.stroke();
+
+    // Nyquist curve
+    const omega=logspace(-2,3,2000);
+    ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();
+    let started=false;
+    for(const om of omega){
+      const g=evalTF(num,sys.den,om);
+      const px=sx(g.re),py=sy(g.im);
+      if(px<-50||px>w+50||py<-50||py>h+50)continue;
+      if(!started){ctx.moveTo(px,py);started=true;}else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // Mirror (negative frequencies)
+    ctx.strokeStyle='rgba(0,229,255,0.3)';ctx.setLineDash([4,4]);ctx.beginPath();started=false;
+    for(const om of omega){
+      const g=evalTF(num,sys.den,om);
+      const px=sx(g.re),py=sy(-g.im);
+      if(px<-50||px>w+50||py<-50||py>h+50)continue;
+      if(!started){ctx.moveTo(px,py);started=true;}else ctx.lineTo(px,py);
+    }
+    ctx.stroke();ctx.setLineDash([]);
+
+    // Critical point
+    ctx.fillStyle='#ff3d71';ctx.shadowColor='rgba(255,61,113,0.5)';ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(sx(-1),sy(0),5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='#ff3d71';ctx.font='11px Inter';ctx.fillText('-1',sx(-1)+8,sy(0)-8);
+
+    // Info: encirclements
+    let crossings=0;
+    for(let i=1;i<omega.length;i++){
+      const g0=evalTF(num,sys.den,omega[i-1]);
+      const g1=evalTF(num,sys.den,omega[i]);
+      // Check if real axis is crossed to the left of -1
+      if(g0.im*g1.im<0&&(g0.re+g1.re)/2<-1){
+        crossings+=g0.im>0?1:-1;
+      }
+    }
+    const stab=crossings<=0&&sys.p===0?'STABLE':'CHECK';
+    document.getElementById('ny-info').textContent=`Net CW encirclements of -1: ${crossings} | OL RHP poles: ${sys.p} | ${stab}`;
+  }
+
+  document.getElementById('ny-k').addEventListener('input',draw);
+  document.getElementById('ny-sys').addEventListener('change',draw);
+  draw();
+  </script>
+
+  <!-- Sim 3: Margin Calculator -->
+  <script type="module">
+  import { logspace, bodeData } from '../../assets/js/utils.js';
+
+  const magC=document.getElementById('margin-mag'),phC=document.getElementById('margin-phase');
+  if(!magC||!phC)throw new Error();
+  const mCtx=magC.getContext('2d'),pCtx=phC.getContext('2d');
+
+  // System: K/(s(s+1)(s+5))
+  const denCoeffs=[1,6,5,0];
+  const numCoeffs=[1];
+
+  function draw(){
+    const K=parseFloat(document.getElementById('mg-k').value);
+    document.getElementById('mg-k-val').textContent=K.toFixed(1);
+    const num=numCoeffs.map(n=>n*K);
+    const omega=logspace(-2,3,600);
+    const data=bodeData(num,denCoeffs,omega);
+
+    drawMarginPlot(mCtx,magC,omega,data.mag,'Magnitude (dB)','#00e5ff',[-80,40],data,true);
+    drawMarginPlot(pCtx,phC,omega,data.phase,'Phase (°)','#ffab40',[-270,0],data,false);
+
+    // Compute margins
+    let pmIdx=-1,gmIdx=-1;
+    for(let i=1;i<data.mag.length;i++){if(data.mag[i-1]>0&&data.mag[i]<=0){pmIdx=i;break;}}
+    for(let i=1;i<data.phase.length;i++){if(data.phase[i-1]>-180&&data.phase[i]<=-180){gmIdx=i;break;}}
+    let pm=NaN,gm=NaN;
+    if(pmIdx>0)pm=180+data.phase[pmIdx];
+    if(gmIdx>0)gm=-data.mag[gmIdx];
+    const pmStr=isNaN(pm)?'∞':pm.toFixed(1)+'°';
+    const gmStr=isNaN(gm)?'∞':gm.toFixed(1)+' dB';
+    const stable=(!isNaN(pm)&&pm>0)&&(!isNaN(gm)||gm>0);
+    document.getElementById('mg-info').innerHTML=`<span style="color:${stable?'#69ff47':'#ff3d71'}">${stable?'STABLE':'UNSTABLE'}</span> — Phase Margin: <span style="color:#ffab40">${pmStr}</span> | Gain Margin: <span style="color:#00e5ff">${gmStr}</span>`;
+  }
+
+  function drawMarginPlot(ctx,canvas,omega,vals,label,color,yRange,data,isMag){
+    const dpr=devicePixelRatio||1;canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    ctx.fillRect(0,0,w,h);
+    const pad={top:20,right:20,bottom:22,left:55};
+    const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+    const logMin=-2,logMax=3;
+    function tx(om){return pad.left+(Math.log10(om)-logMin)/(logMax-logMin)*pw;}
+    function ty(v){return pad.top+(1-(v-yRange[0])/(yRange[1]-yRange[0]))*ph;}
+    // 0 dB / -180° line
+    const ref=isMag?0:-180;
+    if(ref>=yRange[0]&&ref<=yRange[1]){
+      ctx.strokeStyle='rgba(255,61,113,0.3)';ctx.setLineDash([6,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,ty(ref));ctx.lineTo(pad.left+pw,ty(ref));ctx.stroke();ctx.setLineDash([]);
+    }
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<omega.length;i++){
+      const v=Math.max(yRange[0],Math.min(yRange[1],vals[i]));
+      i===0?ctx.moveTo(tx(omega[i]),ty(v)):ctx.lineTo(tx(omega[i]),ty(v));
+    }
+    ctx.stroke();
+
+    // Annotate margins
+    if(isMag){
+      // Find phase crossover and draw GM arrow
+      for(let i=1;i<data.phase.length;i++){
+        if(data.phase[i-1]>-180&&data.phase[i]<=-180){
+          const x=tx(omega[i]);
+          ctx.strokeStyle='#ff3d71';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,ty(0));ctx.lineTo(x,ty(data.mag[i]));ctx.stroke();
+          ctx.fillStyle='#ff3d71';ctx.font='11px Inter';ctx.fillText('GM',x+4,ty(data.mag[i]/2));
+          break;
+        }
+      }
+    } else {
+      // Find gain crossover and draw PM arrow
+      for(let i=1;i<data.mag.length;i++){
+        if(data.mag[i-1]>0&&data.mag[i]<=0){
+          const x=tx(omega[i]);
+          ctx.strokeStyle='#69ff47';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,ty(-180));ctx.lineTo(x,ty(data.phase[i]));ctx.stroke();
+          ctx.fillStyle='#69ff47';ctx.font='11px Inter';ctx.fillText('PM',x+4,ty((data.phase[i]-180)/2));
+          break;
+        }
+      }
+    }
+
+    ctx.fillStyle='#e8edf8';ctx.font='11px Inter';ctx.textAlign='center';ctx.fillText(label,w/2,pad.top-4);
+  }
+
+  document.getElementById('mg-k').addEventListener('input',draw);
+  draw();
+  </script>
+</body>
+</html>
